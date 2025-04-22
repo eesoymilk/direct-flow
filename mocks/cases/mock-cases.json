@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "id": "1",
+      "companyId": "1",
+      "type": "registration",
+      "status": "pending",
+      "title": "公司設立登記",
+      "description": "新公司設立登記申請",
+      "createdAt": "2024-01-15T09:00:00Z",
+      "updatedAt": "2024-01-15T09:00:00Z",
+      "documents": [
+        {
+          "id": "1",
+          "name": "公司章程",
+          "status": "pending",
+          "uploadedAt": null
+        },
+        {
+          "id": "2",
+          "name": "股東名冊",
+          "status": "pending",
+          "uploadedAt": null
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "companyId": "1",
+      "type": "modification",
+      "status": "in_progress",
+      "title": "公司章程修改",
+      "description": "修改公司章程以增加營業項目",
+      "createdAt": "2024-02-01T10:30:00Z",
+      "updatedAt": "2024-02-05T14:20:00Z",
+      "documents": [
+        {
+          "id": "3",
+          "name": "修改後公司章程",
+          "status": "completed",
+          "uploadedAt": "2024-02-05T14:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "companyId": "2",
+      "type": "capital",
+      "status": "completed",
+      "title": "增資登記",
+      "description": "辦理現金增資登記",
+      "createdAt": "2024-01-20T11:00:00Z",
+      "updatedAt": "2024-02-10T16:45:00Z",
+      "documents": [
+        {
+          "id": "4",
+          "name": "股東會決議",
+          "status": "completed",
+          "uploadedAt": "2024-01-25T09:15:00Z"
+        },
+        {
+          "id": "5",
+          "name": "增資證明",
+          "status": "completed",
+          "uploadedAt": "2024-02-10T16:45:00Z"
+        }
+      ]
+    }
+  ]
+}

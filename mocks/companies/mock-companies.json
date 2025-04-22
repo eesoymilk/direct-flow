@@ -1,0 +1,37 @@
+{
+  "companies": [
+    {
+      "id": "1",
+      "name": "科技創新股份有限公司",
+      "registrationNumber": "12345678",
+      "registrationDate": "2023-01-15",
+      "status": "active",
+      "contactPerson": "張志明",
+      "contactEmail": "zhang@tech-innovate.com",
+      "contactPhone": "02-2345-6789",
+      "address": "台北市信義區松高路68號"
+    },
+    {
+      "id": "2",
+      "name": "永續發展企業有限公司",
+      "registrationNumber": "87654321",
+      "registrationDate": "2023-03-20",
+      "status": "pending",
+      "contactPerson": "林美玲",
+      "contactEmail": "lin@sustainable.com",
+      "contactPhone": "03-3456-7890",
+      "address": "桃園市桃園區中正路123號"
+    },
+    {
+      "id": "3",
+      "name": "智慧解決方案股份有限公司",
+      "registrationNumber": "23456789",
+      "registrationDate": "2023-06-10",
+      "status": "active",
+      "contactPerson": "王大明",
+      "contactEmail": "wang@smart-solutions.com",
+      "contactPhone": "04-4567-8901",
+      "address": "台中市西屯區文心路456號"
+    }
+  ]
+}
