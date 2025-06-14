@@ -1,0 +1,42 @@
+name: direct-flow
+
+services:
+  db:
+    image: postgres:17
+    container_name: local_pg
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: cpa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [cpa_net]
+
+
+  company-web:
+    build:
+      context: .
+      dockerfile: Dockerfile         # root-level Dockerfile
+    depends_on: [db]
+    environment:
+      DATABASE_URL: postgres://dev:devpass@db:5432/cpa
+      HOST: 0.0.0.0
+      PORT: 3000
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+        - action: rebuild
+          path: ./packages/company/package.json
+    ports:
+      - "3000:3000"
+    networks: [cpa_net]
+
+volumes:
+  pgdata:
+
+networks:
+  cpa_net:
