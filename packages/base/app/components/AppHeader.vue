@@ -20,8 +20,16 @@
           </div>
 
           <!-- Auth Buttons -->
-          <div class="flex items-center gap-4">
-            <UButton icon="i-heroicons-user" to="/login"> 會計師專區 </UButton>
+          <UButton
+            v-if="!loggedIn"
+            to="/api/auth/auth0"
+            label="登入"
+            icon="i-heroicons-user"
+            external
+          />
+          <div v-if="loggedIn">
+            {{ user }}
+            <UButton to="/api/auth/logout" label="登出" external />
           </div>
         </div>
       </div>
@@ -33,6 +41,7 @@
 import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 import LogoSvg from "./LogoSvg.vue";
 
+const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession();
 const isMobileMenuOpen = ref(false);
 
 const firmName = "會計師事務所";

@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import type { Company, Contact, CompanyContact, BusinessCertificate } from '../schema/company';
+import type { Company, Contact, CompanyContact, BusinessCertificate } from '../../schema/company';
 
 // Create a new pool instance
 const pool = new Pool({

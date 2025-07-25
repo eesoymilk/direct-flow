@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   extends: ["../base"],
 
-  compatibilityDate: "2025-04-06",
+  compatibilityDate: "2025-07-25",
   devtools: { enabled: true },
 
   future: {
@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxt/content",
     "@pinia/nuxt",
+    "nuxt-auth-utils",
   ],
 
   css: ["~/assets/css/main.css"],
