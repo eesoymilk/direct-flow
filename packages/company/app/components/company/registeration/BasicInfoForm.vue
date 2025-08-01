@@ -8,6 +8,14 @@
     :schema="companyBasicInfoSchema"
     class="space-y-4"
   >
+    <UFormField label="公司組織" name="organizationType">
+      <UInput
+        v-model="basicInfo.organizationType"
+        placeholder="請輸入公司組織"
+        class="w-full"
+      />
+    </UFormField>
+
     <UFormField label="公司名稱" name="name">
       <UInput
         v-model="basicInfo.name"
@@ -16,17 +24,11 @@
       />
     </UFormField>
 
-    <UFormField label="營業項目" name="businessScopes">
-      <!-- TODO: Fix the search term reset on select not working -->
-      <!-- Guess it's because the items are too many -->
-      <UInputMenu
-        v-model="basicInfo.businessItems"
-        value-key="code"
-        :items="businessScopeItems"
-        multiple
-        :reset-search-term-on-blur="true"
-        :reset-search-term-on-select="true"
-        class="w-full [&>input]:min-w-0 [&>input]:flex-1"
+    <UFormField label="公司營業項目" name="businessScopes">
+      <UTextarea
+        v-model="basicInfo.businessScopes"
+        placeholder="請輸入公司營業項目"
+        class="w-full"
       />
     </UFormField>
 
@@ -53,18 +55,6 @@
       />
     </UFormField>
   </UForm>
-  <div class="flex gap-2 justify-between mt-4">
-    <UButton
-      leading-icon="i-lucide-arrow-left"
-      disabled
-      @click="registrationStore.prevStep()"
-    >
-      上一步
-    </UButton>
-    <UButton trailing-icon="i-lucide-arrow-right" @click="handleNextStep">
-      下一步
-    </UButton>
-  </div>
 </template>
 
 <script setup lang="ts">

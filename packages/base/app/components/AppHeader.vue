@@ -28,7 +28,7 @@
             external
           />
           <div v-if="loggedIn">
-            {{ user }}
+            {{ user?.name }}
             <UButton to="/api/auth/logout" label="登出" external />
           </div>
         </div>
