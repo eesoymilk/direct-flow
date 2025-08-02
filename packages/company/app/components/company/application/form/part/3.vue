@@ -19,7 +19,7 @@
       attach
       class="space-y-4"
     >
-      <UCard variant="subtle" class="relative">
+      <UCard variant="subtle" class="relative overflow-visible">
         <div class="space-y-4">
           <UFormField label="姓名" name="name" class="w-full">
             <UInput

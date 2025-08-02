@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <h2 class="text-xl font-semibold text-text mb-4">負責人與董事資料</h2>
+    <h2 class="text-xl font-semibold text-text mb-4">相關負責人資料</h2>
 
     <h3 class="text-lg font-semibold text-text">負責人資料</h3>
     <UForm

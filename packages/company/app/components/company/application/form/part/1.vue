@@ -2,11 +2,12 @@
   <div class="space-y-4">
     <h2 class="text-xl font-semibold text-text mb-4">公司基本資料</h2>
 
-    <UFormField label="公司名稱" name="name">
-      <UInput
-        v-model="applicationStore.form.name"
-        placeholder="請輸入公司名稱"
+    <UFormField label="公司預查名稱" name="candicateNames">
+      <UInputTags
+        v-model="applicationStore.form.candicateNames"
+        placeholder="請輸入公司預查名稱 (依偏好順序)"
         class="w-full"
+        :max="5"
       />
     </UFormField>
 
@@ -23,7 +24,7 @@
     <UFormField label="營業項目描述" name="businessItemsDescription">
       <UTextarea
         v-model="applicationStore.form.businessItemsDescription"
-        placeholder="請輸入公司營業項目之描述"
+        placeholder="請輸入營業項目描述"
         class="w-full"
       />
     </UFormField>

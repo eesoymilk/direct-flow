@@ -7,7 +7,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate --config=drizzle-dev.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts"
   },
   "dependencies": {
     "@nuxt/content": "^3.4.0",
@@ -19,11 +21,11 @@
     "@nuxt/ui": "^3.3.0",
     "@pinia/nuxt": "^0.11.0",
     "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.44.4",
     "eslint": "^9.24.0",
-    "kysely": "^0.28.3",
     "nuxt": "^4.0.0",
     "nuxt-auth-utils": "0.5.20",
-    "pg": "^8.14.1",
+    "pg": "^8.16.0",
     "pinia": "^3.0.2",
     "typescript": "^5.8.3",
     "ui:3.2": "link:@nuxt/ui:3.2",
@@ -34,10 +36,12 @@
   },
   "devDependencies": {
     "@direct-flow/base": "link:../base",
-    "@types/node": "^22.14.0",
-    "@types/pg": "^8.11.11",
+    "@faker-js/faker": "^9.9.0",
+    "@types/node": "^22.15.31",
+    "@types/pg": "^8.15.4",
     "@types/prettier": "^2.7.3",
     "autoprefixer": "^10.4.21",
+    "drizzle-kit": "^0.31.4",
     "postcss": "^8.5.4",
     "prettier": "^3.5.3",
     "tailwindcss": "^4.1.8"

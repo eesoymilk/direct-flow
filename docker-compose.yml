@@ -5,9 +5,9 @@ services:
     image: postgres:17
     container_name: local_pg
     environment:
-      POSTGRES_USER: dev
+      POSTGRES_USER: direct
       POSTGRES_PASSWORD: devpass
-      POSTGRES_DB: cpa
+      POSTGRES_DB: df
     ports:
       - "5432:5432"
     volumes:
@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile         # root-level Dockerfile
     depends_on: [db]
     environment:
-      DATABASE_URL: postgres://dev:devpass@db:5432/cpa
+      DATABASE_URL: postgres://direct:devpass@db:5432/cpa
       HOST: 0.0.0.0
       PORT: 3000
     develop:

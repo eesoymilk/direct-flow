@@ -11,9 +11,7 @@
             簡化公司設立流程，提供完整的文件管理系統，讓您的公司登記過程更加順暢
           </p>
           <div class="flex gap-4 justify-center">
-            <UButton size="xl" color="primary" to="/register">
-              開始使用
-            </UButton>
+            <UButton size="xl" color="primary" to="/apply"> 開始使用 </UButton>
             <UButton size="xl" color="neutral" variant="ghost" to="/contact">
               聯絡我們
             </UButton>
@@ -79,14 +77,8 @@
         <p class="text-xl text-gray-600 mb-8">
           立即註冊，體驗專業的公司登記管理系統
         </p>
-        <UButton size="xl" color="primary" to="/register"> 免費註冊 </UButton>
+        <UButton size="xl" color="primary" to="/apply"> 免費註冊 </UButton>
       </div>
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-definePageMeta({
-  layout: "default",
-});
-</script>
