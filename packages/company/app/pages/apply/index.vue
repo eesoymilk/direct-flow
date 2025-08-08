@@ -32,6 +32,8 @@
       ref="registrationForm"
       :state="applicationStore.form"
       :schema="applicationStore.formSchema"
+      @error="handleFormError"
+      @submit="handleFormSubmit"
     >
       <UStepper
         ref="stepper"
@@ -47,9 +49,6 @@
         </template>
         <template #form-part-3>
           <CompanyApplicationFormPart3 />
-        </template>
-        <template #form-part-4>
-          <CompanyApplicationFormPart4 />
         </template>
       </UStepper>
       <div class="flex gap-2 justify-between mt-4">
@@ -69,13 +68,22 @@
         >
           下一步
         </UButton>
+        <UButton
+          v-if="!stepper?.hasNext"
+          type="submit"
+          class="ml-auto"
+          color="primary"
+          trailing-icon="i-lucide-check-square"
+        >
+          確認資料
+        </UButton>
       </div>
     </UForm>
   </UContainer>
 </template>
 
 <script setup lang="ts">
-import type { StepperItem } from "@nuxt/ui";
+import type { StepperItem, FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
 
 const stepperItems: StepperItem[] = [
   {
@@ -105,13 +113,9 @@ const stepperItems: StepperItem[] = [
 ];
 
 const stepper = useTemplateRef("stepper");
-
 const applicationStore = useCompanyApplicationStore();
-
-// Check if we're in development mode
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
-// Generate fake data with notification
 const generateFakeData = () => {
   applicationStore.populateWithMockData();
   // Show success notification
@@ -124,7 +128,6 @@ const generateFakeData = () => {
   });
 };
 
-// Reset form with notification
 const resetForm = () => {
   applicationStore.resetForm();
   // Show success notification
@@ -135,5 +138,32 @@ const resetForm = () => {
     color: "info",
     icon: "i-lucide-rotate-ccw",
   });
+};
+
+// TODO: Fix form error handling not working for nested form fields
+const handleFormError = (event: FormErrorEvent) => {
+  console.error("Form validation errors:", event.errors);
+
+  const toastDescription = event.errors
+    .map((error) => error.message)
+    .join("、");
+
+  // Show error notification
+  const toast = useToast();
+  toast.add({
+    title: "表單驗證失敗",
+    description: toastDescription,
+    color: "error",
+    icon: "i-lucide-alert-circle",
+    ui: {
+      description: "truncate",
+    },
+  });
+};
+
+const handleFormSubmit = (event: FormSubmitEvent<any>) => {
+  console.log("Form submitted successfully!", event.data);
+  // Navigate to confirmation page on successful validation
+  navigateTo("/apply/confirm");
 };
 </script>

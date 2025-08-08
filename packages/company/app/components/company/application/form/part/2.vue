@@ -1,11 +1,12 @@
 <template>
   <div class="space-y-4">
-    <h2 class="text-xl font-semibold text-text mb-4">相關負責人資料</h2>
+    <h2 class="text-xl font-semibold text-text mb-4">負責人與聯絡人資料</h2>
 
     <h3 class="text-lg font-semibold text-text">負責人資料</h3>
     <UForm
       :state="applicationStore.form.responsiblePerson"
       :schema="applicationStore.personSchema"
+      attach
       class="space-y-4"
     >
       <UFormField label="姓名" name="name" class="col-span-3">
@@ -56,6 +57,7 @@
       v-if="!applicationStore.form.isDirectorSameAsResponsiblePerson"
       :state="applicationStore.form.director"
       :schema="applicationStore.personSchema"
+      attach
       class="space-y-4"
     >
       <UFormField label="姓名" name="name" class="col-span-3">
