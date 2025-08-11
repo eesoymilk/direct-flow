@@ -5,5 +5,6 @@
       <slot />
     </main>
     <AppFooter />
+    <DebugPopover />
   </div>
 </template>

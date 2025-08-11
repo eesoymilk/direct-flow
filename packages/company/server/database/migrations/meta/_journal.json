@@ -8,6 +8,20 @@
       "when": 1754141911245,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1754875587390,
+      "tag": "0001_shareholers-relation",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754876543418,
+      "tag": "0002_application-separation",
+      "breakpoints": true
     }
   ]
 }

@@ -1,14 +1,14 @@
 import { fakerZH_TW as faker } from "@faker-js/faker";
 import { createEmptyPerson, createInitialForm } from "./formHelpers";
 import type { z } from "zod";
-import type { formSchema, personSchema, documentSchema } from "./schemas";
 
 // Helper function to generate a random Taiwanese ID number (since Faker doesn't have this)
 const generateTaiwaneseIdNumber = (): string => {
   const letters = "ABCDEFGHJKLMNPQRSTUVXYWZIO".split("");
   const letter = faker.helpers.arrayElement(letters);
-  const numbers = faker.string.numeric(9);
-  return `${letter}${numbers}`;
+  const oneOrTwo = faker.datatype.boolean() ? 1 : 2;
+  const numbers = faker.string.numeric(8);
+  return `${letter}${oneOrTwo}${numbers}`;
 };
 
 // Generate mock person data using Taiwanese locale

@@ -15,9 +15,7 @@
 
         <!-- Right side - Navigation and Auth -->
         <div class="flex items-center gap-4">
-          <div class="hidden lg:flex lg:gap-x-12">
-            <UNavigationMenu :items="navigation" />
-          </div>
+          <slot name="right-side" />
 
           <!-- Auth Buttons -->
           <UButton
@@ -38,39 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import type { NavigationMenuItem, DropdownMenuItem } from "@nuxt/ui";
 import LogoSvg from "./LogoSvg.vue";
 
-const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession();
+const { loggedIn, user } = useUserSession();
 const isMobileMenuOpen = ref(false);
 
 const firmName = "會計師事務所";
-
-const navigation = computed<NavigationMenuItem[]>(() => [
-  {
-    label: "儀表板",
-    icon: "i-heroicons-home",
-    to: "/dashboard",
-  },
-  {
-    label: "案件總覽",
-    icon: "i-heroicons-folder",
-    to: "/cases",
-  },
-  {
-    label: "個人資料",
-    icon: "i-heroicons-user",
-    to: "/profile",
-  },
-]);
-
-const userMenuItems = computed<DropdownMenuItem[]>(() => [
-  {
-    label: "個人資料",
-    icon: "i-heroicons-user",
-    to: "/profile",
-  },
-]);
 
 onMounted(() => {
   document.addEventListener("click", (e) => {

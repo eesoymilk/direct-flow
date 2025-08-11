@@ -25,11 +25,16 @@ export default defineNuxtConfig({
     "@nuxt/content",
     "@pinia/nuxt",
     "nuxt-auth-utils",
+    "@vueuse/nuxt",
   ],
 
   css: ["~/assets/css/main.css"],
 
   ui: {
     colorMode: false,
+  },
+
+  imports: {
+    dirs: ["~/shared/**"],
   },
 });

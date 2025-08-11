@@ -208,10 +208,12 @@ const submitApplication = async () => {
     isSubmitting.value = true;
 
     // Submit to API
-    const response = await $fetch("/api/company-application", {
+    const { data } = await useFetch("/api/applications/create", {
       method: "POST",
       body: form,
     });
+
+    console.log(data.value);
 
     // Show success notification
     const toast = useToast();
@@ -228,7 +230,7 @@ const submitApplication = async () => {
     // Navigate to success page
     await navigateTo({
       path: "/apply/success",
-      query: { id: (response as any)?.data?.application?.id },
+      // query: { id: data?.application?.id },
     });
   } catch (error) {
     console.error("Error submitting form:", error);

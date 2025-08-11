@@ -1,0 +1,120 @@
+import {
+  pgTable,
+  serial,
+  varchar,
+  timestamp,
+  uuid,
+  pgEnum,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { people } from "../person/schema";
+import { documents } from "../document/schema";
+import { organizationTypeEnum } from "../company/schema";
+
+// Application status enum
+export const applicationStatusEnum = pgEnum("application_status", [
+  "submitted",
+  "staff_review",
+  "pending_client_update",
+  "approved",
+  "rejected",
+]);
+
+// Company applications table
+export const companyApplications = pgTable("company_applications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  candicateNames: varchar("candicate_names").array().notNull(),
+  chosenName: varchar("chosen_name"),
+  organizationType: organizationTypeEnum("organization_type"),
+  businessItemsDescription: varchar("business_items_description"), // 營業項目描述
+  address: varchar("address"),
+  responsiblePersonId: uuid("responsible_person_id").references(
+    () => people.id,
+    { onDelete: "cascade" }
+  ), // 負責人ID
+  contactPersonId: uuid("contact_person_id").references(() => people.id, {
+    onDelete: "set null",
+  }), // 聯絡人ID
+  representativeId: uuid("representative_id").references(() => people.id, {
+    onDelete: "set null",
+  }), // 代表人ID
+  status: applicationStatusEnum("status").notNull().default("submitted"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Company applications documents table
+export const applicationDocuments = pgTable("application_documents", {
+  id: serial("id").primaryKey(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => companyApplications.id, { onDelete: "cascade" }),
+  documentId: uuid("document_id")
+    .notNull()
+    .references(() => documents.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Shareholders junction table
+export const applicationShareholders = pgTable("application_shareholders", {
+  id: serial("id").primaryKey(),
+  applicationId: uuid("application_id")
+    .notNull()
+    .references(() => companyApplications.id, { onDelete: "cascade" }),
+  personId: uuid("person_id")
+    .notNull()
+    .references(() => people.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const companyApplicationsRelations = relations(
+  companyApplications,
+  ({ one, many }) => ({
+    responsiblePerson: one(people, {
+      fields: [companyApplications.responsiblePersonId],
+      references: [people.id],
+      relationName: "responsiblePerson",
+    }),
+    contactPerson: one(people, {
+      fields: [companyApplications.contactPersonId],
+      references: [people.id],
+      relationName: "contactPerson",
+    }),
+    representative: one(people, {
+      fields: [companyApplications.representativeId],
+      references: [people.id],
+      relationName: "representative",
+    }),
+    companyDocuments: many(applicationDocuments),
+    shareholders: many(applicationShareholders),
+  })
+);
+
+export const applicationDocumentsRelations = relations(
+  applicationDocuments,
+  ({ one }) => ({
+    application: one(companyApplications, {
+      fields: [applicationDocuments.applicationId],
+      references: [companyApplications.id],
+    }),
+    document: one(documents, {
+      fields: [applicationDocuments.documentId],
+      references: [documents.id],
+    }),
+  })
+);
+
+export const applicationShareholdersRelations = relations(
+  applicationShareholders,
+  ({ one }) => ({
+    application: one(companyApplications, {
+      fields: [applicationShareholders.applicationId],
+      references: [companyApplications.id],
+    }),
+    person: one(people, {
+      fields: [applicationShareholders.personId],
+      references: [people.id],
+    }),
+  })
+);

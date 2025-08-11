@@ -1,4 +1,4 @@
-import { useUserRole } from "~/composables/useUserRole";
+import { useUserRole } from "~/composables/userRole";
 
 export default defineNuxtRouteMiddleware((to) => {
   const { isClient } = useUserRole();

@@ -18,50 +18,6 @@ export const organizationTypeEnum = pgEnum("organization_type", [
   "partnership",
 ]);
 
-// Application status enum
-export const applicationStatusEnum = pgEnum("application_status", [
-  "submitted",
-  "staff_review",
-  "pending_client_update",
-  "approved",
-  "rejected",
-]);
-
-// Company applications table
-export const companyApplications = pgTable("company_applications", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  candicateNames: varchar("candicate_names").array().notNull(),
-  chosenName: varchar("chosen_name"),
-  organizationType: organizationTypeEnum("organization_type"),
-  businessItemsDescription: varchar("business_items_description"), // 營業項目描述
-  address: varchar("address"),
-  responsiblePersonId: uuid("responsible_person_id").references(
-    () => people.id,
-    { onDelete: "cascade" }
-  ), // 負責人ID
-  contactPersonId: uuid("contact_person_id").references(() => people.id, {
-    onDelete: "set null",
-  }), // 聯絡人ID
-  representativeId: uuid("representative_id").references(() => people.id, {
-    onDelete: "set null",
-  }), // 代表人ID
-  status: applicationStatusEnum("status").notNull().default("submitted"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Company applications documents table
-export const applicationDocuments = pgTable("application_documents", {
-  id: serial("id").primaryKey(),
-  applicationId: uuid("application_id")
-    .notNull()
-    .references(() => companyApplications.id, { onDelete: "cascade" }),
-  documentId: uuid("document_id")
-    .notNull()
-    .references(() => documents.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 // Companies table
 export const companies = pgTable("companies", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -101,6 +57,19 @@ export const companyDocuments = pgTable("company_documents", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Shareholders junction table
+export const shareholders = pgTable("shareholders", {
+  id: serial("id").primaryKey(),
+  companyId: uuid("company_id")
+    .notNull()
+    .references(() => companies.id, { onDelete: "cascade" }),
+  personId: uuid("person_id")
+    .notNull()
+    .references(() => people.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   responsiblePerson: one(people, {
     fields: [companies.responsiblePersonId],
@@ -118,6 +87,7 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     relationName: "representative",
   }),
   companyDocuments: many(companyDocuments),
+  shareholders: many(shareholders),
 }));
 
 export const companyDocumentsRelations = relations(
@@ -133,3 +103,14 @@ export const companyDocumentsRelations = relations(
     }),
   })
 );
+
+export const shareholdersRelations = relations(shareholders, ({ one }) => ({
+  company: one(companies, {
+    fields: [shareholders.companyId],
+    references: [companies.id],
+  }),
+  person: one(people, {
+    fields: [shareholders.personId],
+    references: [people.id],
+  }),
+}));
