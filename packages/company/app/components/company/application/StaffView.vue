@@ -340,6 +340,8 @@
 </template>
 
 <script setup lang="ts">
+import type { InternalApi } from "nitropack";
+
 interface ReviewIssue {
   id: string;
   type: string;
@@ -366,7 +368,7 @@ interface ReviewChecklistItem {
 }
 
 interface Props {
-  application: any;
+  application: InternalApi["/api/applications/:id"]["get"] | undefined;
 }
 
 const props = defineProps<Props>();

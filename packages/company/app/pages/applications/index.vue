@@ -1,4 +1,7 @@
 <template>
+  <!-- TODO: Make this page only accessible to staff -->
+  <!-- TODO: Make this page prettier -->
+  <!-- TODO: Add search and filter -->
   <UContainer class="py-8 space-y-8">
     <!-- Header -->
     <div class="text-center">
@@ -29,37 +32,29 @@
     <div v-else-if="data" class="space-y-6">
       <!-- Summary Stats -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <UCard>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-primary">
-              {{ data.pagination.total }}
-            </div>
-            <div class="text-sm text-text-secondary">總申請數</div>
+        <UCard class="text-center">
+          <div class="text-2xl font-bold text-primary">
+            {{ data.totalCount }}
           </div>
+          <div class="text-sm text-text-secondary">總申請數</div>
         </UCard>
-        <UCard>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-blue-600">
-              {{ getStatusCount("submitted") }}
-            </div>
-            <div class="text-sm text-text-secondary">已提交</div>
+        <UCard class="text-center">
+          <div class="text-2xl font-bold text-blue-600">
+            {{ getStatusCount("submitted") }}
           </div>
+          <div class="text-sm text-text-secondary">已提交</div>
         </UCard>
-        <UCard>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-yellow-600">
-              {{ getStatusCount("staff_review") }}
-            </div>
-            <div class="text-sm text-text-secondary">審核中</div>
+        <UCard class="text-center">
+          <div class="text-2xl font-bold text-yellow-600">
+            {{ getStatusCount("staff_review") }}
           </div>
+          <div class="text-sm text-text-secondary">審核中</div>
         </UCard>
-        <UCard>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-green-600">
-              {{ getStatusCount("approved") }}
-            </div>
-            <div class="text-sm text-text-secondary">已核准</div>
+        <UCard class="text-center">
+          <div class="text-2xl font-bold text-green-600">
+            {{ getStatusCount("approved") }}
           </div>
+          <div class="text-sm text-text-secondary">已核准</div>
         </UCard>
       </div>
 
@@ -69,8 +64,8 @@
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">申請案件列表</h3>
             <div class="text-sm text-text-secondary">
-              第 {{ data.pagination.page }} 頁，共
-              {{ data.pagination.totalPages }} 頁
+              第 {{ filters.page }} 頁，共
+              {{ Math.ceil(data.totalCount / filters.limit) }} 頁
             </div>
           </div>
         </template>
@@ -88,31 +83,28 @@
           <div class="flex items-center justify-between">
             <div class="text-sm text-text-secondary">
               顯示
-              {{ (data.pagination.page - 1) * data.pagination.limit + 1 }} -
-              {{
-                Math.min(
-                  data.pagination.page * data.pagination.limit,
-                  data.pagination.total
-                )
-              }}
+              {{ (filters.page - 1) * filters.limit + 1 }} -
+              {{ Math.min(filters.page * filters.limit, data.totalCount) }}
               筆，共
-              {{ data.pagination.total }}
+              {{ data.totalCount }}
               筆
             </div>
             <div class="flex gap-2">
               <UButton
                 size="sm"
                 variant="outline"
-                :disabled="data.pagination.page <= 1"
-                @click="changePage(data.pagination.page - 1)"
+                :disabled="filters.page <= 1"
+                @click="changePage(filters.page - 1)"
               >
                 上一頁
               </UButton>
               <UButton
                 size="sm"
                 variant="outline"
-                :disabled="data.pagination.page >= data.pagination.totalPages"
-                @click="changePage(data.pagination.page + 1)"
+                :disabled="
+                  filters.page >= Math.ceil(data.totalCount / filters.limit)
+                "
+                @click="changePage(filters.page + 1)"
               >
                 下一頁
               </UButton>
@@ -134,12 +126,19 @@
 </template>
 
 <script setup lang="ts">
-const { data, pending, error, refresh } = useLazyFetch("/api/applications");
+// TODO: Filter system
+const filters = ref<{
+  page: number;
+  limit: number;
+}>({
+  page: 1,
+  limit: 10,
+});
 
-// Access control
-const { isStaff } = useUserRole();
+const { data, pending, error, refresh } = useLazyFetch("/api/applications", {
+  query: filters,
+});
 
-// Table columns configuration
 const columns = [
   {
     accessorKey: "id",

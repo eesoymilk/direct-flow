@@ -1,6 +1,7 @@
 <template>
   <UContainer>
     <CompanyApplicationStaffView :application="application" />
+    <!-- TODO: Add Client View -->
   </UContainer>
 </template>
 
@@ -10,6 +11,4 @@ const route = useRoute();
 const { data: application } = await useLazyFetch(
   `/api/applications/${route.params.id as ":id"}`
 );
-
-console.log(application.value);
 </script>

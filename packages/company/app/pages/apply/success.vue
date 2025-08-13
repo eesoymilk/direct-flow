@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: Make this page prettier -->
   <UContainer class="py-8">
     <div class="text-center space-y-6">
       <!-- Success Icon -->
