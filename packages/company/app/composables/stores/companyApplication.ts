@@ -6,7 +6,7 @@ export const useCompanyApplicationStore = defineStore(
   "companyApplication",
   () => {
     const form = ref<
-      Partial<z.output<typeof formSchema>> & {
+      Partial<z.output<typeof companyApplicationFormSchema>> & {
         responsiblePerson: z.output<typeof personSchema>;
         director: z.output<typeof personSchema>;
         contactPerson: z.output<typeof personSchema>;
@@ -34,7 +34,7 @@ export const useCompanyApplicationStore = defineStore(
     }
 
     return {
-      formSchema,
+      companyApplicationFormSchema,
       documentSchema,
       personSchema,
       form,

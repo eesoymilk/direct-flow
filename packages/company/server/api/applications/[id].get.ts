@@ -11,6 +11,14 @@ export default eventHandler(async (event) => {
     }
 
     const application = await fetchCompanyApplicationById(db, id);
+
+    if (!application) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Application not found",
+      });
+    }
+
     return application;
   } catch (error: any) {
     console.error("Error fetching application details:", error);

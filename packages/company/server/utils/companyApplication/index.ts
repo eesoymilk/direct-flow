@@ -79,22 +79,21 @@ export const fetchCompanyApplications = async (
 export const fetchCompanyApplicationById = async (
   db: DrizzleClient,
   id: string
-): Promise<CompanyApplication> => {
+) => {
   const application = await db.query.companyApplications.findFirst({
     where: eq(companyApplications.id, id),
     with: {
       responsiblePerson: true,
       contactPerson: true,
       representative: true,
+      reviewRounds: {
+        with: {
+          reviewIssues: true,
+          reviewVerifications: true,
+        },
+      },
     },
   });
-
-  if (!application) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Application not found",
-    });
-  }
 
   return application;
 };

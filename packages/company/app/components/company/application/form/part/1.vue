@@ -14,9 +14,9 @@
     <UFormField label="公司組織" name="organizationType">
       <URadioGroup
         v-model="applicationStore.form.organizationType"
+        :items="organizationTypeItems"
         value-key="id"
         variant="card"
-        :items="organizationTypeItems"
         class="w-full"
       />
     </UFormField>
@@ -40,26 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import type { RadioGroupItem } from "@nuxt/ui";
-
-const organizationTypeItems = ref<RadioGroupItem[]>([
-  {
-    label: "股份有限公司",
-    id: "limited_company",
-  },
-  {
-    label: "有限公司",
-    id: "company_limited",
-  },
-  {
-    label: "獨資",
-    id: "sole_proprietorship",
-  },
-  {
-    label: "合夥",
-    id: "partnership",
-  },
-]);
+import { organizationTypeItems } from "../../helpers";
 
 const applicationStore = useCompanyApplicationStore();
 </script>

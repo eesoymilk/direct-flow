@@ -3,121 +3,54 @@
     <UTabs :items="tabItems" :unmount-on-hide="false" variant="link">
       <template #company-details>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Candidate Names -->
-          <CompanyApplicationFormFieldUnderReview
-            label="候選公司名稱"
-            :status="getFieldVerificationStatus('company.organizationType')"
-            :error="getFieldError('company.organizationType')"
-            :review-mode="reviewMode"
-          >
-            <div class="flex items-center gap-2 flex-wrap">
-              <UChip
-                v-for="(name, index) in application.candicateNames"
-                :key="index"
-                :show="index === 0"
-                color="success"
-              >
-                <UButton
-                  size="sm"
-                  :label="name"
-                  variant="soft"
-                  class="select-text"
-                />
-              </UChip>
-            </div>
-          </CompanyApplicationFormFieldUnderReview>
+          <!-- Company Address -->
+          <CompanyApplicationReviewEntry entry-path="candidateNames">
+            <FormedInputTags
+              :initial-value="reviewStore.getEntryValue('candidateNames')"
+              placeholder="請輸入公司預查名稱"
+              @submit="(value) => handleEntryEdit('candidateNames', value)"
+            />
+          </CompanyApplicationReviewEntry>
 
           <!-- Organization Type -->
-          <CompanyApplicationFormFieldUnderReview
-            label="組織類型"
-            :status="getFieldVerificationStatus('company.organizationType')"
-            :error="getFieldError('company.organizationType')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="getOrganizationTypeLabel(application.organizationType)"
-              variant="soft"
-              size="sm"
-              class="select-text"
+          <CompanyApplicationReviewEntry entry-path="organizationType">
+            <FormedRadioGroup
+              :initial-value="reviewStore.getEntryValue('organizationType')"
+              :radio-group-items="organizationTypeItems"
+              @submit="(value) => handleEntryEdit('organizationType', value)"
             />
-          </CompanyApplicationFormFieldUnderReview>
-
-          <!-- Company Address -->
-          <CompanyApplicationFormFieldUnderReview
-            label="公司地址"
-            :status="getFieldVerificationStatus('company.address')"
-            :error="getFieldError('company.address')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="application.address"
-              variant="soft"
-              size="sm"
-              class="select-text"
-            />
-          </CompanyApplicationFormFieldUnderReview>
+          </CompanyApplicationReviewEntry>
 
           <!-- Business Items Description -->
-          <CompanyApplicationFormFieldUnderReview
-            label="營業項目描述"
-            :status="
-              getFieldVerificationStatus('company.businessItemsDescription')
-            "
-            :error="getFieldError('company.businessItemsDescription')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="application.businessItemsDescription"
-              variant="soft"
-              size="sm"
-              class="select-text"
+          <CompanyApplicationReviewEntry entry-path="businessItemsDescription">
+            <FormedInput
+              :initial-value="
+                reviewStore.getEntryValue('businessItemsDescription')
+              "
+              placeholder="請輸入營業項目描述"
+              @submit="
+                (value) => handleEntryEdit('businessItemsDescription', value)
+              "
             />
-          </CompanyApplicationFormFieldUnderReview>
-        </div>
-      </template>
-      <template #responsible-person>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CompanyApplicationFormFieldUnderReview
-            label="姓名"
-            :status="getFieldVerificationStatus('responsiblePerson.name')"
-            :error="getFieldError('responsiblePerson.name')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="application.responsiblePerson.name"
-              variant="soft"
-              size="sm"
-              class="select-text"
-            />
-          </CompanyApplicationFormFieldUnderReview>
+          </CompanyApplicationReviewEntry>
 
-          <CompanyApplicationFormFieldUnderReview
-            label="身分證字號"
-            :status="getFieldVerificationStatus('responsiblePerson.idNumber')"
-            :error="getFieldError('responsiblePerson.idNumber')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="application.responsiblePerson.idNumber"
-              variant="soft"
-              size="sm"
-              class="select-text"
+          <!-- Business Items -->
+          <CompanyApplicationReviewEntry entry-path="businessItems">
+            <FormedInputTags
+              :initial-value="reviewStore.getEntryValue('businessItems')"
+              placeholder="請輸入營業項目"
+              @submit="(value) => handleEntryEdit('businessItems', value)"
             />
-          </CompanyApplicationFormFieldUnderReview>
+          </CompanyApplicationReviewEntry>
 
-          <CompanyApplicationFormFieldUnderReview
-            label="地址"
-            :status="getFieldVerificationStatus('responsiblePerson.address')"
-            :error="getFieldError('responsiblePerson.address')"
-            :review-mode="reviewMode"
-          >
-            <UButton
-              :label="application.responsiblePerson.address"
-              variant="soft"
-              size="sm"
-              class="select-text"
+          <!-- Company Address -->
+          <CompanyApplicationReviewEntry entry-path="address">
+            <FormedInput
+              :initial-value="reviewStore.getEntryValue('address')"
+              placeholder="請輸入公司地址"
+              @submit="(value) => handleEntryEdit('address', value)"
             />
-          </CompanyApplicationFormFieldUnderReview>
+          </CompanyApplicationReviewEntry>
         </div>
       </template>
     </UTabs>
@@ -126,32 +59,12 @@
 
 <script setup lang="ts">
 import type { TabsItem } from "@nuxt/ui";
+import { organizationTypeItems } from "./helpers";
 
-interface ReviewIssue {
-  id: string;
-  fieldPath?: string;
-  clientMessage: string;
-  isResolved: boolean;
-}
+const reviewStore = useCompanyApplicationReviewStore();
 
-interface Props {
-  application: any;
-  readonly?: boolean;
-  reviewMode?: boolean;
-  reviewIssues?: ReviewIssue[];
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  readonly: true,
-  reviewMode: false,
-  reviewIssues: () => [],
-});
-
-const emit = defineEmits<{
-  fieldIssue: [fieldPath: string, issue: Partial<ReviewIssue>];
-}>();
-
-const tabItems = ref<TabsItem[]>([
+// TODO: use ui.trigger to style the tab items
+const tabItems = ref([
   {
     label: "公司基本資料",
     icon: "i-lucide-building",
@@ -177,93 +90,20 @@ const tabItems = ref<TabsItem[]>([
     icon: "i-lucide-users",
     slot: "shareholders",
   },
-]);
+] satisfies TabsItem[]);
 
-// Field verification status tracking
-const verifiedFields = ref<Set<string>>(new Set());
-
-// Methods
-const getFieldClasses = (fieldPath: string) => {
-  if (!props.reviewMode) return "bg-gray-50";
-
-  const hasIssue = props.reviewIssues?.some(
-    (issue) => issue.fieldPath === fieldPath && !issue.isResolved
-  );
-
-  if (hasIssue) {
-    return "bg-red-50 border-red-200";
-  }
-
-  const isVerified = verifiedFields.value.has(fieldPath);
-  if (isVerified) {
-    return "bg-green-50 border-green-200";
-  }
-
-  return "bg-gray-50 border-gray-200";
-};
-
-const getFieldError = (fieldPath: string) => {
-  const issue = props.reviewIssues?.find(
-    (issue) => issue.fieldPath === fieldPath && !issue.isResolved
-  );
-  return issue?.clientMessage || "";
-};
-
-const getFieldVerificationStatus = (fieldPath: string) => {
-  if (verifiedFields.value.has(fieldPath)) {
-    return "success";
-  }
-
-  const hasIssue = props.reviewIssues?.some(
-    (issue) => issue.fieldPath === fieldPath && !issue.isResolved
-  );
-
-  if (hasIssue) {
-    return "error";
-  }
-
-  return "neutral";
-};
-
-const getFieldVerificationLabel = (fieldPath: string) => {
-  if (verifiedFields.value.has(fieldPath)) {
-    return "已驗證";
-  }
-
-  const hasIssue = props.reviewIssues?.some(
-    (issue) => issue.fieldPath === fieldPath && !issue.isResolved
-  );
-
-  if (hasIssue) {
-    return "有問題";
-  }
-
-  return "驗證";
-};
-
-const verifyField = (fieldPath: string) => {
-  if (verifiedFields.value.has(fieldPath)) {
-    verifiedFields.value.delete(fieldPath);
-  } else {
-    verifiedFields.value.add(fieldPath);
-  }
-};
-
-const addIssueToField = (fieldPath: string) => {
-  emit("fieldIssue", fieldPath, {
-    clientMessage: "請檢查此欄位的資料是否正確",
+const handleEntryEdit = (
+  fieldPath: CompanyApplicationReviewEntryPath,
+  value: string | string[]
+) => {
+  // 1. Add a modification issue to the entry
+  reviewStore.setEntryState(fieldPath, "hasIssue", {
+    issueType: "modification",
+    severity: "medium",
+    description: "本資料已被審查人員修改，請確認後再送出",
   });
-};
 
-const getOrganizationTypeLabel = (type: string | null) => {
-  if (!type) return "未選擇";
-
-  const labels = {
-    limited_company: "有限公司",
-    company_limited: "股份有限公司",
-    sole_proprietorship: "獨資企業",
-    partnership: "合夥企業",
-  };
-  return labels[type as keyof typeof labels] || type;
+  // 2. Update the entry value in the review store
+  reviewStore.setEntryValue(fieldPath, value);
 };
 </script>

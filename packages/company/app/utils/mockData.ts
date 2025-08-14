@@ -1,5 +1,4 @@
 import { fakerZH_TW as faker } from "@faker-js/faker";
-import { createEmptyPerson, createInitialForm } from "./formHelpers";
 import type { z } from "zod";
 
 // Helper function to generate a random Taiwanese ID number (since Faker doesn't have this)
@@ -103,7 +102,7 @@ export const generateMockFormData = () => {
   const form = createInitialForm();
 
   // Generate basic form data
-  const mockFormData: Partial<z.output<typeof formSchema>> = {
+  const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
     candicateNames: generateMockCompanyNames(),
     organizationType: faker.helpers.arrayElement([
       "limited_company",

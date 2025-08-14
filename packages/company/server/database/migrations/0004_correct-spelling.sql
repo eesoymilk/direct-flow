@@ -1,0 +1,1 @@
+ALTER TABLE "company_applications" RENAME COLUMN "candicate_names" TO "candidate_names";

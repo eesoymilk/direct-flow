@@ -10,6 +10,7 @@ import { relations } from "drizzle-orm";
 import { people } from "../person/schema";
 import { documents } from "../document/schema";
 import { organizationTypeEnum } from "../company/schema";
+import { reviewRounds } from "../companyApplicationReview/schema";
 
 // Application status enum
 export const applicationStatusEnum = pgEnum("application_status", [
@@ -23,11 +24,11 @@ export const applicationStatusEnum = pgEnum("application_status", [
 // Company applications table
 export const companyApplications = pgTable("company_applications", {
   id: uuid("id").primaryKey().defaultRandom(),
-  candicateNames: varchar("candicate_names").array().notNull(),
-  chosenName: varchar("chosen_name"),
-  organizationType: organizationTypeEnum("organization_type"),
-  businessItemsDescription: varchar("business_items_description"), // 營業項目描述
-  address: varchar("address"),
+  candidateNames: varchar("candidate_names").array().notNull(), // 候選名稱
+  chosenName: varchar("chosen_name"), // 選定名稱
+  organizationType: organizationTypeEnum("organization_type").notNull(), // 組織類型
+  businessItemsDescription: varchar("business_items_description").notNull(), // 營業項目描述
+  address: varchar("address").notNull(), // 地址
   responsiblePersonId: uuid("responsible_person_id").references(
     () => people.id,
     { onDelete: "cascade" }
@@ -38,7 +39,7 @@ export const companyApplications = pgTable("company_applications", {
   representativeId: uuid("representative_id").references(() => people.id, {
     onDelete: "set null",
   }), // 代表人ID
-  status: applicationStatusEnum("status").notNull().default("submitted"),
+  status: applicationStatusEnum("status").notNull().default("submitted"), // 狀態
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -88,6 +89,7 @@ export const companyApplicationsRelations = relations(
     }),
     companyDocuments: many(applicationDocuments),
     shareholders: many(applicationShareholders),
+    reviewRounds: many(reviewRounds),
   })
 );
 

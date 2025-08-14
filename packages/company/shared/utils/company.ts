@@ -9,3 +9,5 @@ export const getOrganizationTypeLabel = (type: string | null) => {
   };
   return labels[type as keyof typeof labels] || type;
 };
+
+export const textVar2 = "test2";

@@ -1,39 +1,17 @@
 import * as z from "zod";
-
-// File validation constants
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const MIN_DIMENSIONS = { width: 200, height: 200 };
-const MAX_DIMENSIONS = { width: 4096, height: 4096 };
-const ACCEPTED_FILE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "application/pdf",
-] as const;
-
-// Utility functions
-const formatBytes = (bytes: number, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return (
-    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
-  );
-};
+import {
+  formatBytes,
+  MAX_FILE_SIZE,
+  MIN_DIMENSIONS,
+  MAX_DIMENSIONS,
+  ACCEPTED_FILE_TYPES,
+  getFileField,
+} from "./helper";
 
 // ID Number validation
 export const idNumberSchema = z.string().regex(/^[A-Z][1-2][0-9]{8}$/, {
   message: "身份證字號格式錯誤",
 });
-
-// File field helper
-const getFileField = (name: string) => {
-  return z.custom<File | null>().refine((file) => file !== null, {
-    message: `請上傳${name}`,
-  });
-};
 
 // Document schema for file uploads (client-side)
 export const documentSchema = z.object({
@@ -101,17 +79,22 @@ const getPersonField = (name: string) =>
   });
 
 // Form schema for company application
-export const formSchema = z.object({
+export const companyApplicationFormSchema = z.object({
   candicateNames: z
     .array(z.string().min(1, "公司名稱為必填"))
     .min(1, "請提供至少一個公司名稱")
     .max(5, "最多只能提供五個公司名稱"),
-  organizationType: z.enum([
-    "limited_company",
-    "company_limited",
-    "sole_proprietorship",
-    "partnership",
-  ]),
+  organizationType: z.enum(
+    [
+      "limited_company",
+      "company_limited",
+      "sole_proprietorship",
+      "partnership",
+    ],
+    {
+      message: "請選擇有效的組織類型",
+    }
+  ),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
   address: z.string().min(1, "公司地址為必填"),
   isDirectorSameAsResponsiblePerson: z.boolean(),
@@ -197,6 +180,8 @@ export const companyBasicInfoSchema = z.object({
 
 // Type exports
 export type PersonSchema = z.infer<typeof personSchema>;
-export type FormSchema = z.infer<typeof formSchema>;
+export type CompanyApplicationFormSchema = z.infer<
+  typeof companyApplicationFormSchema
+>;
 export type CompanyApplicationSchema = z.infer<typeof companyApplicationSchema>;
 export type DocumentSchema = z.infer<typeof documentSchema>;
