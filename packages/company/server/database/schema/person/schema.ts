@@ -9,6 +9,9 @@ export const people = pgTable("people", {
   name: varchar("name").notNull(),
   idNumber: varchar("id_number").notNull().unique(),
   address: varchar("address"),
+  telephone: varchar("telephone"),
+  cellphone: varchar("cellphone"),
+  email: varchar("email"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

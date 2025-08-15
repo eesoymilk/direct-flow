@@ -74,8 +74,8 @@
 </template>
 
 <script setup lang="ts">
-import type { buttonGroup } from "#build/ui";
 import type { RadioGroupItem } from "@nuxt/ui";
+import type { ReviewEntryPath } from "~/composables/stores/reviewEntry";
 
 const reviewIssueTypeItems = [
   { label: "缺失", id: "missing" },
@@ -91,7 +91,7 @@ const reviewIssueSeverityItems: RadioGroupItem[] = [
 ];
 
 const props = defineProps<{
-  reviewPath: CompanyApplicationReviewEntryPath;
+  reviewPath: ReviewEntryPath;
 }>();
 
 defineEmits<{
@@ -101,7 +101,7 @@ defineEmits<{
 
 const reviewStore = useCompanyApplicationReviewStore();
 const reviewEntry = computed(() =>
-  reviewStore.getEntryByFieldPath(props.reviewPath)
+  reviewStore.getEntryByPath(props.reviewPath)
 );
 
 const issueFormRef = useTemplateRef("issueFormRef");

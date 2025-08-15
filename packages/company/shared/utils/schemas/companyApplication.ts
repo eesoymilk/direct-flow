@@ -63,6 +63,9 @@ export const personSchema = z.object({
   name: z.string().min(1, "姓名為必填"),
   idNumber: idNumberSchema,
   address: z.string().min(1, "戶籍地址為必填"),
+  telephone: z.string().min(1, "電話為必填"),
+  cellphone: z.string().min(1, "手機為必填"),
+  email: z.string().min(1, "電子郵件為必填"),
 });
 
 // Person field helper (for forms with file uploads)
