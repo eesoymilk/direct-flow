@@ -12,9 +12,11 @@ import { relations } from "drizzle-orm";
 
 // One “round” per staff pass over an application
 export const reviewRoundStatusEnum = pgEnum("review_round_status", [
-  "awaiting_client", // initial state when round is created, or when staff rejects client's update
-  "awaiting_staff", // when client submitted
-  "closed", // when all issues are resolved
+  "submitted",
+  "reviewing",
+  "filing",
+  "approved",
+  "rejected",
 ]);
 
 export const reviewIssueTypeEnum = pgEnum("review_issue_type", [
@@ -42,12 +44,12 @@ export const reviewRounds = pgTable("review_rounds", {
   applicationId: uuid("application_id")
     .notNull()
     .references(() => companyApplications.id, { onDelete: "cascade" }),
-  status: reviewRoundStatusEnum("status").notNull().default("awaiting_client"),
+  status: reviewRoundStatusEnum("status").notNull(),
   summary: text("summary"),
-  openedAt: timestamp("opened_at").notNull().defaultNow(),
-  openedBySub: varchar("opened_by_sub").notNull(),
-  closedAt: timestamp("closed_at"),
-  closedBySub: varchar("closed_by_sub"),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  startedBySub: varchar("started_by_sub").notNull(),
+  completedAt: timestamp("completed_at"),
+  completedBySub: varchar("completed_by_sub"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   roundNo: integer("round_no").notNull().default(1), // round number is handy for UX, computed as 1 + count(*) per app
 });

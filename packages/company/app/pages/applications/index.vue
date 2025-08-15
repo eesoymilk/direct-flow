@@ -118,7 +118,8 @@
     <div v-else class="text-center py-8">
       <UIcon
         name="i-lucide-file-text"
-        class="w-12 h-12 text-gray-400 mx-auto mb-4"
+        :size="12"
+        class="text-gray-400 mx-auto mb-4"
       />
       <p class="text-text-secondary">目前沒有任何申請案件</p>
     </div>
@@ -126,6 +127,13 @@
 </template>
 
 <script setup lang="ts">
+import type { TableRow } from "@nuxt/ui";
+import type { InternalApi } from "nitropack";
+
+type Row = TableRow<
+  InternalApi["/api/applications"]["get"]["applications"][number]
+>;
+
 // TODO: Filter system
 const filters = ref<{
   page: number;
@@ -145,37 +153,37 @@ const columns = [
     header: "申請編號",
   },
   {
-    accessorKey: "candicateNames",
+    accessorKey: "candidateNames",
     header: "公司名稱",
-    cell: ({ row }: { row: any }) => {
-      return row.original.candicateNames.join(", ");
+    cell: ({ row }: { row: Row }) => {
+      return row.original.candidateNames.join(", ");
     },
   },
   {
     accessorKey: "organizationType",
     header: "組織類型",
-    cell: ({ row }: { row: any }) => {
+    cell: ({ row }: { row: Row }) => {
       return getOrganizationTypeLabel(row.original.organizationType);
     },
   },
   {
     accessorKey: "responsiblePerson",
     header: "負責人",
-    cell: ({ row }: { row: any }) => {
-      return row.original.responsiblePerson.name;
+    cell: ({ row }: { row: Row }) => {
+      return row.original.responsiblePerson?.name || "未填寫";
     },
   },
   {
     accessorKey: "status",
     header: "狀態",
-    cell: ({ row }: { row: any }) => {
+    cell: ({ row }: { row: Row }) => {
       return getStatusLabel(row.original.status);
     },
   },
   {
     accessorKey: "createdAt",
     header: "申請日期",
-    cell: ({ row }: { row: any }) => {
+    cell: ({ row }: { row: Row }) => {
       return formatDate(row.original.createdAt);
     },
   },

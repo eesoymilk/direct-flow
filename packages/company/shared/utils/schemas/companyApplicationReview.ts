@@ -1,12 +1,22 @@
 import * as z from "zod";
 
-export const reviewIssueSchema = z.object({
-  issueType: z.enum(["missing", "invalid", "clarification", "modification"], {
+export const reviewIssueTypeSchema = z.enum(
+  ["missing", "invalid", "clarification", "modification"],
+  {
     message: "請選擇問題類型",
-  }),
-  severity: z.enum(["low", "medium", "high", "critical"], {
+  }
+);
+
+export const reviewIssueSeveritySchema = z.enum(
+  ["low", "medium", "high", "critical"],
+  {
     message: "請選擇問題嚴重性",
-  }),
+  }
+);
+
+export const reviewIssueSchema = z.object({
+  issueType: reviewIssueTypeSchema,
+  severity: reviewIssueSeveritySchema,
   description: z.string().optional(),
 });
 

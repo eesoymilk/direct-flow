@@ -1,12 +1,12 @@
 <template>
   <UContainer class="py-8 space-y-8">
     <div class="text-center">
-      <h1 class="text-3xl font-bold text-primary mb-2">公司設立登記</h1>
+      <h1 class="mb-2 text-3xl font-bold text-primary">公司設立登記</h1>
       <p class="text-text-secondary">請填寫以下資料以完成公司設立登記</p>
     </div>
 
     <!-- Development helper: Generate fake data button -->
-    <div v-if="isDev" class="flex justify-center gap-2">
+    <div v-if="isDev" class="flex gap-2 justify-center">
       <UButton
         color="neutral"
         variant="outline"

@@ -39,7 +39,7 @@ export const createApplicationShareholderRelationships = async (
 export const fetchCompanyApplications = async (
   db: DrizzleClient,
   params: QueryParams
-): Promise<{ applications: CompanyApplication[]; totalCount: number }> => {
+) => {
   const {
     page = 1,
     limit = 20,
