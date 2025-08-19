@@ -33,10 +33,12 @@ export type PersonType =
   | "contactPerson"
   | "representative";
 
+export type ShareholderField = `shareholders.${number}.${PersonField}`;
+
 export type FieldPath =
   | `company.${CompanyField}`
   | `${PersonType}.${PersonField}`
-  | `shareholders.${number}.${PersonField}`;
+  | ShareholderField;
 
 export type CompanyData = Record<CompanyField, ReviewEntry>;
 export type PersonData = Record<PersonField, ReviewEntry>;

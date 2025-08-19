@@ -56,6 +56,29 @@ await useLazyFetch(`/api/applications/${route.params.id as ":id"}`, {
       }
     );
 
+    // Initialize and populate shareholders
+    if (data.shareholders && Array.isArray(data.shareholders)) {
+      // Initialize shareholder entries based on the number of shareholders
+      reviewStore.initializeShareholderEntries(data.shareholders);
+      
+      // Populate shareholder data
+      data.shareholders.forEach((shareholder: any, index: number) => {
+        if (shareholder.person && reviewStore.reviewEntries.shareholders[index]) {
+          const shareholderPersonData = reviewStore.reviewEntries.shareholders[index];
+          
+          personFields.forEach((field) => {
+            const entry = shareholderPersonData[field];
+            if (entry && shareholder.person[field] !== undefined && shareholder.person[field] !== null) {
+              shareholderPersonData[field] = {
+                ...entry,
+                value: shareholder.person[field],
+              };
+            }
+          });
+        }
+      });
+    }
+
     return data;
   },
 });

@@ -263,18 +263,17 @@ const viewApplication = (id: string) => {
     ] as const;
 
     flatFields.forEach((field) => {
-      const path = `company.${field}` as const;
-      const entry = reviewStore.reviewEntries.company.get(path);
+      const entry = reviewStore.reviewEntries.company[field];
 
       if (!entry) {
-        console.warn(`Entry not found for path: ${path}`);
+        console.warn(`Entry not found for field: ${field}`);
         return;
       }
 
-      reviewStore.reviewEntries.company.set(path, {
+      reviewStore.reviewEntries.company[field] = {
         ...entry,
         value: application[field],
-      });
+      };
     });
 
     // Map nested person objects
@@ -289,20 +288,19 @@ const viewApplication = (id: string) => {
 
     (["responsiblePerson", "contactPerson", "representative"] as const).forEach(
       (personType) => {
-        const entriesMap = reviewStore.reviewEntries[personType];
+        const personData = reviewStore.reviewEntries[personType];
 
         personFields.forEach((field) => {
-          const path = `${personType}.${field}` as const;
-          const entry = entriesMap.get(path);
+          const entry = personData[field];
           if (!entry) {
-            console.warn(`Entry not found for path: ${path}`);
+            console.warn(`Entry not found for field: ${field}`);
             return;
           }
 
-          entriesMap.set(path, {
+          personData[field] = {
             ...entry,
             value: application[personType]?.[field] ?? "",
-          });
+          };
         });
       }
     );

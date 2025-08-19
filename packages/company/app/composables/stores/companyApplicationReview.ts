@@ -39,7 +39,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       shareholders: [],
     });
 
-    const getAllEntries = (): ReviewEntry[] => {
+    const allEntries = computed((): ReviewEntry[] => {
       const entries: ReviewEntry[] = [];
       
       // Company entries
@@ -56,14 +56,14 @@ export const useCompanyApplicationReviewStore = defineStore(
       });
       
       return entries;
-    };
+    });
 
     const entriesWithIssues = computed(() => {
-      return filterEntriesByStates(getAllEntries(), ["hasIssue", "issueResolved"]);
+      return filterEntriesByStates(allEntries.value, ["hasIssue", "issueResolved"]);
     });
 
     const entriesUnderReview = computed(() => {
-      return filterEntriesByState(getAllEntries(), "reviewing");
+      return filterEntriesByState(allEntries.value, "reviewing");
     });
 
     const getEntry = (path: FieldPath): ReviewEntry | undefined => {
@@ -119,15 +119,130 @@ export const useCompanyApplicationReviewStore = defineStore(
       });
     };
 
+    // Validation helpers
+    const validateReviewCompletion = () => {
+      const reviewingEntries = allEntries.value.filter(entry => entry.state === "reviewing");
+      
+      return {
+        isComplete: reviewingEntries.length === 0,
+        pendingCount: reviewingEntries.length,
+        pendingEntries: reviewingEntries,
+      };
+    };
+
+    const collectReviewData = () => {
+      const issues: Array<{
+        fieldPath: string;
+        issueType: "missing" | "invalid" | "clarification" | "modification";
+        severity: "low" | "medium" | "high" | "critical";
+        description?: string;
+      }> = [];
+      
+      const verifications: Array<{
+        fieldPath: string;
+        note?: string;
+      }> = [];
+
+      // Collect issues and verifications from all entries
+      const processEntries = (entries: Record<string, ReviewEntry>, prefix: string) => {
+        Object.entries(entries).forEach(([field, entry]) => {
+          const fieldPath = `${prefix}.${field}`;
+          
+          if (entry.state === "hasIssue" && entry.issue) {
+            issues.push({
+              fieldPath,
+              issueType: entry.issue.issueType,
+              severity: entry.issue.severity,
+              description: entry.issue.description,
+            });
+          } else if (entry.state === "verified") {
+            verifications.push({
+              fieldPath,
+              note: `已驗證: ${entry.label}`,
+            });
+          }
+        });
+      };
+
+      // Process company entries
+      processEntries(reviewEntries.value.company, "company");
+      
+      // Process person entries
+      processEntries(reviewEntries.value.responsiblePerson, "responsiblePerson");
+      processEntries(reviewEntries.value.contactPerson, "contactPerson");
+      processEntries(reviewEntries.value.representative, "representative");
+      
+      // Process shareholder entries
+      reviewEntries.value.shareholders.forEach((shareholder, index) => {
+        processEntries(shareholder, `shareholders.${index}`);
+      });
+
+      return { issues, verifications };
+    };
+
+    // Submission methods
+    const submitReviewRound = async (
+      applicationId: string,
+      status: "approved" | "rejected" | "filing"
+    ) => {
+      const validation = validateReviewCompletion();
+      
+      if (!validation.isComplete && status !== "filing") {
+        throw new Error(`Cannot ${status} application: ${validation.pendingCount} entries still under review`);
+      }
+
+      const { issues, verifications } = collectReviewData();
+
+      const payload = {
+        status,
+        summary: reviewRound.value.summary,
+        issues,
+        verifications,
+      };
+
+      const { data } = await $fetch(`/api/applications/${applicationId}/review-rounds`, {
+        method: "POST",
+        body: payload,
+      });
+
+      return data;
+    };
+
+    const resetReviewState = () => {
+      reviewEntries.value = {
+        company: createCompanyData(),
+        responsiblePerson: createPersonData(),
+        contactPerson: createPersonData(),
+        representative: createPersonData(),
+        shareholders: [],
+      };
+      
+      reviewRound.value = {
+        status: "reviewing",
+        summary: "",
+      };
+    };
+
+    // Helper function to initialize shareholder entries
+    const initializeShareholderEntries = (shareholderData: any[]) => {
+      reviewEntries.value.shareholders = shareholderData.map(() => createPersonData());
+    };
+
     return {
       reviewRound,
       reviewEntries,
+      allEntries,
       entriesWithIssues,
       entriesUnderReview,
 
       getEntry,
       setEntry,
       editEntry,
+      validateReviewCompletion,
+      collectReviewData,
+      submitReviewRound,
+      resetReviewState,
+      initializeShareholderEntries,
     };
   }
 );

@@ -1,33 +1,37 @@
 <template>
-  <div class="space-y-6">
-    <UTabs :items="tabItems" :unmount-on-hide="false" variant="link">
-      <template #company-details>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CompanyApplicationReviewCompanyEntries />
-        </div>
-      </template>
+  <UTabs :items="tabItems" :unmount-on-hide="false" variant="link">
+    <template #company-details>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompanyApplicationReviewCompanyEntries />
+      </div>
+    </template>
 
-      <template #responsible-person>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CompanyApplicationReviewPersonEntries
-            person-type="responsiblePerson"
-          />
-        </div>
-      </template>
+    <template #responsible-person>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompanyApplicationReviewPersonEntries
+          person-type="responsiblePerson"
+        />
+      </div>
+    </template>
 
-      <template #contact-person>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CompanyApplicationReviewPersonEntries person-type="contactPerson" />
-        </div>
-      </template>
+    <template #contact-person>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompanyApplicationReviewPersonEntries person-type="contactPerson" />
+      </div>
+    </template>
 
-      <template #representative>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CompanyApplicationReviewPersonEntries person-type="representative" />
-        </div>
-      </template>
-    </UTabs>
-  </div>
+    <template #representative>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompanyApplicationReviewPersonEntries person-type="representative" />
+      </div>
+    </template>
+
+    <template #shareholders>
+      <div class="space-y-4 md:space-y-6">
+        <CompanyApplicationReviewShareholdersEntries />
+      </div>
+    </template>
+  </UTabs>
 </template>
 
 <script setup lang="ts">

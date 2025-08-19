@@ -86,6 +86,11 @@ export const fetchCompanyApplicationById = async (
       responsiblePerson: true,
       contactPerson: true,
       representative: true,
+      shareholders: {
+        with: {
+          person: true,
+        },
+      },
       reviewRounds: {
         with: {
           reviewIssues: true,
