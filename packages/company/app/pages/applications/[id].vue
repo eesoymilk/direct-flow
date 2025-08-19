@@ -6,41 +6,34 @@
 </template>
 
 <script setup lang="ts">
-import type { PersonEntries } from "~/composables/stores/reviewEntry";
-
 const route = useRoute();
 
 const reviewStore = useCompanyApplicationReviewStore();
 
 await useLazyFetch(`/api/applications/${route.params.id as ":id"}`, {
   transform: (data) => {
-    // Map flat fields
-    const flatFields = [
+    // Map company fields
+    const companyFields = [
       "candidateNames",
-      "organizationType",
+      "organizationType", 
       "businessItemsDescription",
       "address",
     ] as const;
 
-    flatFields.forEach((field) => {
-      const path = `company.${field}` as const;
-      const entry = reviewStore.reviewEntries.company.get(path);
-
-      if (!entry) {
-        console.warn(`Entry not found for path: ${path}`);
-        return;
+    companyFields.forEach((field) => {
+      const entry = reviewStore.reviewEntries.company[field];
+      if (entry && data[field] !== undefined) {
+        reviewStore.reviewEntries.company[field] = {
+          ...entry,
+          value: data[field],
+        };
       }
-
-      reviewStore.reviewEntries.company.set(path, {
-        ...entry,
-        value: data[field],
-      });
     });
 
-    // Map nested person objects
+    // Map person objects
     const personFields = [
       "name",
-      "idNumber",
+      "idNumber", 
       "address",
       "telephone",
       "cellphone",
@@ -49,23 +42,16 @@ await useLazyFetch(`/api/applications/${route.params.id as ":id"}`, {
 
     (["responsiblePerson", "contactPerson", "representative"] as const).forEach(
       (personType) => {
-        const entriesMap: Map<
-          `${typeof personType}.${keyof PersonEntries}`,
-          PersonEntries[keyof PersonEntries]
-        > = reviewStore.reviewEntries[personType];
+        const personData = reviewStore.reviewEntries[personType];
 
         personFields.forEach((field) => {
-          const path = `${personType}.${field}` as const;
-          const entry = entriesMap.get(path);
-          if (!entry) {
-            console.warn(`Entry not found for path: ${path}`);
-            return;
+          const entry = personData[field];
+          if (entry && data[personType]?.[field] !== undefined && data[personType][field] !== null) {
+            personData[field] = {
+              ...entry,
+              value: data[personType][field],
+            };
           }
-
-          entriesMap.set(path, {
-            ...entry,
-            value: data[personType]?.[field] ?? "",
-          });
         });
       }
     );

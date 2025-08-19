@@ -53,7 +53,7 @@
     >
       <div class="flex items-center gap-2 md:gap-3">
         <UIcon name="i-lucide-alert-triangle" :size="24" />
-        <span v-if="reviewEntry.issue.description">
+        <span v-if="reviewEntry.issue?.description">
           {{ reviewEntry.issue.description }}
         </span>
       </div>
@@ -63,15 +63,12 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  ReviewEntryPath,
-  ReviewEntryValue,
-} from "~/composables/stores/reviewEntry";
+import type { FieldPath, ReviewEntry } from "~/composables/stores/reviewEntry";
 
 const props = withDefaults(
   defineProps<{
     ignorable?: boolean;
-    entryPath: ReviewEntryPath;
+    entryPath: FieldPath;
   }>(),
   {
     ignorable: false,
@@ -80,9 +77,7 @@ const props = withDefaults(
 
 const reviewStore = useCompanyApplicationReviewStore();
 
-const reviewEntry = computed(() =>
-  reviewStore.getEntryByPath(props.entryPath as ReviewEntryPath)
-);
+const reviewEntry = computed(() => reviewStore.getEntry(props.entryPath));
 
 const issueModalButtonProps = computed<{
   label: string;
@@ -106,49 +101,37 @@ const issueModalButtonProps = computed<{
 const handleSubmitIssue = (issue: ReviewIssue) => {
   if (!reviewEntry.value) return;
   console.log("handleSubmitIssue", issue);
-  reviewStore.setEntry(
-    props.entryPath as ReviewEntryPath,
-    {
-      ...reviewEntry.value,
-      state: "hasIssue",
-      issue,
-    } as ReviewEntryValue<typeof props.entryPath>
-  );
+  reviewStore.setEntry(props.entryPath, {
+    ...reviewEntry.value,
+    state: "hasIssue",
+    issue,
+  });
 };
 
 const handleDeleteIssue = () => {
   if (!reviewEntry.value) return;
 
-  reviewStore.setEntry(
-    props.entryPath as ReviewEntryPath,
-    {
-      ...reviewEntry.value,
-      state: "reviewing",
-    } as ReviewEntryValue<typeof props.entryPath>
-  );
+  reviewStore.setEntry(props.entryPath, {
+    ...reviewEntry.value,
+    state: "reviewing",
+  });
 };
 
 const handleIgnore = () => {
   if (!reviewEntry.value) return;
 
-  reviewStore.setEntry(
-    props.entryPath as ReviewEntryPath,
-    {
-      ...reviewEntry.value,
-      state: reviewEntry.value.state === "ignored" ? "reviewing" : "ignored",
-    } as ReviewEntryValue<typeof props.entryPath>
-  );
+  reviewStore.setEntry(props.entryPath, {
+    ...reviewEntry.value,
+    state: reviewEntry.value.state === "ignored" ? "reviewing" : "ignored",
+  });
 };
 
 const handleVerify = () => {
   if (!reviewEntry.value) return;
 
-  reviewStore.setEntry(
-    props.entryPath as ReviewEntryPath,
-    {
-      ...reviewEntry.value,
-      state: reviewEntry.value.state === "verified" ? "reviewing" : "verified",
-    } as ReviewEntryValue<typeof props.entryPath>
-  );
+  reviewStore.setEntry(props.entryPath, {
+    ...reviewEntry.value,
+    state: reviewEntry.value.state === "verified" ? "reviewing" : "verified",
+  });
 };
 </script>

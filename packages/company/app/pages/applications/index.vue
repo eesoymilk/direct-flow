@@ -247,6 +247,67 @@ const changePage = (page: number) => {
 };
 
 const viewApplication = (id: string) => {
+  // Find the application data from the current list
+  const application = data.value?.applications.find((app: any) => app.id === id);
+  
+  if (application) {
+    // Get the review store
+    const reviewStore = useCompanyApplicationReviewStore();
+    
+    // Map flat fields
+    const flatFields = [
+      "candidateNames",
+      "organizationType", 
+      "businessItemsDescription",
+      "address",
+    ] as const;
+
+    flatFields.forEach((field) => {
+      const path = `company.${field}` as const;
+      const entry = reviewStore.reviewEntries.company.get(path);
+
+      if (!entry) {
+        console.warn(`Entry not found for path: ${path}`);
+        return;
+      }
+
+      reviewStore.reviewEntries.company.set(path, {
+        ...entry,
+        value: application[field],
+      });
+    });
+
+    // Map nested person objects
+    const personFields = [
+      "name",
+      "idNumber", 
+      "address",
+      "telephone",
+      "cellphone",
+      "email",
+    ] as const;
+
+    (["responsiblePerson", "contactPerson", "representative"] as const).forEach(
+      (personType) => {
+        const entriesMap = reviewStore.reviewEntries[personType];
+
+        personFields.forEach((field) => {
+          const path = `${personType}.${field}` as const;
+          const entry = entriesMap.get(path);
+          if (!entry) {
+            console.warn(`Entry not found for path: ${path}`);
+            return;
+          }
+
+          entriesMap.set(path, {
+            ...entry,
+            value: application[personType]?.[field] ?? "",
+          });
+        });
+      }
+    );
+  }
+  
   navigateTo(`/applications/${id}`);
 };
 

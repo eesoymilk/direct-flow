@@ -3,7 +3,7 @@
   <CompanyApplicationReviewEntry entry-path="company.candidateNames">
     <FormedInputTags
       :initial-value="
-        reviewStore.getEntryByPath('company.candidateNames')?.value as string[]
+        reviewStore.getEntry('company.candidateNames')?.value as string[]
       "
       placeholder="請輸入公司預查名稱"
       @submit="
@@ -16,7 +16,7 @@
   <CompanyApplicationReviewEntry entry-path="company.chosenName" ignorable>
     <FormedInput
       :initial-value="
-        reviewStore.getEntryByPath('company.chosenName')?.value as string
+        reviewStore.getEntry('company.chosenName')?.value as string
       "
       placeholder="請輸入公司選定名稱"
       @submit="(value) => reviewStore.editEntry('company.chosenName', value)"
@@ -27,7 +27,7 @@
   <CompanyApplicationReviewEntry entry-path="company.organizationType">
     <FormedRadioGroup
       :initial-value="
-        reviewStore.getEntryByPath('company.organizationType')?.value as string
+        reviewStore.getEntry('company.organizationType')?.value as string
       "
       :radio-group-items="organizationTypeItems"
       @submit="
@@ -39,9 +39,7 @@
   <!-- Company Address -->
   <CompanyApplicationReviewEntry entry-path="company.address">
     <FormedInput
-      :initial-value="
-        reviewStore.getEntryByPath('company.address')?.value as string
-      "
+      :initial-value="reviewStore.getEntry('company.address')?.value as string"
       placeholder="請輸入公司地址"
       @submit="(value) => reviewStore.editEntry('company.address', value)"
     />
@@ -51,7 +49,7 @@
   <CompanyApplicationReviewEntry entry-path="company.businessItemsDescription">
     <FormedInput
       :initial-value="
-        reviewStore.getEntryByPath('company.businessItemsDescription')
+        reviewStore.getEntry('company.businessItemsDescription')
           ?.value as string
       "
       placeholder="請輸入營業項目描述"
@@ -66,7 +64,7 @@
   <CompanyApplicationReviewEntry entry-path="company.businessItems" ignorable>
     <FormedInputTags
       :initial-value="
-        reviewStore.getEntryByPath('company.businessItems')?.value as string[]
+        reviewStore.getEntry('company.businessItems')?.value as string[]
       "
       placeholder="請輸入營業項目"
       @submit="(value) => reviewStore.editEntry('company.businessItems', value)"

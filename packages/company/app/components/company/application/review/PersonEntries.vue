@@ -6,7 +6,7 @@
   >
     <FormedInput
       :initial-value="
-        reviewStore.getEntryByPath(entry.entryPath)?.value as string
+        reviewStore.getEntry(entry.entryPath)?.value as string
       "
       :placeholder="entry.placeholder"
       @submit="(value) => reviewStore.editEntry(entry.entryPath, value)"
@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import type {
   PersonType,
-  ReviewEntryPath,
+  FieldPath,
 } from "~/composables/stores/reviewEntry";
 
 const props = defineProps<{
@@ -39,7 +39,7 @@ const personLabel = computed(() => {
 
 const personEntryPaths = computed<
   {
-    entryPath: ReviewEntryPath;
+    entryPath: FieldPath;
     placeholder: string;
   }[]
 >(() => [

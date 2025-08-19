@@ -1,21 +1,27 @@
 import {
-  type CompanyEntries,
-  type PersonEntries,
-  type PersonPath,
-  type PersonType,
-  type ReviewEntryPath,
-  type ReviewEntryValue,
-  createCompanyEntries,
-  createPersonEntries,
+  type CompanyData,
+  type PersonData,
+  type FieldPath,
+  type ReviewEntry,
+  createCompanyData,
+  createPersonData,
   filterEntriesByState,
   filterEntriesByStates,
-  isCompanyPath,
-  isPersonPath,
-  isShareholderPath,
-  isResponsiblePersonPath,
-  isContactPersonPath,
-  isRepresentativePath,
+  parseFieldPath,
 } from "./reviewEntry";
+
+type ReviewRound = {
+  status: "reviewing" | "filing" | "approved" | "rejected";
+  summary: string;
+};
+
+type ReviewEntriesState = {
+  company: CompanyData;
+  responsiblePerson: PersonData;
+  contactPerson: PersonData;
+  representative: PersonData;
+  shareholders: PersonData[];
+};
 
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
@@ -25,215 +31,82 @@ export const useCompanyApplicationReviewStore = defineStore(
       summary: "",
     });
 
-    const reviewEntries = ref<{
-      company: Map<
-        `company.${keyof CompanyEntries}`,
-        CompanyEntries[keyof CompanyEntries]
-      >;
-      responsiblePerson: Map<
-        `responsiblePerson.${keyof PersonEntries}`,
-        PersonEntries[keyof PersonEntries]
-      >;
-      contactPerson: Map<
-        `contactPerson.${keyof PersonEntries}`,
-        PersonEntries[keyof PersonEntries]
-      >;
-      representative: Map<
-        `representative.${keyof PersonEntries}`,
-        PersonEntries[keyof PersonEntries]
-      >;
-      shareholders: Map<
-        `shareholders.${number}.${keyof PersonEntries}`,
-        PersonEntries[keyof PersonEntries]
-      >[];
-    }>({
-      company: createCompanyEntries(),
-      responsiblePerson: createPersonEntries("responsiblePerson"),
-      contactPerson: createPersonEntries("contactPerson"),
-      representative: createPersonEntries("representative"),
+    const reviewEntries = ref<ReviewEntriesState>({
+      company: createCompanyData(),
+      responsiblePerson: createPersonData(),
+      contactPerson: createPersonData(),
+      representative: createPersonData(),
       shareholders: [],
     });
 
-    // Helper function to get all person entries
-    const peopleEntries = computed(() => [
-      ...reviewEntries.value.responsiblePerson.values(),
-      ...reviewEntries.value.contactPerson.values(),
-      ...reviewEntries.value.representative.values(),
-      ...reviewEntries.value.shareholders.flatMap((shareholder) =>
-        Array.from(shareholder.values())
-      ),
-    ]);
+    const getAllEntries = (): ReviewEntry[] => {
+      const entries: ReviewEntry[] = [];
+      
+      // Company entries
+      entries.push(...Object.values(reviewEntries.value.company));
+      
+      // Person entries
+      entries.push(...Object.values(reviewEntries.value.responsiblePerson));
+      entries.push(...Object.values(reviewEntries.value.contactPerson));
+      entries.push(...Object.values(reviewEntries.value.representative));
+      
+      // Shareholder entries
+      reviewEntries.value.shareholders.forEach(shareholder => {
+        entries.push(...Object.values(shareholder));
+      });
+      
+      return entries;
+    };
 
     const entriesWithIssues = computed(() => {
-      const companyIssues = filterEntriesByStates(
-        Array.from(reviewEntries.value.company.values()),
-        ["hasIssue", "issueResolved"]
-      );
-
-      const personIssues = filterEntriesByStates(peopleEntries.value, [
-        "hasIssue",
-        "issueResolved",
-      ]);
-
-      return [...companyIssues, ...personIssues];
+      return filterEntriesByStates(getAllEntries(), ["hasIssue", "issueResolved"]);
     });
 
     const entriesUnderReview = computed(() => {
-      const companyReviewing = filterEntriesByState(
-        Array.from(reviewEntries.value.company.values()),
-        "reviewing"
-      );
-
-      const personReviewing = filterEntriesByState(
-        peopleEntries.value,
-        "reviewing"
-      );
-
-      return [...companyReviewing, ...personReviewing];
+      return filterEntriesByState(getAllEntries(), "reviewing");
     });
 
-    const getCompanyEntryByPath = (
-      entryPath: `company.${keyof CompanyEntries}`
-    ): CompanyEntries[keyof CompanyEntries] | undefined => {
-      return reviewEntries.value.company.get(entryPath);
+    const getEntry = (path: FieldPath): ReviewEntry | undefined => {
+      const parsed = parseFieldPath(path);
+      
+      if (parsed.type === 'company') {
+        return reviewEntries.value.company[parsed.field];
+      }
+      
+      if (parsed.type === 'shareholder') {
+        const shareholder = reviewEntries.value.shareholders[parsed.index];
+        return shareholder?.[parsed.field];
+      }
+      
+      return reviewEntries.value[parsed.type][parsed.field];
     };
 
-    const getPersonEntryByPath = (
-      entryPath: PersonPath
-    ): PersonEntries[keyof PersonEntries] | undefined => {
-      if (isResponsiblePersonPath(entryPath)) {
-        return reviewEntries.value.responsiblePerson.get(entryPath);
-      } else if (isContactPersonPath(entryPath)) {
-        return reviewEntries.value.contactPerson.get(entryPath);
-      } else if (isRepresentativePath(entryPath)) {
-        return reviewEntries.value.representative.get(entryPath);
-      }
-      return undefined;
-    };
-
-    const getShareholderEntryByPath = (
-      entryPath: `shareholders.${number}.${keyof PersonEntries}`
-    ): PersonEntries[keyof PersonEntries] | undefined => {
-      const match = entryPath.match(/^shareholders\.(\d+)\.(.+)$/);
-      if (!match || !match[1] || !match[2]) {
-        return undefined;
-      }
-
-      const index = parseInt(match[1], 10);
-      const shareholderMap = reviewEntries.value.shareholders[index];
-      if (!shareholderMap) {
-        return undefined;
-      }
-
-      return shareholderMap.get(entryPath);
-    };
-
-    // Function overloads for type-safe getEntryByPath
-    function getEntryByPath(
-      entryPath: `company.${keyof CompanyEntries}`
-    ): CompanyEntries[keyof CompanyEntries] | undefined;
-    function getEntryByPath(
-      entryPath: PersonPath
-    ): PersonEntries[keyof PersonEntries] | undefined;
-    function getEntryByPath(
-      entryPath: `shareholders.${number}.${keyof PersonEntries}`
-    ): PersonEntries[keyof PersonEntries] | undefined;
-    function getEntryByPath(
-      entryPath: ReviewEntryPath
-    ): ReviewEntryValue<typeof entryPath> | undefined;
-    function getEntryByPath(
-      entryPath: ReviewEntryPath
-    ): ReviewEntryValue<typeof entryPath> | undefined {
-      if (isCompanyPath(entryPath)) {
-        return getCompanyEntryByPath(entryPath);
-      } else if (isPersonPath(entryPath)) {
-        return getPersonEntryByPath(entryPath);
-      } else if (isShareholderPath(entryPath)) {
-        return getShareholderEntryByPath(entryPath);
-      }
-      return undefined;
-    }
-
-    const setCompanyEntry = (
-      entryPath: `company.${keyof CompanyEntries}`,
-      value: CompanyEntries[keyof CompanyEntries]
-    ): void => {
-      reviewEntries.value.company.set(entryPath, value);
-    };
-
-    const setPersonEntry = (
-      entryPath: PersonPath,
-      value: PersonEntries[keyof PersonEntries]
-    ): void => {
-      if (isResponsiblePersonPath(entryPath)) {
-        reviewEntries.value.responsiblePerson.set(entryPath, value);
-      } else if (isContactPersonPath(entryPath)) {
-        reviewEntries.value.contactPerson.set(entryPath, value);
-      } else if (isRepresentativePath(entryPath)) {
-        reviewEntries.value.representative.set(entryPath, value);
-      }
-    };
-
-    const setShareholderEntry = (
-      entryPath: `shareholders.${number}.${keyof PersonEntries}`,
-      value: PersonEntries[keyof PersonEntries]
-    ): void => {
-      const match = entryPath.match(/^shareholders\.(\d+)\.(.+)$/);
-      if (!match || !match[1] || !match[2]) {
+    const setEntry = (path: FieldPath, value: ReviewEntry): void => {
+      const parsed = parseFieldPath(path);
+      
+      if (parsed.type === 'company') {
+        reviewEntries.value.company[parsed.field] = value;
         return;
       }
-
-      const index = parseInt(match[1], 10);
-      const shareholderMap = reviewEntries.value.shareholders[index];
-      if (shareholderMap) {
-        shareholderMap.set(entryPath, value);
+      
+      if (parsed.type === 'shareholder') {
+        const shareholder = reviewEntries.value.shareholders[parsed.index];
+        if (shareholder) {
+          shareholder[parsed.field] = value;
+        }
+        return;
       }
+      
+      reviewEntries.value[parsed.type][parsed.field] = value;
     };
 
-    // Function overloads for type-safe setEntry
-    function setEntry(
-      entryPath: `company.${keyof CompanyEntries}`,
-      value: CompanyEntries[keyof CompanyEntries]
-    ): void;
-    function setEntry(
-      entryPath: PersonPath,
-      value: PersonEntries[keyof PersonEntries]
-    ): void;
-    function setEntry(
-      entryPath: `shareholders.${number}.${keyof PersonEntries}`,
-      value: PersonEntries[keyof PersonEntries]
-    ): void;
-    function setEntry(
-      entryPath: ReviewEntryPath,
-      value: ReviewEntryValue<typeof entryPath>
-    ): void;
-    function setEntry(
-      entryPath: ReviewEntryPath,
-      value: ReviewEntryValue<typeof entryPath>
-    ): void {
-      if (isCompanyPath(entryPath)) {
-        setCompanyEntry(
-          entryPath,
-          value as CompanyEntries[keyof CompanyEntries]
-        );
-      } else if (isPersonPath(entryPath)) {
-        setPersonEntry(entryPath, value as PersonEntries[keyof PersonEntries]);
-      } else if (isShareholderPath(entryPath)) {
-        setShareholderEntry(
-          entryPath,
-          value as PersonEntries[keyof PersonEntries]
-        );
-      }
-    }
-
     const editEntry = (
-      fieldPath: ReviewEntryPath,
+      fieldPath: FieldPath,
       value: string | string[]
     ) => {
-      const currentEntry = getEntryByPath(fieldPath);
+      const currentEntry = getEntry(fieldPath);
       if (!currentEntry) return;
 
-      // Add a modification issue as to the entry
       setEntry(fieldPath, {
         ...currentEntry,
         value,
@@ -252,7 +125,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       entriesWithIssues,
       entriesUnderReview,
 
-      getEntryByPath,
+      getEntry,
       setEntry,
       editEntry,
     };

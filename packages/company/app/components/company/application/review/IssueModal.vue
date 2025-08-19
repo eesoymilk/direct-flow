@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import type { RadioGroupItem } from "@nuxt/ui";
-import type { ReviewEntryPath } from "~/composables/stores/reviewEntry";
+import type { FieldPath } from "~/composables/stores/reviewEntry";
 
 const reviewIssueTypeItems = [
   { label: "缺失", id: "missing" },
@@ -91,7 +91,7 @@ const reviewIssueSeverityItems: RadioGroupItem[] = [
 ];
 
 const props = defineProps<{
-  reviewPath: ReviewEntryPath;
+  reviewPath: FieldPath;
 }>();
 
 defineEmits<{
@@ -100,9 +100,7 @@ defineEmits<{
 }>();
 
 const reviewStore = useCompanyApplicationReviewStore();
-const reviewEntry = computed(() =>
-  reviewStore.getEntryByPath(props.reviewPath)
-);
+const reviewEntry = computed(() => reviewStore.getEntry(props.reviewPath));
 
 const issueFormRef = useTemplateRef("issueFormRef");
 const formState = ref<Partial<ReviewIssue>>({});
@@ -126,9 +124,9 @@ const handleOpenModal = (value: boolean) => {
 
   if (value && reviewEntry.value?.state === "hasIssue") {
     formState.value = {
-      issueType: reviewEntry.value.issue.issueType,
-      severity: reviewEntry.value.issue.severity,
-      description: reviewEntry.value.issue.description,
+      issueType: reviewEntry.value.issue?.issueType,
+      severity: reviewEntry.value.issue?.severity,
+      description: reviewEntry.value.issue?.description,
     };
   }
 };
