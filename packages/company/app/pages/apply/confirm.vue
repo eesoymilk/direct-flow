@@ -22,7 +22,7 @@
           <label class="text-sm font-medium text-gray-500">候選公司名稱</label>
           <div class="mt-1 space-y-1">
             <div
-              v-for="(name, index) in form.candicateNames"
+              v-for="(name, index) in form.candidateNames"
               :key="index"
               class="p-2 bg-gray-50 rounded border"
             >
@@ -208,12 +208,10 @@ const submitApplication = async () => {
     isSubmitting.value = true;
 
     // Submit to API
-    const { data } = await useFetch("/api/applications/create", {
+    const { data } = await $fetch("/api/applications/create", {
       method: "POST",
       body: form,
     });
-
-    console.log(data.value);
 
     // Show success notification
     const toast = useToast();

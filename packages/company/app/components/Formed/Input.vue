@@ -5,11 +5,12 @@
         <UInput
           v-model="state.value"
           :placeholder="placeholder"
-          :disabled="!isEditing"
-          :readonly="!isEditing"
+          :disabled="disabled && !isEditing"
+          :readonly="disabled && !isEditing"
           class="w-full"
         />
         <FormedActions
+          v-if="loggedIn"
           :is-editing="isEditing"
           @edit="isEditing = true"
           @cancel="handleCancel"
@@ -27,6 +28,7 @@ const schema = z.object({
 });
 
 const props = defineProps<{
+  disabled?: boolean;
   placeholder: string;
   initialValue?: string;
 }>();
@@ -34,6 +36,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "submit", value: string): void;
 }>();
+
+const { user, loggedIn } = useUserSession();
 
 const state = ref<z.infer<typeof schema>>({
   value: props.initialValue ?? "",

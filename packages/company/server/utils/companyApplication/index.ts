@@ -1,8 +1,9 @@
 import {
   applicationShareholders,
   companyApplications,
+  reviewRounds,
 } from "../../database/schema/index";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import {
   buildCompanyApplicationWhereConditions,
   buildCompanyApplicationOrderBy,
@@ -92,6 +93,7 @@ export const fetchCompanyApplicationById = async (
         },
       },
       reviewRounds: {
+        orderBy: [desc(reviewRounds.roundNo)],
         with: {
           reviewIssues: true,
           reviewVerifications: true,

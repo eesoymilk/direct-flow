@@ -1,5 +1,5 @@
 <template>
-  <header class="border-b border-border bg-surface">
+  <header class="py-5" :class="loggedIn ? 'bg-blue-300' : 'bg-surface'">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between h-16">
         <!-- Left side - Logo and Brand -->
@@ -27,7 +27,7 @@
           />
           <div v-if="loggedIn">
             {{ user?.name }}
-            <UButton to="/api/auth/logout" label="登出" external />
+            <UButton label="登出" external @click="clear" />
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import LogoSvg from "./LogoSvg.vue";
 
-const { loggedIn, user } = useUserSession();
+const { loggedIn, user, clear } = useUserSession();
 const isMobileMenuOpen = ref(false);
 
 const firmName = "會計師事務所";

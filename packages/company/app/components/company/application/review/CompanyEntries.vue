@@ -1,79 +1,121 @@
 <template>
-  <!-- Company Candidate Names -->
-  <CompanyApplicationReviewEntry entry-path="company.candidateNames">
+  <div v-if="loggedIn" class="flex justify-end col-span-full">
+    <UButton
+      color="primary"
+      label="驗證所有公司資料"
+      icon="i-lucide-check"
+      variant="outline"
+      size="sm"
+      @click="verifyAllCompanyEntries"
+    />
+  </div>
+
+  <CompanyApplicationReviewEntry
+    v-for="entry in companyEntries"
+    :key="entry.entryPath"
+    :entry-path="entry.entryPath"
+    :ignorable="entry.ignorable"
+  >
     <FormedInputTags
-      :initial-value="
-        reviewStore.getEntry('company.candidateNames')?.value as string[]
+      v-if="
+        entry.entryPath === 'company.candidateNames' ||
+        entry.entryPath === 'company.businessItems'
       "
-      placeholder="請輸入公司預查名稱"
+      :initial-value="entry.initialValue as string[]"
+      :placeholder="entry.placeholder"
       @submit="
-        (value) => reviewStore.editEntry('company.candidateNames', value)
+        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
       "
     />
-  </CompanyApplicationReviewEntry>
-
-  <!-- Company Chosen Name -->
-  <CompanyApplicationReviewEntry entry-path="company.chosenName" ignorable>
-    <FormedInput
-      :initial-value="
-        reviewStore.getEntry('company.chosenName')?.value as string
-      "
-      placeholder="請輸入公司選定名稱"
-      @submit="(value) => reviewStore.editEntry('company.chosenName', value)"
-    />
-  </CompanyApplicationReviewEntry>
-
-  <!-- Organization Type -->
-  <CompanyApplicationReviewEntry entry-path="company.organizationType">
     <FormedRadioGroup
-      :initial-value="
-        reviewStore.getEntry('company.organizationType')?.value as string
-      "
+      v-else-if="entry.entryPath === 'company.organizationType'"
+      :initial-value="entry.initialValue as string"
       :radio-group-items="organizationTypeItems"
       @submit="
-        (value) => reviewStore.editEntry('company.organizationType', value)
+        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
       "
     />
-  </CompanyApplicationReviewEntry>
-
-  <!-- Company Address -->
-  <CompanyApplicationReviewEntry entry-path="company.address">
     <FormedInput
-      :initial-value="reviewStore.getEntry('company.address')?.value as string"
-      placeholder="請輸入公司地址"
-      @submit="(value) => reviewStore.editEntry('company.address', value)"
-    />
-  </CompanyApplicationReviewEntry>
-
-  <!-- Business Items Description -->
-  <CompanyApplicationReviewEntry entry-path="company.businessItemsDescription">
-    <FormedInput
-      :initial-value="
-        reviewStore.getEntry('company.businessItemsDescription')
-          ?.value as string
-      "
-      placeholder="請輸入營業項目描述"
+      v-else
+      :disabled="!loggedIn && !entry.issue"
+      :initial-value="entry.initialValue as string"
+      :placeholder="entry.placeholder"
       @submit="
-        (value) =>
-          reviewStore.editEntry('company.businessItemsDescription', value)
+        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
       "
-    />
-  </CompanyApplicationReviewEntry>
-
-  <!-- Business Items -->
-  <CompanyApplicationReviewEntry entry-path="company.businessItems" ignorable>
-    <FormedInputTags
-      :initial-value="
-        reviewStore.getEntry('company.businessItems')?.value as string[]
-      "
-      placeholder="請輸入營業項目"
-      @submit="(value) => reviewStore.editEntry('company.businessItems', value)"
     />
   </CompanyApplicationReviewEntry>
 </template>
 
 <script setup lang="ts">
+import type { CompanyField } from "~/composables/stores/reviewEntry";
 import { organizationTypeItems } from "../helpers";
 
+const { loggedIn } = useUserSession();
+
 const reviewStore = useCompanyApplicationReviewStore();
+
+const companyFields: CompanyField[] = [
+  "candidateNames",
+  "chosenName",
+  "organizationType",
+  "address",
+  "businessItemsDescription",
+  "businessItems",
+];
+
+const companyEntryLabels = {
+  candidateNames: "預查名稱",
+  chosenName: "選定名稱",
+  organizationType: "組織型態",
+  address: "地址",
+  businessItemsDescription: "營業項目描述",
+  businessItems: "營業項目",
+};
+
+const companyEntries = computed<
+  {
+    entryPath: `company.${CompanyField}`;
+    initialValue: string | string[];
+    placeholder: string;
+    ignorable?: boolean;
+    issue?: ReviewIssue;
+  }[]
+>(() =>
+  companyFields.map((field) => {
+    const entry = reviewStore.getEntry(`company.${field}`);
+    if (!entry) {
+      throw new Error(`Entry ${`company.${field}`} not found`);
+    }
+    if (entry.state === "hasIssue" && entry.issue) {
+      return {
+        entryPath: `company.${field}`,
+        initialValue: entry.value,
+        placeholder: `請輸入${companyEntryLabels[field]}`,
+        ignorable: field === "businessItems" || field === "chosenName",
+        issue: entry.issue,
+      };
+    }
+    return {
+      entryPath: `company.${field}`,
+      initialValue: entry.value,
+      placeholder: `請輸入${companyEntryLabels[field]}`,
+      ignorable: field === "businessItems" || field === "chosenName",
+    };
+  })
+);
+
+const verifyAllCompanyEntries = () => {
+  companyFields.forEach((field) => {
+    const fieldPath = `company.${field}` as const;
+    const currentEntry = reviewStore.getEntry(fieldPath);
+
+    if (currentEntry && currentEntry.state === "reviewing") {
+      reviewStore.setEntry(fieldPath, {
+        ...currentEntry,
+        state: "verified",
+      });
+    }
+  });
+};
 </script>

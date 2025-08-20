@@ -83,7 +83,7 @@ const getPersonField = (name: string) =>
 
 // Form schema for company application
 export const companyApplicationFormSchema = z.object({
-  candicateNames: z
+  candidateNames: z
     .array(z.string().min(1, "公司名稱為必填"))
     .min(1, "請提供至少一個公司名稱")
     .max(5, "最多只能提供五個公司名稱"),
@@ -107,7 +107,7 @@ export const companyApplicationFormSchema = z.object({
 
 // Company application schema (server-side validation)
 export const companyApplicationSchema = z.object({
-  candicateNames: z
+  candidateNames: z
     .array(z.string().min(1, "公司名稱為必填"))
     .min(1, "請提供至少一個公司名稱"),
   organizationType: z.enum(

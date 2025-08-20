@@ -1,0 +1,1 @@
+ALTER TABLE "review_rounds" ALTER COLUMN "status" SET DEFAULT 'reviewing';

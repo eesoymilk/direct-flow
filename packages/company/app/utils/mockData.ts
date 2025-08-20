@@ -15,6 +15,9 @@ export const generateMockPerson = (): z.output<typeof personSchema> => ({
   name: faker.person.fullName(),
   idNumber: generateTaiwaneseIdNumber(),
   address: faker.location.streetAddress(true), // Full address with city, state, zip
+  telephone: faker.phone.number(),
+  cellphone: faker.phone.number(),
+  email: faker.internet.email(),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -103,7 +106,7 @@ export const generateMockFormData = () => {
 
   // Generate basic form data
   const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
-    candicateNames: generateMockCompanyNames(),
+    candidateNames: generateMockCompanyNames(),
     organizationType: faker.helpers.arrayElement([
       "limited_company",
       "company_limited",

@@ -50,6 +50,20 @@
       "when": 1755273564991,
       "tag": "0006_add-optionals-in-person-table",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1755658085553,
+      "tag": "0007_dusty_princess_powerful",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1755659915615,
+      "tag": "0008_silky_stranger",
+      "breakpoints": true
     }
   ]
 }

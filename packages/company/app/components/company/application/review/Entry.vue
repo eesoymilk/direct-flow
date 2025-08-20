@@ -2,7 +2,7 @@
   <div v-if="reviewEntry" class="text-sm space-y-2 sm:space-y-3">
     <div class="font-medium text-neutral-500 flex gap-1 items-center">
       <span>{{ reviewEntry.label }}</span>
-      <UButtonGroup class="ml-auto">
+      <UButtonGroup v-if="loggedIn" class="ml-auto">
         <!-- TODO: Consider the case when the entry is being edited -->
         <CompanyApplicationReviewIssueModal
           v-if="
@@ -23,7 +23,11 @@
         </CompanyApplicationReviewIssueModal>
 
         <UButton
-          v-if="props.ignorable"
+          v-if="
+            props.ignorable &&
+            (reviewEntry.state === 'reviewing' ||
+              reviewEntry.state === 'ignored')
+          "
           icon="i-lucide-eye-off"
           variant="subtle"
           :label="reviewEntry.state === 'ignored' ? '已忽略' : '忽略'"
@@ -47,14 +51,27 @@
     </div>
     <slot />
     <UCard
-      v-if="reviewEntry.state === 'hasIssue'"
-      class="text-red-600 text-xs bg-red-50"
-      :ui="{ body: 'sm:p-4 p-2' }"
+      v-if="
+        reviewEntry.state === 'hasIssue' ||
+        reviewEntry.state === 'issueResolved'
+      "
+      :class="
+        reviewEntry.state === 'issueResolved'
+          ? 'text-green-600 bg-green-50'
+          : 'text-red-600 bg-red-50'
+      "
     >
       <div class="flex items-center gap-2 md:gap-3">
-        <UIcon name="i-lucide-alert-triangle" :size="24" />
-        <span v-if="reviewEntry.issue?.description">
-          {{ reviewEntry.issue.description }}
+        <UIcon
+          :name="
+            reviewEntry.state === 'issueResolved'
+              ? 'i-lucide-check-circle'
+              : 'i-lucide-alert-triangle'
+          "
+          :size="24"
+        />
+        <span v-if="errorMessage">
+          {{ errorMessage }}
         </span>
       </div>
     </UCard>
@@ -63,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldPath, ReviewEntry } from "~/composables/stores/reviewEntry";
+import type { FieldPath } from "~/composables/stores/reviewEntry";
 
 const props = withDefaults(
   defineProps<{
@@ -74,6 +91,8 @@ const props = withDefaults(
     ignorable: false,
   }
 );
+
+const { user, loggedIn } = useUserSession();
 
 const reviewStore = useCompanyApplicationReviewStore();
 
@@ -96,6 +115,36 @@ const issueModalButtonProps = computed<{
     icon: "pajamas-issue-new",
     color: "warning",
   };
+});
+
+const issueTypeLabel = {
+  missing: "遺漏資料",
+  invalid: "資料無效",
+  clarification: "需要澄清",
+  modification: "需要修改",
+};
+
+const errorMessage = computed(() => {
+  if (!reviewEntry.value) {
+    return null;
+  }
+
+  if (
+    reviewEntry.value.state !== "hasIssue" &&
+    reviewEntry.value.state !== "issueResolved"
+  ) {
+    return null;
+  }
+
+  if (!reviewEntry.value.issue) {
+    return "請新增問題";
+  }
+
+  if (reviewEntry.value.issue.description) {
+    return reviewEntry.value.issue.description;
+  }
+
+  return `${issueTypeLabel[reviewEntry.value.issue.issueType]}`;
 });
 
 const handleSubmitIssue = (issue: ReviewIssue) => {

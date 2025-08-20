@@ -1,13 +1,26 @@
 <template>
+  <div v-if="loggedIn" class="flex justify-end col-span-full">
+    <UButton
+      icon="i-lucide-check"
+      :label="`驗證所有${personLabel}資料`"
+      color="success"
+      variant="outline"
+      size="sm"
+      @click="verifyAllPersonEntries"
+    />
+  </div>
   <CompanyApplicationReviewEntry
-    v-for="entry in personEntryPaths"
+    v-for="entry in personEntries"
     :key="entry.entryPath"
     :entry-path="entry.entryPath"
   >
     <FormedInput
-      :initial-value="reviewStore.getEntry(entry.entryPath)?.value as string"
+      :disabled="!loggedIn && !entry.issue"
+      :initial-value="entry.initialValue"
       :placeholder="entry.placeholder"
-      @submit="(value) => reviewStore.editEntry(entry.entryPath, value)"
+      @submit="
+        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
+      "
     />
   </CompanyApplicationReviewEntry>
 </template>
@@ -18,6 +31,8 @@ import type { PersonType, FieldPath } from "~/composables/stores/reviewEntry";
 const props = defineProps<{
   personType: PersonType;
 }>();
+
+const { loggedIn } = useUserSession();
 
 const reviewStore = useCompanyApplicationReviewStore();
 
@@ -32,35 +47,69 @@ const personLabel = computed(() => {
   }
 });
 
-const personEntryPaths = computed<
+const personEntryLabels = {
+  name: "姓名",
+  idNumber: "身分證號碼",
+  address: "地址",
+  telephone: "電話",
+  cellphone: "手機",
+  email: "電子郵件",
+};
+
+// TODO: add individual schema for each person entry
+const personEntries = computed<
   {
     entryPath: FieldPath;
+    initialValue: string;
     placeholder: string;
+    issue?: ReviewIssue;
   }[]
->(() => [
-  {
-    entryPath: `${props.personType}.name`,
-    placeholder: `請輸入${personLabel.value}姓名`,
-  },
-  {
-    entryPath: `${props.personType}.idNumber`,
-    placeholder: `請輸入${personLabel.value}身分證號碼`,
-  },
-  {
-    entryPath: `${props.personType}.address`,
-    placeholder: `請輸入${personLabel.value}地址`,
-  },
-  {
-    entryPath: `${props.personType}.telephone`,
-    placeholder: `請輸入${personLabel.value}電話`,
-  },
-  {
-    entryPath: `${props.personType}.cellphone`,
-    placeholder: `請輸入${personLabel.value}手機`,
-  },
-  {
-    entryPath: `${props.personType}.email`,
-    placeholder: `請輸入${personLabel.value}電子郵件`,
-  },
-]);
+>(() => {
+  const entryPaths = [
+    `${props.personType}.name`,
+    `${props.personType}.idNumber`,
+    `${props.personType}.address`,
+    `${props.personType}.telephone`,
+    `${props.personType}.cellphone`,
+    `${props.personType}.email`,
+  ] as const;
+
+  return entryPaths.map((entryPath) => {
+    const label =
+      personEntryLabels[
+        entryPath.split(".").pop() as keyof typeof personEntryLabels
+      ];
+    const entry = reviewStore.getEntry(entryPath);
+
+    if (!entry) {
+      throw new Error(`Entry ${entryPath} not found`);
+    }
+
+    if (entry.state === "hasIssue" && entry.issue) {
+      return {
+        entryPath,
+        initialValue: entry.value as string,
+        placeholder: `請輸入${personLabel.value}${label}`,
+        issue: entry.issue,
+      };
+    }
+    return {
+      entryPath,
+      initialValue: entry.value as string,
+      placeholder: `請輸入${personLabel.value}${label}`,
+    };
+  });
+});
+
+const verifyAllPersonEntries = () => {
+  personEntries.value.forEach((entry) => {
+    const currentEntry = reviewStore.getEntry(entry.entryPath);
+    if (currentEntry && currentEntry.state === "reviewing") {
+      reviewStore.setEntry(entry.entryPath, {
+        ...currentEntry,
+        state: "verified",
+      });
+    }
+  });
+};
 </script>

@@ -12,11 +12,9 @@ import { relations } from "drizzle-orm";
 
 // One “round” per staff pass over an application
 export const reviewRoundStatusEnum = pgEnum("review_round_status", [
-  "submitted",
   "reviewing",
-  "filing",
-  "approved",
-  "rejected",
+  "resolved",
+  "completed",
 ]);
 
 export const reviewIssueTypeEnum = pgEnum("review_issue_type", [
@@ -33,23 +31,15 @@ export const reviewIssueSeverityEnum = pgEnum("review_issue_severity", [
   "critical",
 ]);
 
-export const reviewIssueStatusEnum = pgEnum("review_issue_status", [
-  "open", // staff created
-  "resolved", // client acted
-  "verified", // staff confirmed
-]);
-
 export const reviewRounds = pgTable("review_rounds", {
   id: uuid("id").primaryKey().defaultRandom(),
   applicationId: uuid("application_id")
     .notNull()
     .references(() => companyApplications.id, { onDelete: "cascade" }),
-  status: reviewRoundStatusEnum("status").notNull(),
+  status: reviewRoundStatusEnum("status").notNull().default("reviewing"),
   summary: text("summary"),
-  startedAt: timestamp("started_at").notNull().defaultNow(),
-  startedBySub: varchar("started_by_sub").notNull(),
-  completedAt: timestamp("completed_at"),
-  completedBySub: varchar("completed_by_sub"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdBySub: varchar("created_by_sub").notNull(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   roundNo: integer("round_no").notNull().default(1), // round number is handy for UX, computed as 1 + count(*) per app
 });
@@ -63,11 +53,8 @@ export const reviewIssues = pgTable("review_issues", {
   issueType: reviewIssueTypeEnum("issue_type").notNull(),
   severity: reviewIssueSeverityEnum("severity").notNull(),
   description: text("description"),
-  status: reviewIssueStatusEnum("status").notNull().default("open"),
   createdAt: timestamp("created_at").notNull().defaultNow(), // Actor (createdBy) is the staff who created the linked review round
   resolvedAt: timestamp("resolved_at"), // Actor (resolvedBy) is unknown since it's from client using an invitation link or one-time code in the email
-  verifiedBySub: varchar("verified_by_sub"),
-  verifiedAt: timestamp("verified_at"),
 });
 
 export const reviewVerifications = pgTable("review_verifications", {

@@ -17,6 +17,8 @@ export const applicationStatusEnum = pgEnum("application_status", [
   "submitted",
   "staff_review",
   "pending_client_update",
+  "filing",
+  "filed",
   "approved",
   "rejected",
 ]);

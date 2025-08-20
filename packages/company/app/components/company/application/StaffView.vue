@@ -13,6 +13,19 @@
     </div>
 
     <!-- Review Actions Section -->
-    <CompanyApplicationReviewActions />
+    <CompanyApplicationReviewActions v-if="loggedIn" />
+    <div v-else class="flex justify-end">
+      <UButton
+        label="提交複查"
+        icon="i-lucide-send"
+        color="success"
+        variant="outline"
+        size="xl"
+      />
+    </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const { loggedIn } = useUserSession();
+</script>

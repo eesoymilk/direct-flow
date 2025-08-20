@@ -2,9 +2,9 @@
   <div class="space-y-4">
     <h2 class="text-xl font-semibold text-text mb-4">公司基本資料</h2>
 
-    <UFormField label="公司預查名稱" name="candicateNames">
+    <UFormField label="公司預查名稱" name="candidateNames">
       <UInputTags
-        v-model="applicationStore.form.candicateNames"
+        v-model="applicationStore.form.candidateNames"
         placeholder="請輸入公司預查名稱 (依偏好順序)"
         class="w-full"
         :max="5"

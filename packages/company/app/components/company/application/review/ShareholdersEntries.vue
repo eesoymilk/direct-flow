@@ -1,4 +1,14 @@
 <template>
+  <div class="flex justify-end col-span-full">
+    <UButton
+      icon="i-lucide-check"
+      label="驗證所有股東資料"
+      color="success"
+      variant="outline"
+      size="sm"
+      @click="verifyAllShareholdersEntries"
+    />
+  </div>
   <div class="space-y-4 md:space-y-6">
     <div
       v-if="reviewStore.reviewEntries.shareholders.length === 0"
@@ -19,11 +29,23 @@
     >
       <!-- Shareholder Header -->
       <template #header>
-        <div>
-          <h3 class="font-semibold text-gray-900">股東 {{ index + 1 }}</h3>
-          <p class="text-sm text-gray-500">
-            {{ shareholder.name.value }}
-          </p>
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="font-semibold text-gray-900">股東 {{ index + 1 }}</h3>
+            <p class="text-sm text-gray-500">
+              {{ shareholder.name.value }}
+            </p>
+          </div>
+          <div>
+            <UButton
+              icon="i-lucide-check"
+              :label="`驗證股東${index + 1}資料`"
+              color="success"
+              variant="outline"
+              size="sm"
+              @click="verifyShareholderEntries(index)"
+            />
+          </div>
         </div>
       </template>
 
@@ -83,4 +105,22 @@ const getShareholderEntryPaths = (index: number): ShareholderEntryPath[] => [
     placeholder: `請輸入股東${index + 1}電子郵件`,
   },
 ];
+
+const verifyShareholderEntries = (index: number) => {
+  getShareholderEntryPaths(index).forEach((entry) => {
+    const currentEntry = reviewStore.getEntry(entry.entryPath);
+    if (currentEntry && currentEntry.state === "reviewing") {
+      reviewStore.setEntry(entry.entryPath, {
+        ...currentEntry,
+        state: "verified",
+      });
+    }
+  });
+};
+
+const verifyAllShareholdersEntries = () => {
+  reviewStore.reviewEntries.shareholders.forEach((shareholder, index) => {
+    verifyShareholderEntries(index);
+  });
+};
 </script>

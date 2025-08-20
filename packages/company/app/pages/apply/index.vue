@@ -31,7 +31,7 @@
     <UForm
       ref="registrationForm"
       :state="applicationStore.form"
-      :schema="applicationStore.formSchema"
+      :schema="applicationStore.companyApplicationFormSchema"
       @error="handleFormError"
       @submit="handleFormSubmit"
     >

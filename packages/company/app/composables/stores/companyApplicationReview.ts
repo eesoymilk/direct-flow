@@ -1,3 +1,4 @@
+import * as z from "zod";
 import {
   type CompanyData,
   type PersonData,
@@ -8,12 +9,8 @@ import {
   filterEntriesByState,
   filterEntriesByStates,
   parseFieldPath,
+  type PersonType,
 } from "./reviewEntry";
-
-type ReviewRound = {
-  status: "reviewing" | "filing" | "approved" | "rejected";
-  summary: string;
-};
 
 type ReviewEntriesState = {
   company: CompanyData;
@@ -23,11 +20,24 @@ type ReviewEntriesState = {
   shareholders: PersonData[];
 };
 
+const reviewRoundSchema = z.object({
+  applicationStatus: z.enum([
+    "submitted",
+    "staff_review",
+    "pending_client_update",
+    "filing",
+    "filed",
+    "approved",
+    "rejected",
+  ]),
+  summary: z.string(),
+});
+
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
   () => {
-    const reviewRound = ref<ReviewRound>({
-      status: "reviewing",
+    const reviewRound = ref<z.infer<typeof reviewRoundSchema>>({
+      applicationStatus: "submitted",
       summary: "",
     });
 
@@ -41,25 +51,28 @@ export const useCompanyApplicationReviewStore = defineStore(
 
     const allEntries = computed((): ReviewEntry[] => {
       const entries: ReviewEntry[] = [];
-      
+
       // Company entries
       entries.push(...Object.values(reviewEntries.value.company));
-      
+
       // Person entries
       entries.push(...Object.values(reviewEntries.value.responsiblePerson));
       entries.push(...Object.values(reviewEntries.value.contactPerson));
       entries.push(...Object.values(reviewEntries.value.representative));
-      
+
       // Shareholder entries
-      reviewEntries.value.shareholders.forEach(shareholder => {
+      reviewEntries.value.shareholders.forEach((shareholder) => {
         entries.push(...Object.values(shareholder));
       });
-      
+
       return entries;
     });
 
     const entriesWithIssues = computed(() => {
-      return filterEntriesByStates(allEntries.value, ["hasIssue", "issueResolved"]);
+      return filterEntriesByStates(allEntries.value, [
+        "hasIssue",
+        "issueResolved",
+      ]);
     });
 
     const entriesUnderReview = computed(() => {
@@ -68,49 +81,69 @@ export const useCompanyApplicationReviewStore = defineStore(
 
     const getEntry = (path: FieldPath): ReviewEntry | undefined => {
       const parsed = parseFieldPath(path);
-      
-      if (parsed.type === 'company') {
+
+      if (parsed.type === "company") {
         return reviewEntries.value.company[parsed.field];
       }
-      
-      if (parsed.type === 'shareholder') {
+
+      if (parsed.type === "shareholder") {
         const shareholder = reviewEntries.value.shareholders[parsed.index];
         return shareholder?.[parsed.field];
       }
-      
+
       return reviewEntries.value[parsed.type][parsed.field];
     };
 
     const setEntry = (path: FieldPath, value: ReviewEntry): void => {
       const parsed = parseFieldPath(path);
-      
-      if (parsed.type === 'company') {
+
+      if (parsed.type === "company") {
         reviewEntries.value.company[parsed.field] = value;
         return;
       }
-      
-      if (parsed.type === 'shareholder') {
+
+      if (parsed.type === "shareholder") {
         const shareholder = reviewEntries.value.shareholders[parsed.index];
         if (shareholder) {
           shareholder[parsed.field] = value;
         }
         return;
       }
-      
+
       reviewEntries.value[parsed.type][parsed.field] = value;
     };
 
     const editEntry = (
       fieldPath: FieldPath,
-      value: string | string[]
+      value: string | string[],
+      isClient: boolean = false
     ) => {
       const currentEntry = getEntry(fieldPath);
       if (!currentEntry) return;
 
+      if (isClient) {
+        if (
+          !(
+            currentEntry.state === "hasIssue" ||
+            currentEntry.state === "issueResolved"
+          )
+        ) {
+          throw new Error("客戶不能夠修改無問題的資料");
+        }
+
+        setEntry(fieldPath, {
+          ...currentEntry,
+          value,
+          state: "issueResolved",
+        });
+
+        return;
+      }
+
       setEntry(fieldPath, {
         ...currentEntry,
         value,
-        state: "hasIssue",
+        state: isClient ? "hasIssue" : "verified",
         issue: {
           issueType: "modification",
           severity: "medium",
@@ -119,10 +152,11 @@ export const useCompanyApplicationReviewStore = defineStore(
       });
     };
 
-    // Validation helpers
     const validateReviewCompletion = () => {
-      const reviewingEntries = allEntries.value.filter(entry => entry.state === "reviewing");
-      
+      const reviewingEntries = allEntries.value.filter(
+        (entry) => entry.state === "reviewing"
+      );
+
       return {
         isComplete: reviewingEntries.length === 0,
         pendingCount: reviewingEntries.length,
@@ -132,22 +166,24 @@ export const useCompanyApplicationReviewStore = defineStore(
 
     const collectReviewData = () => {
       const issues: Array<{
-        fieldPath: string;
+        fieldPath: FieldPath;
         issueType: "missing" | "invalid" | "clarification" | "modification";
         severity: "low" | "medium" | "high" | "critical";
         description?: string;
       }> = [];
-      
+
       const verifications: Array<{
-        fieldPath: string;
-        note?: string;
+        fieldPath: FieldPath;
       }> = [];
 
-      // Collect issues and verifications from all entries
-      const processEntries = (entries: Record<string, ReviewEntry>, prefix: string) => {
+      // Helper function to process entries and extract issues/verifications
+      const processEntries = (
+        entries: Record<string, ReviewEntry>,
+        prefix: "company" | PersonType | `shareholders.${number}`
+      ) => {
         Object.entries(entries).forEach(([field, entry]) => {
-          const fieldPath = `${prefix}.${field}`;
-          
+          const fieldPath = `${prefix}.${field}` as FieldPath;
+
           if (entry.state === "hasIssue" && entry.issue) {
             issues.push({
               fieldPath,
@@ -158,7 +194,6 @@ export const useCompanyApplicationReviewStore = defineStore(
           } else if (entry.state === "verified") {
             verifications.push({
               fieldPath,
-              note: `已驗證: ${entry.label}`,
             });
           }
         });
@@ -166,12 +201,15 @@ export const useCompanyApplicationReviewStore = defineStore(
 
       // Process company entries
       processEntries(reviewEntries.value.company, "company");
-      
+
       // Process person entries
-      processEntries(reviewEntries.value.responsiblePerson, "responsiblePerson");
+      processEntries(
+        reviewEntries.value.responsiblePerson,
+        "responsiblePerson"
+      );
       processEntries(reviewEntries.value.contactPerson, "contactPerson");
       processEntries(reviewEntries.value.representative, "representative");
-      
+
       // Process shareholder entries
       reviewEntries.value.shareholders.forEach((shareholder, index) => {
         processEntries(shareholder, `shareholders.${index}`);
@@ -180,30 +218,20 @@ export const useCompanyApplicationReviewStore = defineStore(
       return { issues, verifications };
     };
 
-    // Submission methods
-    const submitReviewRound = async (
-      applicationId: string,
-      status: "approved" | "rejected" | "filing"
-    ) => {
-      const validation = validateReviewCompletion();
-      
-      if (!validation.isComplete && status !== "filing") {
-        throw new Error(`Cannot ${status} application: ${validation.pendingCount} entries still under review`);
-      }
-
-      const { issues, verifications } = collectReviewData();
-
+    const submitReviewRound = async (applicationId: string) => {
       const payload = {
-        status,
-        summary: reviewRound.value.summary,
-        issues,
-        verifications,
+        ...reviewRound.value,
+        issues: collectReviewData().issues,
+        verifications: collectReviewData().verifications,
       };
 
-      const { data } = await $fetch(`/api/applications/${applicationId}/review-rounds`, {
-        method: "POST",
-        body: payload,
-      });
+      const { data } = await $fetch(
+        `/api/applications/${applicationId}/review-rounds`,
+        {
+          method: "POST",
+          body: payload,
+        }
+      );
 
       return data;
     };
@@ -216,19 +244,22 @@ export const useCompanyApplicationReviewStore = defineStore(
         representative: createPersonData(),
         shareholders: [],
       };
-      
+
       reviewRound.value = {
-        status: "reviewing",
+        applicationStatus: "submitted",
         summary: "",
       };
     };
 
     // Helper function to initialize shareholder entries
     const initializeShareholderEntries = (shareholderData: any[]) => {
-      reviewEntries.value.shareholders = shareholderData.map(() => createPersonData());
+      reviewEntries.value.shareholders = shareholderData.map(() =>
+        createPersonData()
+      );
     };
 
     return {
+      reviewRoundSchema,
       reviewRound,
       reviewEntries,
       allEntries,
@@ -239,7 +270,6 @@ export const useCompanyApplicationReviewStore = defineStore(
       setEntry,
       editEntry,
       validateReviewCompletion,
-      collectReviewData,
       submitReviewRound,
       resetReviewState,
       initializeShareholderEntries,

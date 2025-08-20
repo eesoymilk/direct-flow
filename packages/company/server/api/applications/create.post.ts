@@ -31,7 +31,7 @@ export default eventHandler<{ body: CompanyApplicationSchema }>(
           : await createPerson(tx, director);
 
         const application = await createCompanyApplication(tx, {
-          candicateNames: data.candicateNames,
+          candidateNames: data.candidateNames,
           organizationType: data.organizationType,
           businessItemsDescription: data.businessItemsDescription,
           address: data.address,

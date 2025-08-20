@@ -10,11 +10,6 @@
     <div class="space-y-4">
       <!-- Review Status Overview -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="text-center p-3 bg-gray-50 rounded-lg">
-          <div class="text-2xl font-bold text-blue-600">{{ totalEntries }}</div>
-          <div class="text-sm text-gray-600">總項目</div>
-        </div>
-
         <div class="text-center p-3 bg-green-50 rounded-lg">
           <div class="text-2xl font-bold text-green-600">
             {{ verifiedCount }}
@@ -27,11 +22,25 @@
           <div class="text-sm text-gray-600">發現問題</div>
         </div>
 
-        <div class="text-center p-3 bg-orange-50 rounded-lg">
+        <div class="text-center p-3 bg-blue-50 rounded-lg">
+          <div class="text-2xl font-bold text-blue-600">
+            {{ resolvedCount }}
+          </div>
+          <div class="text-sm text-gray-600">已解決</div>
+        </div>
+
+        <div v-if="loggedIn" class="text-center p-3 bg-orange-50 rounded-lg">
           <div class="text-2xl font-bold text-orange-600">
             {{ reviewingCount }}
           </div>
           <div class="text-sm text-gray-600">待審核</div>
+        </div>
+
+        <div v-if="loggedIn" class="text-center p-3 bg-gray-50 rounded-lg">
+          <div class="text-2xl font-bold text-gray-600">
+            {{ ignoredCount }}
+          </div>
+          <div class="text-sm text-gray-600">已忽略</div>
         </div>
       </div>
 
@@ -89,6 +98,8 @@
 <script setup lang="ts">
 const reviewStore = useCompanyApplicationReviewStore();
 
+const { user, loggedIn } = useUserSession();
+
 // Computed properties for counts
 const totalEntries = computed(() => {
   const allEntries = [
@@ -109,14 +120,26 @@ const verifiedCount = computed(() => {
 });
 
 const issuesCount = computed(() => {
-  return reviewStore.entriesWithIssues.length;
+  return reviewStore.entriesWithIssues.filter(
+    (entry) => entry.state === "hasIssue"
+  ).length;
+});
+
+const resolvedCount = computed(() => {
+  return reviewStore.allEntries.filter(
+    (entry) => entry.state === "issueResolved"
+  ).length;
 });
 
 const reviewingCount = computed(() => {
   return reviewStore.entriesUnderReview.length;
 });
 
-// Completion status
+const ignoredCount = computed(() => {
+  return reviewStore.allEntries.filter((entry) => entry.state === "ignored")
+    .length;
+});
+
 const validation = computed(() => reviewStore.validateReviewCompletion());
 
 const completionStatusClass = computed(() => {

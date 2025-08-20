@@ -20,7 +20,7 @@
       class="space-y-4"
     >
       <UCard variant="subtle" class="relative overflow-visible">
-        <div class="space-y-4">
+        <div class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <UFormField label="姓名" name="name" class="w-full">
             <UInput
               v-model="shareholder.name"
@@ -41,6 +41,30 @@
             <UInput
               v-model="shareholder.address"
               placeholder="請輸入股東戶籍地址"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="電話" name="telephone">
+            <UInput
+              v-model="shareholder.telephone"
+              placeholder="請輸入股東電話"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="手機" name="cellphone">
+            <UInput
+              v-model="shareholder.cellphone"
+              placeholder="請輸入股東手機"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="電子郵件" name="email">
+            <UInput
+              v-model="shareholder.email"
+              placeholder="請輸入股東電子郵件"
               class="w-full"
             />
           </UFormField>

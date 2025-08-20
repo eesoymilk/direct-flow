@@ -7,9 +7,9 @@
       :state="applicationStore.form.responsiblePerson"
       :schema="applicationStore.personSchema"
       attach
-      class="space-y-4"
+      class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name" class="col-span-3">
+      <UFormField label="姓名" name="name">
         <UInput
           v-model="applicationStore.form.responsiblePerson.name"
           placeholder="請輸入負責人姓名"
@@ -17,7 +17,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber" class="col-span-3">
+      <UFormField label="身分證字號" name="idNumber">
         <UInput
           v-model="applicationStore.form.responsiblePerson.idNumber"
           placeholder="請輸入負責人身份證字號"
@@ -25,10 +25,34 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address" class="col-span-6">
+      <UFormField label="戶籍地址" name="address">
         <UInput
           v-model="applicationStore.form.responsiblePerson.address"
           placeholder="請輸入負責人戶籍地址"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電話" name="telephone">
+        <UInput
+          v-model="applicationStore.form.responsiblePerson.telephone"
+          placeholder="請輸入負責人電話"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="手機" name="cellphone">
+        <UInput
+          v-model="applicationStore.form.responsiblePerson.cellphone"
+          placeholder="請輸入負責人手機"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電子郵件" name="email">
+        <UInput
+          v-model="applicationStore.form.responsiblePerson.email"
+          placeholder="請輸入負責人電子郵件"
           class="w-full"
         />
       </UFormField>
@@ -58,9 +82,9 @@
       :state="applicationStore.form.director"
       :schema="applicationStore.personSchema"
       attach
-      class="space-y-4"
+      class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name" class="col-span-3">
+      <UFormField label="姓名" name="name">
         <UInput
           v-model="applicationStore.form.director.name"
           placeholder="請輸入董事姓名"
@@ -68,7 +92,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber" class="col-span-3">
+      <UFormField label="身分證字號" name="idNumber">
         <UInput
           v-model="applicationStore.form.director.idNumber"
           placeholder="請輸入董事身分證字號"
@@ -76,10 +100,34 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address" class="col-span-6">
+      <UFormField label="戶籍地址" name="address">
         <UInput
           v-model="applicationStore.form.director.address"
           placeholder="請輸入董事戶籍地址"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電話" name="telephone">
+        <UInput
+          v-model="applicationStore.form.director.telephone"
+          placeholder="請輸入董事電話"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="手機" name="cellphone">
+        <UInput
+          v-model="applicationStore.form.director.cellphone"
+          placeholder="請輸入董事手機"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電子郵件" name="email">
+        <UInput
+          v-model="applicationStore.form.director.email"
+          placeholder="請輸入董事電子郵件"
           class="w-full"
         />
       </UFormField>
@@ -112,9 +160,9 @@
     <UForm
       :state="applicationStore.form.contactPerson"
       :schema="applicationStore.personSchema"
-      class="space-y-4"
+      class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name" class="col-span-3">
+      <UFormField label="姓名" name="name">
         <UInput
           v-model="applicationStore.form.contactPerson.name"
           placeholder="請輸入聯絡人姓名"
@@ -122,7 +170,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber" class="col-span-3">
+      <UFormField label="身分證字號" name="idNumber">
         <UInput
           v-model="applicationStore.form.contactPerson.idNumber"
           placeholder="請輸入聯絡人身分證字號"
@@ -130,10 +178,34 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address" class="col-span-6">
+      <UFormField label="戶籍地址" name="address">
         <UInput
           v-model="applicationStore.form.contactPerson.address"
           placeholder="請輸入聯絡人戶籍地址"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電話" name="telephone">
+        <UInput
+          v-model="applicationStore.form.contactPerson.telephone"
+          placeholder="請輸入聯絡人電話"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="手機" name="cellphone">
+        <UInput
+          v-model="applicationStore.form.contactPerson.cellphone"
+          placeholder="請輸入聯絡人手機"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="電子郵件" name="email">
+        <UInput
+          v-model="applicationStore.form.contactPerson.email"
+          placeholder="請輸入聯絡人電子郵件"
           class="w-full"
         />
       </UFormField>
