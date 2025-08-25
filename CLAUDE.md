@@ -1,0 +1,126 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Structure
+
+This is a pnpm monorepo with two main packages:
+
+- `packages/base/` - Nuxt base configuration package
+- `packages/company/` - Main company registration management application
+
+The company package extends the base configuration and contains the full application logic.
+
+## Common Development Commands
+
+### Package Management
+```bash
+# Install dependencies (from root)
+pnpm install
+
+# Run commands in specific workspace
+pnpm --filter @direct-flow/company [command]
+```
+
+### Development
+```bash
+# Start development server (company app)
+cd packages/company && pnpm dev
+
+# Start development server (base)
+cd packages/base && pnpm dev
+```
+
+### Build and Production
+```bash
+# Build for production
+cd packages/company && pnpm build
+
+# Preview production build
+cd packages/company && pnpm preview
+```
+
+### Database Operations
+```bash
+# Generate database migrations
+cd packages/company && pnpm db:generate
+
+# Run database migrations  
+cd packages/company && pnpm db:migrate
+```
+
+### Code Quality
+```bash
+# Run ESLint
+cd packages/company && npx eslint .
+
+# Format with Prettier
+cd packages/company && npx prettier --write .
+```
+
+## Application Architecture
+
+### Technology Stack
+- **Frontend**: Nuxt 4 with Vue 3 and TypeScript
+- **UI Framework**: Nuxt UI with Tailwind CSS
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: nuxt-auth-utils
+- **State Management**: Pinia
+- **Package Manager**: pnpm (workspaces enabled)
+
+### Database Architecture
+The application uses Drizzle ORM with PostgreSQL. Database schemas are located in `packages/company/server/database/schema/` and organized by domain:
+
+- `company/` - Company entity schemas
+- `person/` - Person and representative schemas  
+- `document/` - Document management schemas
+- `companyApplication/` - Application workflow schemas
+- `companyApplicationReview/` - Review process schemas
+
+Migrations are managed with Drizzle Kit and stored in `server/database/migrations/`.
+
+### Application Structure
+The company application follows Nuxt conventions:
+
+- `app/` - Main application code (components, pages, layouts)
+- `server/` - Server-side API routes and database logic
+- `shared/` - Shared types and utilities (auto-imported)
+- `composables/` - Vue composables including Pinia stores
+- `utils/` - Utility functions and helpers
+- `middleware/` - Route middleware for authentication and authorization
+
+### Key Features
+This is a company registration management system with:
+
+- Multi-step company registration forms
+- Document upload and management
+- Application review workflow with multiple stages
+- User role management (clients, staff, CPAs)
+- Database-driven form state management
+
+### Authentication & Authorization
+Uses role-based access control with middleware:
+
+- `auth.ts` - General authentication check
+- `client-only.ts` - Client-specific routes
+- `cpa-only.ts` - CPA staff-only routes  
+- `guest.ts` - Public/unauthenticated routes
+
+### Development Configuration
+- ESLint configured with Nuxt defaults
+- Prettier with standard formatting rules
+- TypeScript strict mode enabled
+- Database URL defaults to `postgresql://direct:devpass@localhost:5432/df`
+
+## Working with the Codebase
+
+When making changes:
+
+1. Use the existing Drizzle schema patterns for database changes
+2. Follow Nuxt file-based routing conventions
+3. Utilize the shared utilities and types from the `shared/` directory
+4. Maintain the existing component structure in `app/components/`
+5. Use Pinia stores in `composables/stores/` for state management
+6. Apply proper TypeScript types from `shared/types/`
+
+The application extends the base package configuration, so changes to core Nuxt settings should be made in `packages/base/` when they need to be shared.
