@@ -25,13 +25,3 @@ export type QueryParams = {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 };
-
-export type Person = InferSelectModel<typeof schema.people>;
-export type PersonInsert = InferInsertModel<typeof schema.people>;
-
-export type CompanyApplication = InferSelectModel<
-  typeof schema.companyApplications
->;
-export type CompanyApplicationInsert = InferInsertModel<
-  typeof schema.companyApplications
->;

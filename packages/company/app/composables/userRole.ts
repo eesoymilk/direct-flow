@@ -1,7 +1,5 @@
 import { useStorage } from "@vueuse/core";
 
-export type UserRole = "staff" | "client";
-
 export type DebugMode = {
   role: UserRole;
 };

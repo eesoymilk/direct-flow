@@ -188,3 +188,4 @@ export type CompanyApplicationFormSchema = z.infer<
 >;
 export type CompanyApplicationSchema = z.infer<typeof companyApplicationSchema>;
 export type DocumentSchema = z.infer<typeof documentSchema>;
+

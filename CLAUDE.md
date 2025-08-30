@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Structure
 
-This is a pnpm monorepo with two main packages:
+This is a Nuxt layers architecture using pnpm workspace:
 
-- `packages/base/` - Nuxt base configuration package
-- `packages/company/` - Main company registration management application
+- `packages/base/` - Nuxt base layer with common code and configuration for future projects
+- `packages/company/` - Main company registration management application (extends the base layer)
 
-The company package extends the base configuration and contains the full application logic.
+The company project extends the base layer configuration. The base layer contains shared components, middleware, and configurations that will be reused when additional projects are added to the workspace.
 
 ## Common Development Commands
 
@@ -123,4 +123,4 @@ When making changes:
 5. Use Pinia stores in `composables/stores/` for state management
 6. Apply proper TypeScript types from `shared/types/`
 
-The application extends the base package configuration, so changes to core Nuxt settings should be made in `packages/base/` when they need to be shared.
+The company application extends the base layer, so changes to shared Nuxt configurations, components, or middleware should be made in `packages/base/` when they need to be available across multiple future projects.

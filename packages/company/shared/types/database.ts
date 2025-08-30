@@ -1,0 +1,94 @@
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import {
+  companies,
+  people,
+  documents,
+  documentTypes,
+  companyApplications,
+  applicationDocuments,
+  applicationShareholders,
+  reviewRounds,
+  reviewIssues,
+  reviewVerifications,
+  shareholders,
+  companyDocuments,
+  personDocuments,
+  organizationTypeEnum,
+  applicationStatusEnum,
+  reviewRoundStatusEnum,
+  reviewIssueTypeEnum,
+  reviewIssueSeverityEnum,
+} from "../../server/database/schema";
+
+// Database select types (what comes out of queries)
+export type Company = InferSelectModel<typeof companies>;
+export type Person = InferSelectModel<typeof people>;
+export type Document = InferSelectModel<typeof documents>;
+export type DocumentType = InferSelectModel<typeof documentTypes>;
+export type CompanyApplication = InferSelectModel<typeof companyApplications>;
+export type ApplicationDocument = InferSelectModel<typeof applicationDocuments>;
+export type ApplicationShareholder = InferSelectModel<typeof applicationShareholders>;
+export type ReviewRound = InferSelectModel<typeof reviewRounds>;
+export type ReviewIssue = InferSelectModel<typeof reviewIssues>;
+export type ReviewVerification = InferSelectModel<typeof reviewVerifications>;
+export type Shareholder = InferSelectModel<typeof shareholders>;
+export type CompanyDocument = InferSelectModel<typeof companyDocuments>;
+export type PersonDocument = InferSelectModel<typeof personDocuments>;
+
+// Database insert types (what goes into inserts)
+export type CompanyInsert = InferInsertModel<typeof companies>;
+export type PersonInsert = InferInsertModel<typeof people>;
+export type DocumentInsert = InferInsertModel<typeof documents>;
+export type DocumentTypeInsert = InferInsertModel<typeof documentTypes>;
+export type CompanyApplicationInsert = InferInsertModel<typeof companyApplications>;
+export type ApplicationDocumentInsert = InferInsertModel<typeof applicationDocuments>;
+export type ApplicationShareholderInsert = InferInsertModel<typeof applicationShareholders>;
+export type ReviewRoundInsert = InferInsertModel<typeof reviewRounds>;
+export type ReviewIssueInsert = InferInsertModel<typeof reviewIssues>;
+export type ReviewVerificationInsert = InferInsertModel<typeof reviewVerifications>;
+export type ShareholderInsert = InferInsertModel<typeof shareholders>;
+export type CompanyDocumentInsert = InferInsertModel<typeof companyDocuments>;
+export type PersonDocumentInsert = InferInsertModel<typeof personDocuments>;
+
+// Enum types
+export type OrganizationType = typeof organizationTypeEnum.enumValues[number];
+export type ApplicationStatus = typeof applicationStatusEnum.enumValues[number];
+export type ReviewRoundStatus = typeof reviewRoundStatusEnum.enumValues[number];
+export type ReviewIssueType = typeof reviewIssueTypeEnum.enumValues[number];
+export type ReviewIssueSeverity = typeof reviewIssueSeverityEnum.enumValues[number];
+
+// Application-specific composite types for client usage
+export type CompanyApplicationWithDetails = CompanyApplication & {
+  responsiblePerson?: Person;
+  contactPerson?: Person;
+  representative?: Person;
+  shareholders: (ApplicationShareholder & { person: Person })[];
+  documents: (ApplicationDocument & { document: Document })[];
+  reviewRounds: (ReviewRound & {
+    reviewIssues: ReviewIssue[];
+    reviewVerifications: ReviewVerification[];
+  })[];
+};
+
+// User role types (since clients don't need to login)
+export type UserRole = "client" | "staff";
+
+// Form-specific types that match Zod schemas
+export type PersonForm = {
+  name: string;
+  idNumber: string;
+  address: string;
+  telephone: string;
+  cellphone: string;
+  email: string;
+};
+
+export type CompanyApplicationForm = {
+  candidateNames: string[];
+  organizationType: OrganizationType;
+  businessItemsDescription: string;
+  address: string;
+  isDirectorSameAsResponsiblePerson: boolean;
+  isContactPersonSameAsResponsiblePerson: boolean;
+  isContactPersonSameAsDirector: boolean;
+};
