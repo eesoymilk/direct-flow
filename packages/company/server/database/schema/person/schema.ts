@@ -1,5 +1,5 @@
-import { pgTable, serial, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { pgTable, serial, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
 import { documents } from "../document/schema";
 import { companies } from "../company/schema";
 

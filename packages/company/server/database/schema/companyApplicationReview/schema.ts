@@ -11,25 +11,20 @@ import { companyApplications } from "../companyApplication/schema";
 import { relations } from "drizzle-orm";
 
 // One “round” per staff pass over an application
-export const reviewRoundStatusEnum = pgEnum("review_round_status", [
-  "reviewing",
-  "resolved",
-  "completed",
-]);
+export const reviewRoundStatusEnum = pgEnum(
+  "review_round_status",
+  REVIEW_ROUND_STATUS
+);
 
-export const reviewIssueTypeEnum = pgEnum("review_issue_type", [
-  "missing",
-  "invalid",
-  "clarification",
-  "modification",
-]);
+export const reviewIssueTypeEnum = pgEnum(
+  "review_issue_type",
+  REVIEW_ISSUE_TYPE
+);
 
-export const reviewIssueSeverityEnum = pgEnum("review_issue_severity", [
-  "low",
-  "medium",
-  "high",
-  "critical",
-]);
+export const reviewIssueSeverityEnum = pgEnum(
+  "review_issue_severity",
+  REVIEW_ISSUE_SEVERITY
+);
 
 export const reviewRounds = pgTable("review_rounds", {
   id: uuid("id").primaryKey().defaultRandom(),

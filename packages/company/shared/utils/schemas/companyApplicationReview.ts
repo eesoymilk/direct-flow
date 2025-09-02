@@ -1,49 +1,65 @@
 import * as z from "zod";
-import type { ReviewIssueType, ReviewIssueSeverity, ReviewRoundStatus } from "../../types/database";
+import { responseBaseSchema } from "./helpers";
 
-// Review issue type validation (matching database enum)
-export const reviewIssueTypeSchema = z.enum(
-  ["missing", "invalid", "clarification", "modification"] as const,
-  {
-    message: "請選擇問題類型",
-  }
-) satisfies z.ZodType<ReviewIssueType>;
+export const reviewIssueTypeSchema = z.enum(REVIEW_ISSUE_TYPE, {
+  message: "請選擇問題類型",
+});
 
-// Review issue severity validation (matching database enum)
-export const reviewIssueSeveritySchema = z.enum(
-  ["low", "medium", "high", "critical"] as const,
-  {
-    message: "請選擇問題嚴重性",
-  }
-) satisfies z.ZodType<ReviewIssueSeverity>;
+export const reviewIssueSeveritySchema = z.enum(REVIEW_ISSUE_SEVERITY, {
+  message: "請選擇問題嚴重性",
+});
 
-// Review round status validation (matching database enum)
-export const reviewRoundStatusSchema = z.enum([
-  "reviewing",
-  "resolved",
-  "completed",
-] as const) satisfies z.ZodType<ReviewRoundStatus>;
+export const reviewRoundStatusSchema = z.enum(REVIEW_ROUND_STATUS, {
+  message: "請選擇狀態",
+});
 
-// Review issue schema for form validation
-export const reviewIssueFormSchema = z.object({
+export const reviewIssueSchema = z.object({
   fieldPath: z.string().min(1, "欄位路徑為必填"),
   issueType: reviewIssueTypeSchema,
   severity: reviewIssueSeveritySchema,
   description: z.string().optional(),
 });
 
-// Review round creation schema
-export const reviewRoundCreateSchema = z.object({
-  applicationId: z.string().uuid("無效的申請ID"),
-  summary: z.string().optional(),
-  reviewIssues: z.array(reviewIssueFormSchema).optional(),
+export const reviewVerificationSchema = z.object({
+  fieldPath: z.string().min(1, "欄位路徑為必填"),
+  note: z.string().optional(),
 });
 
-// Legacy exports for backward compatibility
-export const reviewIssueSchema = reviewIssueFormSchema;
-export const companyApplicationReviewStatusSchema = reviewRoundStatusSchema;
-export const reviewRoundSchema = reviewRoundCreateSchema;
+export const reviewRoundSchema = z.object({
+  applicationId: z.string().uuid("無效的申請ID"),
+  summary: z.string().optional(),
+  status: reviewRoundStatusSchema,
+});
 
-// Type exports
-export type ReviewIssueForm = z.infer<typeof reviewIssueFormSchema>;
-export type ReviewRoundCreate = z.infer<typeof reviewRoundCreateSchema>;
+export const reviewIssueResponseSchema = z.object({
+  ...reviewIssueSchema.shape,
+  ...responseBaseSchema.omit({ updatedAt: true }).shape,
+  roundId: z.string().uuid(),
+  resolvedAt: z.coerce.date().optional(),
+});
+
+export const reviewVerificationResponseSchema = z.object({
+  ...reviewVerificationSchema.shape,
+  ...responseBaseSchema.omit({ updatedAt: true }).shape,
+  roundId: z.string().uuid(),
+  verifiedAt: z.coerce.date(),
+});
+
+export const reviewRoundResponseSchema = z.object({
+  ...reviewRoundSchema.shape,
+  ...responseBaseSchema.shape,
+  reviewIssues: reviewIssueResponseSchema.array(),
+  reviewVerifications: reviewVerificationResponseSchema.array(),
+  roundNo: z.number().int(),
+  createdBySub: z.string(),
+});
+
+export type ReviewIssueSchema = z.infer<typeof reviewIssueSchema>;
+export type ReviewVerificationSchema = z.infer<typeof reviewVerificationSchema>;
+export type ReviewRoundSchema = z.infer<typeof reviewRoundSchema>;
+
+export type ReviewIssueResponse = z.infer<typeof reviewIssueResponseSchema>;
+export type ReviewVerificationResponse = z.infer<
+  typeof reviewVerificationResponseSchema
+>;
+export type ReviewRoundResponse = z.infer<typeof reviewRoundResponseSchema>;

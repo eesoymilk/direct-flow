@@ -1,121 +1,113 @@
 <template>
-  <div v-if="loggedIn" class="flex justify-end col-span-full">
-    <UButton
-      color="primary"
-      label="驗證所有公司資料"
-      icon="i-lucide-check"
-      variant="outline"
-      size="sm"
-      @click="verifyAllCompanyEntries"
-    />
-  </div>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">公司基本資料</h3>
+        <div class="flex items-center gap-2">
+          <UBadge 
+            v-if="sectionStatus.hasIssues" 
+            :label="`${sectionStatus.issueCount} 個問題`"
+            color="red" 
+            variant="subtle" 
+          />
+          <UBadge 
+            v-else-if="sectionStatus.isComplete"
+            label="已完成"
+            color="green"
+            variant="subtle"
+          />
+          <UButton
+            v-if="loggedIn && !sectionStatus.hasIssues"
+            size="sm"
+            color="green"
+            variant="outline"
+            icon="i-lucide-check"
+            @click="verifySection"
+          >
+            驗證此部分
+          </UButton>
+        </div>
+      </div>
+    </template>
 
-  <CompanyApplicationReviewEntry
-    v-for="entry in companyEntries"
-    :key="entry.entryPath"
-    :entry-path="entry.entryPath"
-    :ignorable="entry.ignorable"
-  >
-    <FormedInputTags
-      v-if="
-        entry.entryPath === 'company.candidateNames' ||
-        entry.entryPath === 'company.businessItems'
-      "
-      :initial-value="entry.initialValue as string[]"
-      :placeholder="entry.placeholder"
-      @submit="
-        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
-      "
-    />
-    <FormedRadioGroup
-      v-else-if="entry.entryPath === 'company.organizationType'"
-      :initial-value="entry.initialValue as string"
-      :radio-group-items="organizationTypeItems"
-      @submit="
-        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
-      "
-    />
-    <FormedInput
-      v-else
-      :disabled="!loggedIn && !entry.issue"
-      :initial-value="entry.initialValue as string"
-      :placeholder="entry.placeholder"
-      @submit="
-        (value) => reviewStore.editEntry(entry.entryPath, value, !loggedIn)
-      "
-    />
-  </CompanyApplicationReviewEntry>
+    <div class="space-y-6">
+      <!-- Company Names -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">候選公司名稱</label>
+        <div class="flex flex-wrap gap-2">
+          <UBadge 
+            v-for="(name, index) in application.candidateNames" 
+            :key="index"
+            :label="name"
+            :variant="index === 0 ? 'solid' : 'soft'"
+            color="primary"
+          />
+        </div>
+        <CompanyApplicationReviewFieldStatus field-path="company.candidateNames" :application="application" />
+      </div>
+
+      <!-- Organization Type -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">組織類型</label>
+        <p class="text-gray-900">{{ getOrganizationTypeLabel(application.organizationType) }}</p>
+        <CompanyApplicationReviewFieldStatus field-path="company.organizationType" :application="application" />
+      </div>
+
+      <!-- Business Description -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">營業項目描述</label>
+        <p class="text-gray-900">{{ application.businessItemsDescription }}</p>
+        <CompanyApplicationReviewFieldStatus field-path="company.businessItemsDescription" :application="application" />
+      </div>
+
+      <!-- Address -->
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">公司地址</label>
+        <p class="text-gray-900">{{ application.address }}</p>
+        <CompanyApplicationReviewFieldStatus field-path="company.address" :application="application" />
+      </div>
+
+      <!-- Capital Information (if available) -->
+      <div v-if="application.capitalAmount || application.authorizedShares" class="space-y-4">
+        <div v-if="application.capitalAmount" class="space-y-2">
+          <label class="text-sm font-medium text-gray-700">資本額</label>
+          <p class="text-gray-900">NT$ {{ application.capitalAmount?.toLocaleString() }}</p>
+        </div>
+        
+        <div v-if="application.authorizedShares" class="space-y-2">
+          <label class="text-sm font-medium text-gray-700">股份資訊</label>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div v-if="application.ordinaryShares">
+              <span class="text-gray-600">普通股：</span>
+              <span class="font-medium">{{ application.ordinaryShares.toLocaleString() }}</span>
+            </div>
+            <div v-if="application.preferredShares">
+              <span class="text-gray-600">特別股：</span>
+              <span class="font-medium">{{ application.preferredShares.toLocaleString() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
-import type { CompanyField } from "~/composables/stores/reviewEntry";
-import { organizationTypeItems } from "../helpers";
+import { getOrganizationTypeLabel } from "~/utils/labels";
 
+interface Props {
+  application: any; // TODO: Add proper typing
+}
+
+const props = defineProps<Props>();
 const { loggedIn } = useUserSession();
 
-const reviewStore = useCompanyApplicationReviewStore();
+// Use the new review overlay system
+const { getSectionStatus } = useReviewOverlay(props.application);
+const sectionStatus = computed(() => getSectionStatus('company'));
 
-const companyFields: CompanyField[] = [
-  "candidateNames",
-  "chosenName",
-  "organizationType",
-  "address",
-  "businessItemsDescription",
-  "businessItems",
-];
-
-const companyEntryLabels = {
-  candidateNames: "預查名稱",
-  chosenName: "選定名稱",
-  organizationType: "組織型態",
-  address: "地址",
-  businessItemsDescription: "營業項目描述",
-  businessItems: "營業項目",
-};
-
-const companyEntries = computed<
-  {
-    entryPath: `company.${CompanyField}`;
-    initialValue: string | string[];
-    placeholder: string;
-    ignorable?: boolean;
-    issue?: ReviewIssue;
-  }[]
->(() =>
-  companyFields.map((field) => {
-    const entry = reviewStore.getEntry(`company.${field}`);
-    if (!entry) {
-      throw new Error(`Entry ${`company.${field}`} not found`);
-    }
-    if (entry.state === "hasIssue" && entry.issue) {
-      return {
-        entryPath: `company.${field}`,
-        initialValue: entry.value,
-        placeholder: `請輸入${companyEntryLabels[field]}`,
-        ignorable: field === "businessItems" || field === "chosenName",
-        issue: entry.issue,
-      };
-    }
-    return {
-      entryPath: `company.${field}`,
-      initialValue: entry.value,
-      placeholder: `請輸入${companyEntryLabels[field]}`,
-      ignorable: field === "businessItems" || field === "chosenName",
-    };
-  })
-);
-
-const verifyAllCompanyEntries = () => {
-  companyFields.forEach((field) => {
-    const fieldPath = `company.${field}` as const;
-    const currentEntry = reviewStore.getEntry(fieldPath);
-
-    if (currentEntry && currentEntry.state === "reviewing") {
-      reviewStore.setEntry(fieldPath, {
-        ...currentEntry,
-        state: "verified",
-      });
-    }
-  });
+const verifySection = () => {
+  // TODO: Implement section verification
+  console.log('Verifying company section');
 };
 </script>

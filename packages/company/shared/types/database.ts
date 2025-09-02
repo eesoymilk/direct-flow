@@ -14,11 +14,6 @@ import {
   shareholderShares,
   companyDocuments,
   personDocuments,
-  organizationTypeEnum,
-  applicationStatusEnum,
-  reviewRoundStatusEnum,
-  reviewIssueTypeEnum,
-  reviewIssueSeverityEnum,
 } from "../../server/database/schema";
 
 // Database select types (what comes out of queries)
@@ -28,7 +23,9 @@ export type Document = InferSelectModel<typeof documents>;
 export type DocumentType = InferSelectModel<typeof documentTypes>;
 export type CompanyApplication = InferSelectModel<typeof companyApplications>;
 export type ApplicationDocument = InferSelectModel<typeof applicationDocuments>;
-export type ApplicationShareholder = InferSelectModel<typeof applicationShareholders>;
+export type ApplicationShareholder = InferSelectModel<
+  typeof applicationShareholders
+>;
 export type ReviewRound = InferSelectModel<typeof reviewRounds>;
 export type ReviewIssue = InferSelectModel<typeof reviewIssues>;
 export type ReviewVerification = InferSelectModel<typeof reviewVerifications>;
@@ -42,36 +39,24 @@ export type CompanyInsert = InferInsertModel<typeof companies>;
 export type PersonInsert = InferInsertModel<typeof people>;
 export type DocumentInsert = InferInsertModel<typeof documents>;
 export type DocumentTypeInsert = InferInsertModel<typeof documentTypes>;
-export type CompanyApplicationInsert = InferInsertModel<typeof companyApplications>;
-export type ApplicationDocumentInsert = InferInsertModel<typeof applicationDocuments>;
-export type ApplicationShareholderInsert = InferInsertModel<typeof applicationShareholders>;
+export type CompanyApplicationInsert = InferInsertModel<
+  typeof companyApplications
+>;
+export type ApplicationDocumentInsert = InferInsertModel<
+  typeof applicationDocuments
+>;
+export type ApplicationShareholderInsert = InferInsertModel<
+  typeof applicationShareholders
+>;
 export type ReviewRoundInsert = InferInsertModel<typeof reviewRounds>;
 export type ReviewIssueInsert = InferInsertModel<typeof reviewIssues>;
-export type ReviewVerificationInsert = InferInsertModel<typeof reviewVerifications>;
+export type ReviewVerificationInsert = InferInsertModel<
+  typeof reviewVerifications
+>;
 export type ShareholderInsert = InferInsertModel<typeof shareholders>;
 export type ShareholderShareInsert = InferInsertModel<typeof shareholderShares>;
 export type CompanyDocumentInsert = InferInsertModel<typeof companyDocuments>;
 export type PersonDocumentInsert = InferInsertModel<typeof personDocuments>;
-
-// Enum types
-export type OrganizationType = typeof organizationTypeEnum.enumValues[number];
-export type ApplicationStatus = typeof applicationStatusEnum.enumValues[number];
-export type ReviewRoundStatus = typeof reviewRoundStatusEnum.enumValues[number];
-export type ReviewIssueType = typeof reviewIssueTypeEnum.enumValues[number];
-export type ReviewIssueSeverity = typeof reviewIssueSeverityEnum.enumValues[number];
-
-// Application-specific composite types for client usage
-export type CompanyApplicationWithDetails = CompanyApplication & {
-  responsiblePerson?: Person;
-  contactPerson?: Person;
-  representative?: Person;
-  shareholders: (ApplicationShareholder & { person: Person })[];
-  documents: (ApplicationDocument & { document: Document })[];
-  reviewRounds: (ReviewRound & {
-    reviewIssues: ReviewIssue[];
-    reviewVerifications: ReviewVerification[];
-  })[];
-};
 
 // Composite types for shareholders with shares
 export type ShareholderWithDetails = Shareholder & {

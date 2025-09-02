@@ -61,33 +61,29 @@
         <h4 class="font-medium text-gray-900">發現的問題</h4>
         <div class="space-y-2 max-h-32 overflow-y-auto">
           <div
-            v-for="entry in reviewStore.entriesWithIssues"
-            :key="entry.label"
+            v-for="issue in reviewOverlay.issues"
+            :key="issue.fieldPath"
             class="flex items-center gap-2 text-sm p-2 bg-red-50 rounded"
           >
             <UIcon
               name="i-lucide-alert-triangle"
               class="w-4 h-4 text-red-600"
             />
-            <span class="font-medium">{{ entry.label }}:</span>
+            <span class="font-medium">{{ issue.fieldPath }}:</span>
             <span class="text-red-600">{{
-              getSeverityText(entry.issue?.severity)
+              getSeverityLabel(issue.severity)
             }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Pending Review List (if any) -->
-      <div v-if="reviewingCount > 0" class="space-y-2">
-        <h4 class="font-medium text-gray-900">待審核項目</h4>
-        <div class="space-y-1 max-h-32 overflow-y-auto">
-          <div
-            v-for="entry in reviewStore.entriesUnderReview"
-            :key="entry.label"
-            class="flex items-center gap-2 text-sm p-2 bg-orange-50 rounded"
-          >
-            <UIcon name="i-lucide-clock" class="w-4 h-4 text-orange-600" />
-            <span>{{ entry.label }}</span>
+      <!-- Review Status -->
+      <div class="p-3 rounded-lg" :class="completionStatusClass">
+        <div class="flex items-center gap-2">
+          <UIcon :name="completionStatusIcon" class="w-5 h-5" />
+          <div>
+            <div class="font-medium">{{ completionStatusText }}</div>
+            <div class="text-sm opacity-75">{{ completionStatusSubtext }}</div>
           </div>
         </div>
       </div>
@@ -96,93 +92,76 @@
 </template>
 
 <script setup lang="ts">
-const reviewStore = useCompanyApplicationReviewStore();
+import { getSeverityLabel } from "~/utils/labels";
 
+interface Props {
+  application: any; // TODO: Add proper typing
+}
+
+const props = defineProps<Props>();
 const { user, loggedIn } = useUserSession();
 
-// Computed properties for counts
-const totalEntries = computed(() => {
-  const allEntries = [
-    ...Object.values(reviewStore.reviewEntries.company),
-    ...Object.values(reviewStore.reviewEntries.responsiblePerson),
-    ...Object.values(reviewStore.reviewEntries.contactPerson),
-    ...Object.values(reviewStore.reviewEntries.representative),
-    ...reviewStore.reviewEntries.shareholders.flatMap((shareholder) =>
-      Object.values(shareholder)
-    ),
-  ];
-  return allEntries.length;
-});
+// Use the simplified review overlay system
+const { reviewProgress, reviewOverlay } = useReviewOverlay(props.application);
 
+// Computed properties for counts using the overlay
 const verifiedCount = computed(() => {
-  return reviewStore.allEntries.filter((entry) => entry.state === "verified")
-    .length;
+  return reviewOverlay.value.verifications.length;
 });
 
 const issuesCount = computed(() => {
-  return reviewStore.entriesWithIssues.filter(
-    (entry) => entry.state === "hasIssue"
-  ).length;
+  return reviewOverlay.value.issues.length;
 });
 
 const resolvedCount = computed(() => {
-  return reviewStore.allEntries.filter(
-    (entry) => entry.state === "issueResolved"
+  // Count issues that are not critical/high priority
+  return reviewOverlay.value.issues.filter(
+    issue => issue.severity === 'low' || issue.severity === 'medium'
   ).length;
 });
 
 const reviewingCount = computed(() => {
-  return reviewStore.entriesUnderReview.length;
+  // For now, assume items without issues or verifications are under review
+  return 0; // TODO: Implement proper counting
 });
-
-const ignoredCount = computed(() => {
-  return reviewStore.allEntries.filter((entry) => entry.state === "ignored")
-    .length;
-});
-
-const validation = computed(() => reviewStore.validateReviewCompletion());
 
 const completionStatusClass = computed(() => {
-  if (validation.value.isComplete) {
+  if (reviewProgress.value.hasBlockingIssues) {
+    return "bg-red-50 text-red-700";
+  }
+  if (issuesCount.value === 0) {
     return "bg-green-50 text-green-700";
   }
   return "bg-orange-50 text-orange-700";
 });
 
 const completionStatusIcon = computed(() => {
-  if (validation.value.isComplete) {
+  if (reviewProgress.value.hasBlockingIssues) {
+    return "i-lucide-alert-triangle";
+  }
+  if (issuesCount.value === 0) {
     return "i-lucide-check-circle";
   }
   return "i-lucide-clock";
 });
 
 const completionStatusText = computed(() => {
-  if (validation.value.isComplete) {
+  if (reviewProgress.value.hasBlockingIssues) {
+    return "發現嚴重問題";
+  }
+  if (issuesCount.value === 0) {
     return "審核完成";
   }
   return "審核進行中";
 });
 
 const completionStatusSubtext = computed(() => {
-  if (validation.value.isComplete) {
+  if (reviewProgress.value.hasBlockingIssues) {
+    return `有 ${reviewProgress.value.criticalIssues} 個嚴重問題需要處理`;
+  }
+  if (issuesCount.value === 0) {
     return "所有項目已完成審核，可以提交審核結果";
   }
-  return `還有 ${validation.value.pendingCount} 個項目待審核`;
+  return `還有 ${issuesCount.value} 個問題待處理`;
 });
-
-// Helper functions
-const getSeverityText = (severity?: string) => {
-  switch (severity) {
-    case "critical":
-      return "嚴重";
-    case "high":
-      return "高";
-    case "medium":
-      return "中";
-    case "low":
-      return "低";
-    default:
-      return "未知";
-  }
-};
 </script>

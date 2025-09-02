@@ -1,19 +1,19 @@
 <template>
-  <div class="space-y-6 py-6">
+  <div class="space-y-6">
     <!-- Main Content Area -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
-        <CompanyApplicationDetails />
+        <CompanyApplicationDetails :application="application" />
       </div>
 
       <!-- Review Summary Sidebar -->
       <div class="space-y-6">
-        <CompanyApplicationReviewSummary />
+        <CompanyApplicationReviewSummary :application="application" />
       </div>
     </div>
 
     <!-- Review Actions Section -->
-    <CompanyApplicationReviewActions v-if="loggedIn" />
+    <CompanyApplicationReviewActions v-if="loggedIn" :application="application" />
     <div v-else class="flex justify-end">
       <UButton
         label="提交複查"
@@ -27,5 +27,11 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  application: any; // TODO: Add proper typing
+}
+
+defineProps<Props>();
+
 const { loggedIn } = useUserSession();
 </script>

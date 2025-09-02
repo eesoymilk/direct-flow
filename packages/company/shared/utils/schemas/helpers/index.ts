@@ -93,3 +93,5 @@ export const getPersonSchema = (name: string) =>
       message: `${name}資料不能為空`,
     }
   );
+
+export * from "./response";

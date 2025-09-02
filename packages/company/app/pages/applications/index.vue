@@ -189,54 +189,6 @@ const columns = [
   },
 ];
 
-// Helper functions
-const getOrganizationTypeLabel = (type: string | null) => {
-  if (!type) return "未選擇";
-
-  const labels = {
-    company_limited: "一般股份有限公司",
-    closely_held_company_limited: "閉鎖性股份有限公司",
-    limited_company: "有限公司",
-    sole_proprietorship: "獨資企業",
-    partnership: "合夥企業",
-  };
-  return labels[type as keyof typeof labels] || type;
-};
-
-const getStatusLabel = (status: string) => {
-  const labels = {
-    submitted: "已提交",
-    staff_review: "審核中",
-    pending_client_update: "待客戶更新",
-    approved: "已核准",
-    rejected: "已拒絕",
-  };
-  return labels[status as keyof typeof labels] || status;
-};
-
-const getStatusColor = (
-  status: string
-): "blue" | "yellow" | "orange" | "green" | "red" | "gray" => {
-  const colors = {
-    submitted: "blue" as const,
-    staff_review: "yellow" as const,
-    pending_client_update: "orange" as const,
-    approved: "green" as const,
-    rejected: "red" as const,
-  };
-  return colors[status as keyof typeof colors] || "gray";
-};
-
-const formatDate = (date: string | Date) => {
-  return new Date(date).toLocaleDateString("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 const getStatusCount = (status: string) => {
   return data.value?.applications.filter((app: any) => app.status === status)
     .length;
@@ -249,16 +201,18 @@ const changePage = (page: number) => {
 
 const viewApplication = (id: string) => {
   // Find the application data from the current list
-  const application = data.value?.applications.find((app: any) => app.id === id);
-  
+  const application = data.value?.applications.find(
+    (app: any) => app.id === id
+  );
+
   if (application) {
     // Get the review store
     const reviewStore = useCompanyApplicationReviewStore();
-    
+
     // Map flat fields
     const flatFields = [
       "candidateNames",
-      "organizationType", 
+      "organizationType",
       "businessItemsDescription",
       "address",
     ] as const;
@@ -280,7 +234,7 @@ const viewApplication = (id: string) => {
     // Map nested person objects
     const personFields = [
       "name",
-      "idNumber", 
+      "idNumber",
       "address",
       "telephone",
       "cellphone",
@@ -306,7 +260,7 @@ const viewApplication = (id: string) => {
       }
     );
   }
-  
+
   navigateTo(`/applications/${id}`);
 };
 

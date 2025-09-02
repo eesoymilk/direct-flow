@@ -162,6 +162,13 @@
 
 <script setup lang="ts">
 import type { FormErrorEvent, SelectItem } from "@nuxt/ui";
+import { statusSelectOptions, getStatusInfo } from "~/utils/labels";
+
+interface Props {
+  application: any; // TODO: Add proper typing
+}
+
+defineProps<Props>();
 
 const route = useRoute();
 const toast = useToast();
@@ -171,99 +178,11 @@ const submitting = ref(false);
 
 const validation = computed(() => reviewStore.validateReviewCompletion());
 
-const statusOptions = computed(
-  () =>
-    [
-      {
-        label: "審核中",
-        value: "staff_review",
-      },
-      {
-        label: "待客戶更新",
-        value: "pending_client_update",
-      },
-      {
-        label: "政府部門審核中",
-        value: "filing",
-      },
-      {
-        label: "已立案",
-        value: "filed",
-      },
-      {
-        label: "拒絕申請",
-        value: "rejected",
-      },
-      {
-        label: "核准申請",
-        value: "approved",
-      },
-    ] as SelectItem[]
-);
+const statusOptions = computed(() => statusSelectOptions);
 
 const selectedStatusInfo = computed(() => {
   if (!reviewStore.reviewRound.applicationStatus) return null;
-
-  const statusInfo = {
-    submitted: {
-      title: "已提交",
-      description: "申請已提交，請等待審核。",
-      icon: "i-lucide-file-text",
-      iconClass: "text-slate-600",
-      textClass: "text-slate-800",
-      bgClass: "bg-slate-50 border-slate-200",
-    },
-    staff_review: {
-      title: "審核中",
-      description: "申請正在審核中，請等待審核結果。",
-      icon: "i-lucide-clock",
-      iconClass: "text-yellow-600",
-      textClass: "text-yellow-800",
-      bgClass: "bg-yellow-50 border-yellow-200",
-    },
-    pending_client_update: {
-      title: "待客戶更新",
-      description: "申請需要客戶更新資料，請等待客戶更新後再審核。",
-      icon: "i-lucide-edit",
-      iconClass: "text-blue-600",
-      textClass: "text-blue-800",
-      bgClass: "bg-blue-50 border-blue-200",
-    },
-    approved: {
-      title: "核准申請",
-      description: "申請將被標記為已核准，客戶將收到核准通知。",
-      icon: "i-lucide-check-circle",
-      iconClass: "text-green-600",
-      textClass: "text-green-800",
-      bgClass: "bg-green-50 border-green-200",
-    },
-    rejected: {
-      title: "拒絕申請",
-      description: "申請將被拒絕，客戶將收到拒絕通知及詳細原因。",
-      icon: "i-lucide-x-circle",
-      iconClass: "text-red-600",
-      textClass: "text-red-800",
-      bgClass: "bg-red-50 border-red-200",
-    },
-    filing: {
-      title: "政府部門審核中",
-      description: "申請已提交至政府部門審核，請等待審核結果。",
-      icon: "i-lucide-edit",
-      iconClass: "text-blue-600",
-      textClass: "text-blue-800",
-      bgClass: "bg-blue-50 border-blue-200",
-    },
-    filed: {
-      title: "已立案",
-      description: "申請已立案，請等待政府部門審核。",
-      icon: "i-lucide-file-text",
-      iconClass: "text-slate-600",
-      textClass: "text-slate-800",
-      bgClass: "bg-slate-50 border-slate-200",
-    },
-  };
-
-  return statusInfo[reviewStore.reviewRound.applicationStatus];
+  return getStatusInfo(reviewStore.reviewRound.applicationStatus);
 });
 
 const handleSubmit = async () => {

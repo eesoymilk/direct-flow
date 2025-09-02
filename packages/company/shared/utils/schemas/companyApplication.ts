@@ -1,7 +1,8 @@
 import * as z from "zod";
-import { getFileField, getPersonSchema } from "./helper";
+import { getFileField, responseBaseSchema } from "./helpers";
+import { personResponseSchema, shareholderResponseSchema } from "./person";
+import { reviewRoundResponseSchema } from "./companyApplicationReview";
 
-// Client-side schema for company application basic information
 export const companyApplicationFormSchema = z.object({
   candidateNames: z
     .array(z.string().min(1, "公司名稱為必填"))
@@ -30,69 +31,18 @@ export const companyApplicationFormSchema = z.object({
       message: "請選擇有效的組織類型",
     }
   ),
-  isCloselyHeld: z.boolean().optional(),
+  isCloselyHeld: z.boolean().nullish(),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
   address: z.string().min(1, "公司地址為必填"),
-  capitalAmount: z.number().positive("資本額必須大於0").optional(),
-  authorizedShares: z.number().positive("實收資本額股數必須大於0").optional(),
-  ordinaryShares: z.number().min(0, "普通股數不能為負數").optional(),
-  preferredShares: z.number().min(0, "特別股數不能為負數").optional(),
-  hasParValueFreeShares: z.boolean().optional(),
+  capitalAmount: z.number().positive("資本額必須大於0").nullish(),
+  authorizedShares: z.number().positive("實收資本額股數必須大於0").nullish(),
+  ordinaryShares: z.number().min(0, "普通股數不能為負數").nullish(),
+  preferredShares: z.number().min(0, "特別股數不能為負數").nullish(),
+  hasParValueFreeShares: z.boolean().nullish(),
   isDirectorSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsDirector: z.boolean(),
 });
-export type CompanyApplicationFormSchema = z.infer<
-  typeof companyApplicationFormSchema
->;
-
-export const responsiblePersonSchema = getPersonSchema("負責人");
-export const directorSchema = getPersonSchema("董事");
-export const contactPersonSchema = getPersonSchema("聯絡人");
-export type PersonSchema = z.infer<typeof responsiblePersonSchema>; // Note that this is general type for all person schemas except for shareholder schema
-
-export const shareholderSchema = getPersonSchema("股東").extend({
-  shares: z.number().min(0, "持股數不能為負數").optional(),
-  isReadonly: z.boolean().optional(), // Track if this shareholder is auto-populated
-  referenceType: z
-    .enum(["responsiblePerson", "director", "contactPerson"])
-    .optional(), // Reference to which person this shareholder represents
-});
-export type ShareholderSchema = z.infer<typeof shareholderSchema>;
-
-// Shareholders array schema with uniqueness validation
-export const shareholdersArraySchema = z
-  .array(shareholderSchema)
-  .refine(
-    (shareholders) => {
-      if (shareholders.length <= 1) return true;
-
-      const idNumbers = shareholders
-        .map((s) => s.idNumber)
-        .filter((id) => id && id.trim() !== "");
-
-      const uniqueIdNumbers = new Set(idNumbers);
-      return uniqueIdNumbers.size === idNumbers.length;
-    },
-    {
-      message: "股東身分證字號不能重複",
-    }
-  )
-  .refine(
-    (shareholders) => {
-      if (shareholders.length <= 1) return true;
-
-      const names = shareholders
-        .map((s) => s.name?.trim().toLowerCase())
-        .filter((name) => name && name !== "");
-
-      const uniqueNames = new Set(names);
-      return uniqueNames.size === names.length;
-    },
-    {
-      message: "股東姓名不能重複",
-    }
-  );
 
 export const requiredDocumentsSchema = z.object({
   // 1. 公司存摺相關資料
@@ -123,3 +73,26 @@ export const requiredDocumentsSchema = z.object({
   // 9. 法人聲明書
   legalPersonDeclaration: getFileField("法人聲明書").optional(),
 });
+
+export const companyApplicationResponseSchema = z.object({
+  ...companyApplicationFormSchema.omit({
+    isCloselyHeld: true,
+    isContactPersonSameAsDirector: true,
+    isContactPersonSameAsResponsiblePerson: true,
+    isDirectorSameAsResponsiblePerson: true,
+  }).shape,
+  ...responseBaseSchema.shape,
+  status: z.enum(COMPANY_APPLICATION_STATUS),
+  responsiblePerson: personResponseSchema,
+  contactPerson: personResponseSchema,
+  representative: personResponseSchema,
+  shareholders: shareholderResponseSchema.array(),
+  reviewRounds: reviewRoundResponseSchema.array(),
+});
+
+export type CompanyApplicationFormSchema = z.infer<
+  typeof companyApplicationFormSchema
+>;
+export type CompanyApplicationResponse = z.infer<
+  typeof companyApplicationResponseSchema
+>;

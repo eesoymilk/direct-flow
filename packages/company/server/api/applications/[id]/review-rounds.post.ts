@@ -7,44 +7,24 @@ import {
   reviewVerifications,
 } from "../../../database/schema";
 
-const reviewIssueSchema = z.object({
-  fieldPath: z.string(),
-  issueType: z.enum(["missing", "invalid", "clarification", "modification"]),
-  severity: z.enum(["low", "medium", "high", "critical"]),
-  description: z.string().optional(),
-});
-
-const reviewVerificationSchema = z.object({
-  fieldPath: z.string(),
-  note: z.string().optional(),
-});
-
-const submitReviewRoundSchema = z.object({
-  applicationStatus: z.enum([
-    "submitted",
-    "staff_review",
-    "pending_client_update",
-    "approved",
-    "rejected",
-  ]),
-  summary: z.string().optional(),
-  issues: z.array(reviewIssueSchema).default([]),
-  verifications: z.array(reviewVerificationSchema).default([]),
+const bodySchema = reviewRoundSchema.extend({
+  issues: reviewIssueSchema.array().default([]),
+  verifications: reviewVerificationSchema.array().default([]),
 });
 
 export default eventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
-  const { applicationStatus, summary, issues, verifications } =
-    await readValidatedBody(event, submitReviewRoundSchema.parse).catch(
-      (error) => {
-        console.error(error);
-        throw createError({
-          statusCode: 400,
-          statusMessage: "Invalid request body",
-        });
-      }
-    );
+  const { status, summary, issues, verifications } = await readValidatedBody(
+    event,
+    bodySchema.parse
+  ).catch((error) => {
+    console.error(error);
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid request body",
+    });
+  });
 
   const db = useDrizzle();
   const applicationId = getRouterParam(event, "id");
@@ -87,6 +67,7 @@ export default eventHandler(async (event) => {
       .insert(reviewRounds)
       .values({
         applicationId,
+        status,
         summary,
         createdBySub: currentUserSub,
         roundNo: previousRound ? previousRound.roundNo + 1 : undefined,
@@ -134,11 +115,11 @@ export default eventHandler(async (event) => {
       );
     }
 
-    if (applicationStatus !== application.status) {
+    if (status !== application.status) {
       await tx
         .update(companyApplications)
         .set({
-          status: applicationStatus,
+          status,
           updatedAt: timestamp,
         })
         .where(eq(companyApplications.id, applicationId));

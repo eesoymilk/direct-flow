@@ -1,34 +1,43 @@
 <template>
   <UTabs :items="tabItems" :unmount-on-hide="false" variant="link">
     <template #company-details>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CompanyApplicationReviewCompanyEntries />
+      <div class="space-y-6">
+        <CompanyApplicationReviewCompanyEntries :application="application" />
       </div>
     </template>
 
     <template #responsible-person>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="space-y-6">
         <CompanyApplicationReviewPersonEntries
           person-type="responsiblePerson"
+          :application="application"
         />
       </div>
     </template>
 
     <template #contact-person>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CompanyApplicationReviewPersonEntries person-type="contactPerson" />
+      <div class="space-y-6">
+        <CompanyApplicationReviewPersonEntries
+          person-type="contactPerson"
+          :application="application"
+        />
       </div>
     </template>
 
     <template #representative>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CompanyApplicationReviewPersonEntries person-type="representative" />
+      <div class="space-y-6">
+        <CompanyApplicationReviewPersonEntries
+          person-type="representative"
+          :application="application"
+        />
       </div>
     </template>
 
     <template #shareholders>
-      <div class="space-y-4 md:space-y-6">
-        <CompanyApplicationReviewShareholdersEntries />
+      <div class="space-y-6">
+        <CompanyApplicationReviewShareholdersEntries
+          :application="application"
+        />
       </div>
     </template>
   </UTabs>
@@ -36,6 +45,12 @@
 
 <script setup lang="ts">
 import type { TabsItem } from "@nuxt/ui";
+
+interface Props {
+  application: any; // TODO: Add proper typing
+}
+
+defineProps<Props>();
 
 // TODO: use ui.trigger to style the tab items
 const tabItems = ref([

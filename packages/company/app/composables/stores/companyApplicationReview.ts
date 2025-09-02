@@ -1,278 +1,266 @@
-import * as z from "zod";
-import {
-  type CompanyData,
-  type PersonData,
-  type FieldPath,
-  type ReviewEntry,
-  createCompanyData,
-  createPersonData,
-  filterEntriesByState,
-  filterEntriesByStates,
-  parseFieldPath,
-  type PersonType,
-} from "./reviewEntry";
+import { acceptHMRUpdate, defineStore } from "pinia";
 
-type ReviewEntriesState = {
-  company: CompanyData;
-  responsiblePerson: PersonData;
-  contactPerson: PersonData;
-  representative: PersonData;
-  shareholders: PersonData[];
+type ApplicationReviewState = {
+  applicationId: string | null;
+  application: CompanyApplicationResponse | null;
+  currentReviewRound: ReviewRoundResponse | null;
+  localIssues: ReviewIssueSchema[];
+  localVerifications: ReviewVerificationSchema[];
+  isSubmitting: boolean;
+  isDirty: boolean;
 };
-
-const reviewRoundSchema = z.object({
-  applicationStatus: z.enum([
-    "submitted",
-    "staff_review",
-    "pending_client_update",
-    "filing",
-    "filed",
-    "approved",
-    "rejected",
-  ]),
-  summary: z.string(),
-});
 
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
   () => {
-    const reviewRound = ref<z.infer<typeof reviewRoundSchema>>({
-      applicationStatus: "submitted",
-      summary: "",
+    // State
+    const state = reactive<ApplicationReviewState>({
+      applicationId: null,
+      application: null,
+      currentReviewRound: null,
+      localIssues: [],
+      localVerifications: [],
+      isSubmitting: false,
+      isDirty: false,
     });
 
-    const reviewEntries = ref<ReviewEntriesState>({
-      company: createCompanyData(),
-      responsiblePerson: createPersonData(),
-      contactPerson: createPersonData(),
-      representative: createPersonData(),
-      shareholders: [],
+    // Getters
+    const isInitialReview = computed(() => {
+      return (
+        !state.application?.reviewRounds ||
+        state.application.reviewRounds.length === 0
+      );
     });
 
-    const allEntries = computed((): ReviewEntry[] => {
-      const entries: ReviewEntry[] = [];
-
-      // Company entries
-      entries.push(...Object.values(reviewEntries.value.company));
-
-      // Person entries
-      entries.push(...Object.values(reviewEntries.value.responsiblePerson));
-      entries.push(...Object.values(reviewEntries.value.contactPerson));
-      entries.push(...Object.values(reviewEntries.value.representative));
-
-      // Shareholder entries
-      reviewEntries.value.shareholders.forEach((shareholder) => {
-        entries.push(...Object.values(shareholder));
-      });
-
-      return entries;
+    const latestRoundNo = computed(() => {
+      if (!state.application?.reviewRounds?.length) return 1;
+      return Math.max(...state.application.reviewRounds.map((r) => r.roundNo));
     });
 
-    const entriesWithIssues = computed(() => {
-      return filterEntriesByStates(allEntries.value, [
-        "hasIssue",
-        "issueResolved",
-      ]);
+    const allIssues = computed(() => {
+      const existingIssues =
+        state.application?.reviewRounds?.[0]?.reviewIssues || [];
+      return [...existingIssues, ...state.localIssues];
     });
 
-    const entriesUnderReview = computed(() => {
-      return filterEntriesByState(allEntries.value, "reviewing");
+    const allVerifications = computed(() => {
+      const existingVerifications =
+        state.application?.reviewRounds?.[0]?.reviewVerifications || [];
+      return [...existingVerifications, ...state.localVerifications];
     });
 
-    const getEntry = (path: FieldPath): ReviewEntry | undefined => {
-      const parsed = parseFieldPath(path);
+    const reviewOverlay = computed(() => ({
+      issues: allIssues.value,
+      verifications: allVerifications.value,
+    }));
 
-      if (parsed.type === "company") {
-        return reviewEntries.value.company[parsed.field];
+    const reviewProgress = computed(() => {
+      const totalIssues = allIssues.value.length;
+      const totalVerifications = allVerifications.value.length;
+      const criticalIssues = allIssues.value.filter(
+        (i) => i.severity === "critical"
+      ).length;
+
+      return {
+        totalIssues,
+        totalVerifications,
+        criticalIssues,
+        hasBlockingIssues: criticalIssues > 0,
+      };
+    });
+
+    const canSubmitReview = computed(() => {
+      return (
+        state.isDirty &&
+        (state.localIssues.length > 0 || state.localVerifications.length > 0)
+      );
+    });
+
+    const loadApplication = async (applicationId: string) => {
+      state.applicationId = applicationId;
+      const rawData = await $fetch(
+        `/api/applications/${applicationId as "[id]"}`
+      );
+
+      const { success, data, error } =
+        companyApplicationResponseSchema.safeParse(rawData);
+
+      if (!success) {
+        console.error("Failed to load application:", error);
+        throw error;
       }
 
-      if (parsed.type === "shareholder") {
-        const shareholder = reviewEntries.value.shareholders[parsed.index];
-        return shareholder?.[parsed.field];
-      }
-
-      return reviewEntries.value[parsed.type][parsed.field];
+      state.application = data;
+      state.localIssues = [];
+      state.localVerifications = [];
+      state.isDirty = false;
     };
 
-    const setEntry = (path: FieldPath, value: ReviewEntry): void => {
-      const parsed = parseFieldPath(path);
-
-      if (parsed.type === "company") {
-        reviewEntries.value.company[parsed.field] = value;
-        return;
+    const addIssue = (issue: ReviewIssueSchema): void => {
+      // Remove existing issue for this field path if any
+      const existingIndex = state.localIssues.findIndex(
+        (i) => i.fieldPath === issue.fieldPath
+      );
+      if (existingIndex !== -1) {
+        state.localIssues.splice(existingIndex, 1);
       }
 
-      if (parsed.type === "shareholder") {
-        const shareholder = reviewEntries.value.shareholders[parsed.index];
-        if (shareholder) {
-          shareholder[parsed.field] = value;
-        }
-        return;
+      // Remove any verification for this field path
+      const verificationIndex = state.localVerifications.findIndex(
+        (v) => v.fieldPath === issue.fieldPath
+      );
+      if (verificationIndex !== -1) {
+        state.localVerifications.splice(verificationIndex, 1);
       }
 
-      reviewEntries.value[parsed.type][parsed.field] = value;
+      state.localIssues.push(issue);
+      state.isDirty = true;
     };
 
-    const editEntry = (
-      fieldPath: FieldPath,
-      value: string | string[],
-      isClient: boolean = false
-    ) => {
-      const currentEntry = getEntry(fieldPath);
-      if (!currentEntry) return;
-
-      if (isClient) {
-        if (
-          !(
-            currentEntry.state === "hasIssue" ||
-            currentEntry.state === "issueResolved"
-          )
-        ) {
-          throw new Error("客戶不能夠修改無問題的資料");
-        }
-
-        setEntry(fieldPath, {
-          ...currentEntry,
-          value,
-          state: "issueResolved",
-        });
-
-        return;
+    const removeIssue = (fieldPath: string): void => {
+      const index = state.localIssues.findIndex(
+        (i) => i.fieldPath === fieldPath
+      );
+      if (index !== -1) {
+        state.localIssues.splice(index, 1);
+        state.isDirty = true;
       }
-
-      setEntry(fieldPath, {
-        ...currentEntry,
-        value,
-        state: isClient ? "hasIssue" : "verified",
-        issue: {
-          issueType: "modification",
-          severity: "medium",
-          description: "本資料已被審查人員修改，請確認後再送出",
-        },
-      });
     };
 
-    const validateReviewCompletion = () => {
-      const reviewingEntries = allEntries.value.filter(
-        (entry) => entry.state === "reviewing"
+    const addVerification = (verification: ReviewVerificationSchema): void => {
+      // Remove existing verification for this field path if any
+      const existingIndex = state.localVerifications.findIndex(
+        (v) => v.fieldPath === verification.fieldPath
+      );
+      if (existingIndex !== -1) {
+        state.localVerifications.splice(existingIndex, 1);
+      }
+
+      // Remove any issue for this field path
+      const issueIndex = state.localIssues.findIndex(
+        (i) => i.fieldPath === verification.fieldPath
+      );
+      if (issueIndex !== -1) {
+        state.localIssues.splice(issueIndex, 1);
+      }
+
+      state.localVerifications.push(verification);
+      state.isDirty = true;
+    };
+
+    const removeVerification = (fieldPath: string): void => {
+      const index = state.localVerifications.findIndex(
+        (v) => v.fieldPath === fieldPath
+      );
+      if (index !== -1) {
+        state.localVerifications.splice(index, 1);
+        state.isDirty = true;
+      }
+    };
+
+    const getSectionStatus = (sectionPrefix: string) => {
+      const sectionIssues = allIssues.value.filter((issue) =>
+        issue.fieldPath.startsWith(`${sectionPrefix}.`)
+      );
+      const sectionVerifications = allVerifications.value.filter(
+        (verification) => verification.fieldPath.startsWith(`${sectionPrefix}.`)
       );
 
       return {
-        isComplete: reviewingEntries.length === 0,
-        pendingCount: reviewingEntries.length,
-        pendingEntries: reviewingEntries,
+        hasIssues: sectionIssues.length > 0,
+        issueCount: sectionIssues.length,
+        verificationCount: sectionVerifications.length,
+        isComplete: sectionIssues.length === 0,
+        highPriorityIssues: sectionIssues.filter(
+          (i) => i.severity === "high" || i.severity === "critical"
+        ).length,
       };
     };
 
-    const collectReviewData = () => {
-      const issues: Array<{
-        fieldPath: FieldPath;
-        issueType: "missing" | "invalid" | "clarification" | "modification";
-        severity: "low" | "medium" | "high" | "critical";
-        description?: string;
-      }> = [];
-
-      const verifications: Array<{
-        fieldPath: FieldPath;
-      }> = [];
-
-      // Helper function to process entries and extract issues/verifications
-      const processEntries = (
-        entries: Record<string, ReviewEntry>,
-        prefix: "company" | PersonType | `shareholders.${number}`
-      ) => {
-        Object.entries(entries).forEach(([field, entry]) => {
-          const fieldPath = `${prefix}.${field}` as FieldPath;
-
-          if (entry.state === "hasIssue" && entry.issue) {
-            issues.push({
-              fieldPath,
-              issueType: entry.issue.issueType,
-              severity: entry.issue.severity,
-              description: entry.issue.description,
-            });
-          } else if (entry.state === "verified") {
-            verifications.push({
-              fieldPath,
-            });
-          }
-        });
-      };
-
-      // Process company entries
-      processEntries(reviewEntries.value.company, "company");
-
-      // Process person entries
-      processEntries(
-        reviewEntries.value.responsiblePerson,
-        "responsiblePerson"
+    const getSectionIssues = (sectionPrefix: string) => {
+      return allIssues.value.filter((issue) =>
+        issue.fieldPath.startsWith(`${sectionPrefix}.`)
       );
-      processEntries(reviewEntries.value.contactPerson, "contactPerson");
-      processEntries(reviewEntries.value.representative, "representative");
+    };
 
-      // Process shareholder entries
-      reviewEntries.value.shareholders.forEach((shareholder, index) => {
-        processEntries(shareholder, `shareholders.${index}`);
+    const getSectionVerifications = (sectionPrefix: string) => {
+      return allVerifications.value.filter((verification) =>
+        verification.fieldPath.startsWith(`${sectionPrefix}.`)
+      );
+    };
+
+    const verifySection = (sectionKey: string, fields: string[]): void => {
+      fields.forEach((field) => {
+        const fieldPath = `${sectionKey}.${field}`;
+        addVerification({ fieldPath, note: undefined });
       });
-
-      return { issues, verifications };
     };
 
-    const submitReviewRound = async (applicationId: string) => {
-      const payload = {
-        ...reviewRound.value,
-        issues: collectReviewData().issues,
-        verifications: collectReviewData().verifications,
-      };
+    const submitReview = async (): Promise<void> => {
+      if (!state.applicationId || !canSubmitReview.value) return;
 
-      const { data } = await $fetch(
-        `/api/applications/${applicationId}/review-rounds`,
-        {
+      state.isSubmitting = true;
+      try {
+        const reviewData = {
+          issues: state.localIssues,
+          verifications: state.localVerifications,
+          summary: "", // TODO: Add summary input
+        };
+
+        await $fetch(`/api/applications/${state.applicationId}/review-rounds`, {
           method: "POST",
-          body: payload,
-        }
-      );
+          body: reviewData,
+        });
 
-      return data;
+        // Reload application to get updated review rounds
+        await loadApplication(state.applicationId);
+
+        // Clear local changes
+        state.localIssues = [];
+        state.localVerifications = [];
+        state.isDirty = false;
+      } catch (error) {
+        console.error("Failed to submit review:", error);
+        throw error;
+      } finally {
+        state.isSubmitting = false;
+      }
     };
 
-    const resetReviewState = () => {
-      reviewEntries.value = {
-        company: createCompanyData(),
-        responsiblePerson: createPersonData(),
-        contactPerson: createPersonData(),
-        representative: createPersonData(),
-        shareholders: [],
-      };
-
-      reviewRound.value = {
-        applicationStatus: "submitted",
-        summary: "",
-      };
-    };
-
-    // Helper function to initialize shareholder entries
-    const initializeShareholderEntries = (shareholderData: any[]) => {
-      reviewEntries.value.shareholders = shareholderData.map(() =>
-        createPersonData()
-      );
+    const resetLocalChanges = (): void => {
+      state.localIssues = [];
+      state.localVerifications = [];
+      state.isDirty = false;
     };
 
     return {
-      reviewRoundSchema,
-      reviewRound,
-      reviewEntries,
-      allEntries,
-      entriesWithIssues,
-      entriesUnderReview,
+      ...toRefs(state),
 
-      getEntry,
-      setEntry,
-      editEntry,
-      validateReviewCompletion,
-      submitReviewRound,
-      resetReviewState,
-      initializeShareholderEntries,
+      isInitialReview,
+      latestRoundNo,
+      allIssues,
+      allVerifications,
+      reviewOverlay,
+      reviewProgress,
+      canSubmitReview,
+
+      loadApplication,
+      addIssue,
+      removeIssue,
+      addVerification,
+      removeVerification,
+      getSectionStatus,
+      getSectionIssues,
+      getSectionVerifications,
+      verifySection,
+      submitReview,
+      resetLocalChanges,
     };
   }
 );
+
+if (import.meta.hot) {
+  import.meta.hot.accept(
+    acceptHMRUpdate(useCompanyApplicationReviewStore, import.meta.hot)
+  );
+}
