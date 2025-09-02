@@ -64,6 +64,27 @@
       "when": 1755659915615,
       "tag": "0008_silky_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1756608644114,
+      "tag": "0009_solid_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1756671879377,
+      "tag": "0010_blue_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1756775028070,
+      "tag": "0011_blushing_avengers",
+      "breakpoints": true
     }
   ]
 }

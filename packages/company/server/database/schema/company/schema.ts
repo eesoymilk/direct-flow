@@ -5,6 +5,8 @@ import {
   timestamp,
   uuid,
   pgEnum,
+  integer,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { people } from "../person/schema";
@@ -12,10 +14,11 @@ import { documents } from "../document/schema";
 
 // Organization type enum
 export const organizationTypeEnum = pgEnum("organization_type", [
-  "limited_company",
-  "company_limited",
-  "sole_proprietorship",
-  "partnership",
+  "company_limited", // 股份有限公司
+  "closely_held_company_limited", // 閉鎖型股份有限公司
+  "limited_company", // 有限公司
+  "sole_proprietorship", // 獨資
+  "partnership", // 合夥
 ]);
 
 // Companies table
@@ -32,6 +35,11 @@ export const companies = pgTable("companies", {
   telephone: varchar("telephone"), // 電話
   fax: varchar("fax"), // 傳真
   email: varchar("email"), // 電子郵件
+  capitalAmount: integer("capital_amount"), // 資本額
+  authorizedShares: integer("authorized_shares"), // 實收資本額股數
+  ordinaryShares: integer("ordinary_shares"), // 普通股
+  preferredShares: integer("preferred_shares"), // 特別股
+  hasParValueFreeShares: boolean("has_par_value_free_shares"), // 無票面金額股份
   responsiblePersonId: uuid("responsible_person_id")
     .notNull()
     .references(() => people.id, { onDelete: "restrict" }), // 負責人ID
@@ -70,6 +78,18 @@ export const shareholders = pgTable("shareholders", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Shareholder shares table - tracks the number of shares each shareholder owns
+export const shareholderShares = pgTable("shareholder_shares", {
+  id: serial("id").primaryKey(),
+  shareholderId: integer("shareholder_id")
+    .notNull()
+    .references(() => shareholders.id, { onDelete: "cascade" }),
+  shares: integer("shares").notNull().default(0), // Number of shares owned
+  shareType: varchar("share_type").notNull().default("ordinary"), // "ordinary" or "preferred"
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   responsiblePerson: one(people, {
     fields: [companies.responsiblePersonId],
@@ -104,7 +124,7 @@ export const companyDocumentsRelations = relations(
   })
 );
 
-export const shareholdersRelations = relations(shareholders, ({ one }) => ({
+export const shareholdersRelations = relations(shareholders, ({ one, many }) => ({
   company: one(companies, {
     fields: [shareholders.companyId],
     references: [companies.id],
@@ -112,5 +132,13 @@ export const shareholdersRelations = relations(shareholders, ({ one }) => ({
   person: one(people, {
     fields: [shareholders.personId],
     references: [people.id],
+  }),
+  shareholderShares: many(shareholderShares),
+}));
+
+export const shareholderSharesRelations = relations(shareholderShares, ({ one }) => ({
+  shareholder: one(shareholders, {
+    fields: [shareholderShares.shareholderId],
+    references: [shareholders.id],
   }),
 }));

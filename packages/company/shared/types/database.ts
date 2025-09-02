@@ -11,6 +11,7 @@ import {
   reviewIssues,
   reviewVerifications,
   shareholders,
+  shareholderShares,
   companyDocuments,
   personDocuments,
   organizationTypeEnum,
@@ -32,6 +33,7 @@ export type ReviewRound = InferSelectModel<typeof reviewRounds>;
 export type ReviewIssue = InferSelectModel<typeof reviewIssues>;
 export type ReviewVerification = InferSelectModel<typeof reviewVerifications>;
 export type Shareholder = InferSelectModel<typeof shareholders>;
+export type ShareholderShare = InferSelectModel<typeof shareholderShares>;
 export type CompanyDocument = InferSelectModel<typeof companyDocuments>;
 export type PersonDocument = InferSelectModel<typeof personDocuments>;
 
@@ -47,6 +49,7 @@ export type ReviewRoundInsert = InferInsertModel<typeof reviewRounds>;
 export type ReviewIssueInsert = InferInsertModel<typeof reviewIssues>;
 export type ReviewVerificationInsert = InferInsertModel<typeof reviewVerifications>;
 export type ShareholderInsert = InferInsertModel<typeof shareholders>;
+export type ShareholderShareInsert = InferInsertModel<typeof shareholderShares>;
 export type CompanyDocumentInsert = InferInsertModel<typeof companyDocuments>;
 export type PersonDocumentInsert = InferInsertModel<typeof personDocuments>;
 
@@ -70,6 +73,16 @@ export type CompanyApplicationWithDetails = CompanyApplication & {
   })[];
 };
 
+// Composite types for shareholders with shares
+export type ShareholderWithDetails = Shareholder & {
+  person: Person;
+  shareholderShares: ShareholderShare[];
+};
+
+export type CompanyWithShareholders = Company & {
+  shareholders: ShareholderWithDetails[];
+};
+
 // User role types (since clients don't need to login)
 export type UserRole = "client" | "staff";
 
@@ -86,8 +99,14 @@ export type PersonForm = {
 export type CompanyApplicationForm = {
   candidateNames: string[];
   organizationType: OrganizationType;
+  isCloselyHeld?: boolean;
   businessItemsDescription: string;
   address: string;
+  capitalAmount?: number;
+  authorizedShares?: number;
+  ordinaryShares?: number;
+  preferredShares?: number;
+  hasParValueFreeShares?: boolean;
   isDirectorSameAsResponsiblePerson: boolean;
   isContactPersonSameAsResponsiblePerson: boolean;
   isContactPersonSameAsDirector: boolean;

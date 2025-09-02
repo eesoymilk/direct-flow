@@ -23,15 +23,16 @@ export const createCompanyApplication = async (
 export const createApplicationShareholderRelationships = async (
   db: DrizzleClient | DrizzleTransaction,
   applicationId: string,
-  shareholderPeople: { id: string }[]
+  shareholderData: { person: { id: string }, shares?: number }[]
 ) => {
-  if (shareholderPeople.length === 0) {
+  if (shareholderData.length === 0) {
     return;
   }
 
-  const shareholderRelationships = shareholderPeople.map((person) => ({
+  const shareholderRelationships = shareholderData.map(({ person, shares }) => ({
     applicationId,
     personId: person.id,
+    shares,
   }));
 
   await db.insert(applicationShareholders).values(shareholderRelationships);

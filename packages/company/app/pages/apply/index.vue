@@ -16,6 +16,14 @@
         生成測試資料
       </UButton>
       <UButton
+        color="primary"
+        variant="outline"
+        leading-icon="i-lucide-building-2"
+        @click="generateOrgTypeTestData"
+      >
+        測試組織類型
+      </UButton>
+      <UButton
         color="neutral"
         variant="outline"
         leading-icon="i-lucide-rotate-ccw"
@@ -31,7 +39,7 @@
     <UForm
       ref="registrationForm"
       :state="applicationStore.form"
-      :schema="applicationStore.companyApplicationFormSchema"
+      :schema="companyApplicationFormSchema"
       @error="handleFormError"
       @submit="handleFormSubmit"
     >
@@ -54,29 +62,26 @@
       <div class="flex gap-2 justify-between mt-4">
         <UButton
           v-if="stepper?.hasPrev"
+          label="上一步"
           class="mr-auto"
           leading-icon="i-lucide-arrow-left"
           @click="stepper?.prev()"
-        >
-          上一步
-        </UButton>
+        />
         <UButton
           v-if="stepper?.hasNext"
+          label="下一步"
           class="ml-auto"
           trailing-icon="i-lucide-arrow-right"
           @click="stepper?.next()"
-        >
-          下一步
-        </UButton>
+        />
         <UButton
           v-if="!stepper?.hasNext"
+          label="確認資料"
           type="submit"
           class="ml-auto"
           color="primary"
           trailing-icon="i-lucide-check-square"
-        >
-          確認資料
-        </UButton>
+        />
       </div>
     </UForm>
   </UContainer>
@@ -104,12 +109,6 @@ const stepperItems: StepperItem[] = [
     description: "請填寫董事與股東資料",
     icon: "i-lucide-users",
   },
-  // {
-  //   slot: "form-part-4",
-  //   title: "必要文件",
-  //   description: "請上傳必要文件",
-  //   icon: "i-lucide-file",
-  // },
 ];
 
 const stepper = useTemplateRef("stepper");
@@ -125,6 +124,18 @@ const generateFakeData = () => {
     description: "表單已填入測試資料，您可以開始測試了",
     color: "success",
     icon: "i-lucide-check-circle",
+  });
+};
+
+const generateOrgTypeTestData = () => {
+  applicationStore.populateWithOrgTypeTestData();
+  // Show success notification
+  const toast = useToast();
+  toast.add({
+    title: "組織類型測試資料已生成",
+    description: "表單已填入股份有限公司測試資料，可測試閉鎖型功能",
+    color: "primary",
+    icon: "i-lucide-building-2",
   });
 };
 

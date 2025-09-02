@@ -1,38 +1,50 @@
 import * as z from "zod";
 
 // Helper functions to create initial values
-export const createEmptyPerson = (): z.output<typeof personSchema> => ({
+export const createEmptyPerson = (): PersonSchema => ({
   name: "",
   idNumber: "",
   address: "",
+  telephone: "",
+  cellphone: "",
+  email: "",
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
 });
 
-export const createInitialDocuments = (): z.output<typeof documentSchema>[] => [
-  {
-    documentType: "bank_book_front",
-    documentDescription: "公司存摺正面",
-    file: undefined as any,
-  },
-  {
-    documentType: "bank_book_inside",
-    documentDescription: "公司存摺內頁",
-    file: undefined as any,
-  },
-  {
-    documentType: "bank_book_stamp",
-    documentDescription: "公司存摺戳章頁",
-    file: undefined as any,
-  },
-];
+export const createEmptyShareholder = (): z.output<
+  typeof shareholderSchema
+> => ({
+  name: "",
+  idNumber: "",
+  address: "",
+  telephone: "",
+  cellphone: "",
+  email: "",
+  shares: undefined,
+  isReadonly: false,
+  referenceType: undefined,
+});
 
 export const createInitialForm = () => ({
+  candidateNames: [],
+  organizationType: "company_limited" as const,
+  isCloselyHeld: false,
+  businessItemsDescription: "",
+  address: "",
+  capitalAmount: undefined,
+  authorizedShares: undefined,
+  ordinaryShares: undefined,
+  preferredShares: undefined,
+  hasParValueFreeShares: false,
+  isDirectorSameAsResponsiblePerson: false,
+  isContactPersonSameAsResponsiblePerson: false,
+  isContactPersonSameAsDirector: false,
   responsiblePerson: createEmptyPerson(),
   director: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
-  shareholders: [createEmptyPerson()],
+  shareholders: [createEmptyShareholder()],
   // TODO: Add documents when file storage is ready
   // documents: createInitialDocuments(),
 });

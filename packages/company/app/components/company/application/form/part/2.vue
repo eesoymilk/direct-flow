@@ -5,7 +5,7 @@
     <h3 class="text-lg font-semibold text-text">負責人資料</h3>
     <UForm
       :state="applicationStore.form.responsiblePerson"
-      :schema="applicationStore.personSchema"
+      :schema="responsiblePersonSchema"
       attach
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
@@ -80,7 +80,7 @@
     <UForm
       v-if="!applicationStore.form.isDirectorSameAsResponsiblePerson"
       :state="applicationStore.form.director"
-      :schema="applicationStore.personSchema"
+      :schema="directorSchema"
       attach
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
@@ -158,8 +158,12 @@
     </div>
 
     <UForm
+      v-if="
+        !applicationStore.form.isContactPersonSameAsResponsiblePerson &&
+        !applicationStore.form.isContactPersonSameAsDirector
+      "
       :state="applicationStore.form.contactPerson"
-      :schema="applicationStore.personSchema"
+      :schema="contactPersonSchema"
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
       <UFormField label="姓名" name="name">

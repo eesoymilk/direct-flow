@@ -112,7 +112,7 @@ await useLazyFetch(`/api/applications/${route.params.id as ":id"}`, {
               issue: {
                 issueType,
                 severity,
-                description: description || undefined,
+                description: description || null,
               },
             });
           }

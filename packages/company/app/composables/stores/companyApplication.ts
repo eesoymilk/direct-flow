@@ -1,48 +1,137 @@
 import * as z from "zod";
-import { createInitialForm, createEmptyPerson } from "~/utils/formHelpers";
-import { generateMockFormData } from "~/utils/mockData";
+import { createInitialForm, createEmptyShareholder } from "~/utils/formHelpers";
+import {
+  generateMockFormData,
+  generateOrgTypeTestData,
+} from "~/utils/mockData";
 
 export const useCompanyApplicationStore = defineStore(
   "companyApplication",
   () => {
+    const toast = useToast();
     const form = ref<
       Partial<z.output<typeof companyApplicationFormSchema>> & {
-        responsiblePerson: z.output<typeof personSchema>;
-        director: z.output<typeof personSchema>;
-        contactPerson: z.output<typeof personSchema>;
-        shareholders: z.output<typeof personSchema>[];
-        // documents: z.output<typeof documentSchema>[];
+        responsiblePerson: z.output<typeof responsiblePersonSchema>;
+        director: z.output<typeof directorSchema>;
+        contactPerson: z.output<typeof contactPersonSchema>;
+        shareholders: z.output<typeof shareholderSchema>[];
       }
     >(createInitialForm());
 
-    function addShareholder() {
-      form.value.shareholders.push(createEmptyPerson());
-    }
+    const isStockCompany = computed(
+      () => form.value.organizationType === "company_limited"
+    );
 
-    function removeShareholder(index: number) {
+    const addShareholder = () => {
+      form.value.shareholders.push(createEmptyShareholder());
+    };
+
+    const addPersonAsShareholder = (
+      personType: "responsiblePerson" | "director" | "contactPerson"
+    ) => {
+      let sourcePerson: PersonSchema;
+      if (personType === "responsiblePerson") {
+        sourcePerson = form.value.responsiblePerson;
+      } else if (personType === "director") {
+        sourcePerson = form.value.director;
+      } else {
+        sourcePerson = form.value.contactPerson;
+      }
+
+      const existingShareholder = form.value.shareholders.find(
+        (s) => s.referenceType === personType
+      );
+      if (existingShareholder) {
+        toast.add({
+          title: "此人員已是股東",
+          description: `${sourcePerson.name} 已在股東列表中`,
+          color: "warning",
+          icon: "i-lucide-alert-triangle",
+        });
+        return;
+      }
+
+      // Create readonly shareholder with reference
+      const newShareholder = {
+        name: sourcePerson.name,
+        idNumber: sourcePerson.idNumber,
+        address: sourcePerson.address,
+        telephone: sourcePerson.telephone,
+        cellphone: sourcePerson.cellphone,
+        email: sourcePerson.email,
+        shares: isStockCompany.value ? 0 : undefined,
+        isReadonly: true,
+        referenceType: personType,
+      };
+
+      form.value.shareholders.push(newShareholder);
+
+      // Show success notification
+      const personTypeLabels = {
+        responsiblePerson: "負責人",
+        contactPerson: "聯絡人",
+        director: "董事",
+      };
+
+      toast.add({
+        title: "股東已加入",
+        description: `已將${personTypeLabels[personType]} ${sourcePerson.name} 加入為股東（僅可編輯持股數）`,
+        color: "success",
+        icon: "i-lucide-user-check",
+      });
+    };
+
+    const removeShareholder = (index: number) => {
       form.value.shareholders.splice(index, 1);
-    }
+    };
 
-    function resetForm() {
+    const resetForm = () => {
       form.value = createInitialForm();
-    }
+    };
 
     // Populate form with mock data for testing
-    function populateWithMockData() {
+    const populateWithMockData = () => {
       const mockData = generateMockFormData();
       Object.assign(form.value, mockData);
-    }
+    };
+
+    // Populate form with organization type test data
+    const populateWithOrgTypeTestData = () => {
+      const mockData = generateOrgTypeTestData();
+      Object.assign(form.value, mockData);
+    };
+
+    // Reset closely held and par value free shares when organization type is not company limited
+    watch(
+      () => form.value.organizationType,
+      (newVal) => {
+        if (newVal === "company_limited") {
+          form.value.isCloselyHeld = false;
+          form.value.hasParValueFreeShares = false;
+        }
+      },
+      { immediate: true }
+    );
+
+    // Authorized shares is the sum of ordinary and preferred shares
+    watch(
+      [() => form.value.ordinaryShares, () => form.value.preferredShares],
+      ([ordinaryShares, preferredShares]) => {
+        form.value.authorizedShares =
+          (ordinaryShares || 0) + (preferredShares || 0);
+      },
+      { immediate: true }
+    );
 
     return {
-      companyApplicationFormSchema,
-      documentSchema,
-      personSchema,
       form,
-
+      isStockCompany,
       addShareholder,
+      addPersonAsShareholder,
       removeShareholder,
       resetForm,
       populateWithMockData,
+      populateWithOrgTypeTestData,
     };
   }
 );

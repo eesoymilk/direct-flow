@@ -194,8 +194,9 @@ const getOrganizationTypeLabel = (type: string | null) => {
   if (!type) return "未選擇";
 
   const labels = {
+    company_limited: "一般股份有限公司",
+    closely_held_company_limited: "閉鎖性股份有限公司",
     limited_company: "有限公司",
-    company_limited: "股份有限公司",
     sole_proprietorship: "獨資企業",
     partnership: "合夥企業",
   };

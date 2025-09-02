@@ -23,6 +23,18 @@ export const generateMockPerson = (): z.output<typeof personSchema> => ({
   // idCardBack: undefined as any,
 });
 
+// Generate mock shareholder data including shares
+export const generateMockShareholder = (): z.output<typeof shareholderSchema> => ({
+  name: faker.person.fullName(),
+  idNumber: generateTaiwaneseIdNumber(),
+  address: faker.location.streetAddress(true),
+  telephone: faker.phone.number(),
+  cellphone: faker.phone.number(),
+  email: faker.internet.email(),
+  shares: faker.number.int({ min: 1000, max: 100000 }), // Random shares between 1K-100K
+  isReadonly: false,
+});
+
 // Generate mock document data
 export const generateMockDocument = (): z.output<typeof documentSchema> => {
   const documentTypes = [
@@ -100,6 +112,57 @@ export const generateMockBusinessDescription = (): string => {
   return selectedItems.join("、");
 };
 
+// Generate mock form data specifically for organization type testing
+export const generateOrgTypeTestData = () => {
+  const form = createInitialForm();
+
+  // Randomly choose between company_limited and closely_held_company_limited
+  const isCloselyHeld = faker.datatype.boolean();
+  
+  // Generate basic form data with only stock company types
+  const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
+    candidateNames: generateMockCompanyNames(),
+    organizationType: "company_limited", // Always use company_limited in frontend
+    isCloselyHeld: isCloselyHeld,
+    businessItemsDescription: generateMockBusinessDescription(),
+    address: faker.location.streetAddress(true),
+    isDirectorSameAsResponsiblePerson: faker.datatype.boolean(),
+    isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
+    isContactPersonSameAsDirector: false,
+    capitalAmount: faker.number.int({ min: 500000, max: 100000000 }), // Higher amounts for stock companies
+    ordinaryShares: faker.number.int({ min: 1000, max: 500000 }),
+    preferredShares: faker.number.int({ min: 0, max: 100000 }),
+    // hasParValueFreeShares only makes sense for closely held companies
+    hasParValueFreeShares: isCloselyHeld ? faker.datatype.boolean() : false,
+  };
+
+  // Calculate authorizedShares as sum (will be overridden by computed property)
+  mockFormData.authorizedShares = (mockFormData.ordinaryShares || 0) + (mockFormData.preferredShares || 0);
+
+  // Generate person data
+  form.responsiblePerson = generateMockPerson();
+  form.director = mockFormData.isDirectorSameAsResponsiblePerson
+    ? form.responsiblePerson
+    : generateMockPerson();
+  form.contactPerson = mockFormData.isContactPersonSameAsResponsiblePerson
+    ? form.responsiblePerson
+    : generateMockPerson();
+
+  // Generate shareholders (3-7 shareholders for stock companies)
+  const shareholderCount = faker.number.int({ min: 3, max: 7 });
+  form.shareholders = Array.from({ length: shareholderCount }, () =>
+    generateMockShareholder()
+  );
+
+  return {
+    ...mockFormData,
+    responsiblePerson: form.responsiblePerson,
+    director: form.director,
+    contactPerson: form.contactPerson,
+    shareholders: form.shareholders,
+  };
+};
+
 // Generate complete mock form data
 export const generateMockFormData = () => {
   const form = createInitialForm();
@@ -108,16 +171,22 @@ export const generateMockFormData = () => {
   const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
     candidateNames: generateMockCompanyNames(),
     organizationType: faker.helpers.arrayElement([
-      "limited_company",
       "company_limited",
+      "limited_company",
       "sole_proprietorship",
       "partnership",
     ]),
+    isCloselyHeld: faker.datatype.boolean(),
     businessItemsDescription: generateMockBusinessDescription(),
     address: faker.location.streetAddress(true), // Full address with city, state, zip
     isDirectorSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsDirector: false, // For simplicity
+    capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
+    authorizedShares: faker.number.int({ min: 1000, max: 1000000 }),
+    ordinaryShares: faker.number.int({ min: 500, max: 800000 }),
+    preferredShares: faker.number.int({ min: 0, max: 200000 }),
+    hasParValueFreeShares: faker.datatype.boolean(),
   };
 
   // Generate person data
@@ -131,9 +200,16 @@ export const generateMockFormData = () => {
 
   // Generate shareholders (2-5 shareholders)
   const shareholderCount = faker.number.int({ min: 2, max: 5 });
-  form.shareholders = Array.from({ length: shareholderCount }, () =>
-    generateMockPerson()
-  );
+  form.shareholders = Array.from({ length: shareholderCount }, () => {
+    // Only add shares for stock companies
+    if (mockFormData.organizationType === 'company_limited') {
+      return generateMockShareholder();
+    } else {
+      // For non-stock companies, create person without shares
+      const person = generateMockPerson();
+      return { ...person, shares: undefined, isReadonly: false };
+    }
+  });
 
   return {
     ...mockFormData,
@@ -141,5 +217,11 @@ export const generateMockFormData = () => {
     director: form.director,
     contactPerson: form.contactPerson,
     shareholders: form.shareholders,
+    capitalAmount: mockFormData.capitalAmount,
+    authorizedShares: mockFormData.authorizedShares,
+    ordinaryShares: mockFormData.ordinaryShares,
+    preferredShares: mockFormData.preferredShares,
+    hasParValueFreeShares: mockFormData.hasParValueFreeShares,
+    isCloselyHeld: mockFormData.isCloselyHeld,
   };
 };
