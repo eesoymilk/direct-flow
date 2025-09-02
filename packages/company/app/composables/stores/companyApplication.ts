@@ -18,6 +18,15 @@ export const useCompanyApplicationStore = defineStore(
       }
     >(createInitialForm());
 
+    // Track submission state for route protection
+    const submissionState = ref<{
+      justSubmitted: boolean;
+      applicationId?: string;
+      submissionTime?: string;
+    }>({
+      justSubmitted: false,
+    });
+
     const isStockCompany = computed(
       () => form.value.organizationType === "company_limited"
     );
@@ -87,6 +96,23 @@ export const useCompanyApplicationStore = defineStore(
 
     const resetForm = () => {
       form.value = createInitialForm();
+      submissionState.value = { justSubmitted: false };
+    };
+
+    // Submission state management
+    const markSubmissionSuccess = (
+      applicationId: string,
+      submissionTime: string
+    ) => {
+      submissionState.value = {
+        justSubmitted: true,
+        applicationId,
+        submissionTime,
+      };
+    };
+
+    const markSuccessViewed = () => {
+      submissionState.value.justSubmitted = false;
     };
 
     // Populate form with mock data for testing
@@ -125,11 +151,14 @@ export const useCompanyApplicationStore = defineStore(
 
     return {
       form,
+      submissionState: readonly(submissionState),
       isStockCompany,
       addShareholder,
       addPersonAsShareholder,
       removeShareholder,
       resetForm,
+      markSubmissionSuccess,
+      markSuccessViewed,
       populateWithMockData,
       populateWithOrgTypeTestData,
     };

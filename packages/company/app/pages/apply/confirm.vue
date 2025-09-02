@@ -454,6 +454,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: "apply-confirm",
+});
+
 const toast = useToast();
 const applicationStore = useCompanyApplicationStore();
 const form = applicationStore.form;
@@ -496,20 +500,35 @@ const submitApplication = async () => {
       submitData.organizationType = "closely_held_company_limited";
     }
 
-    await $fetch("/api/applications/create", {
+    const { application } = await $fetch("/api/applications/create", {
       method: "POST",
       body: submitData,
-      onResponse: ({ response }) => {
-        if (response.status === 200) {
-          toast.add({
-            title: "申請提交成功",
-            description: "您的公司設立申請已成功提交，我們會盡快處理",
-            color: "success",
-            icon: "i-lucide-check-circle",
-          });
-          applicationStore.resetForm();
-          navigateTo({ path: "/apply/success" });
-        }
+    });
+
+    if (!application) {
+      throw new Error("Failed to submit application");
+    }
+
+    applicationStore.markSubmissionSuccess(
+      application.id,
+      application.createdAt
+    );
+
+    toast.add({
+      title: "申請提交成功",
+      description: "您的公司設立申請已成功提交，我們會盡快處理",
+      color: "success",
+      icon: "i-lucide-check-circle",
+    });
+
+    applicationStore.resetForm();
+
+    // Navigate to success page with query parameters
+    navigateTo({
+      path: "/apply/success",
+      query: {
+        id: application.id,
+        submitted: application.createdAt,
       },
     });
   } catch (error) {

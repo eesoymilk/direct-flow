@@ -168,15 +168,49 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute();
-const applicationId = route.query.id as string;
+definePageMeta({
+  middleware: "apply-success",
+});
 
-// TODO: Get submission time from backend
-const submissionTime = new Date().toLocaleString("zh-TW", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
+const route = useRoute();
+const applicationStore = useCompanyApplicationStore();
+
+// Get application ID from query params or store
+const applicationId =
+  (route.query.id as string) || applicationStore.submissionState.applicationId;
+
+// Get submission time from query params, store, or fallback to current time
+const submissionTime = computed(() => {
+  const querySubmitted = route.query.submitted as string;
+  const storeSubmitted = applicationStore.submissionState.submissionTime;
+
+  if (querySubmitted) {
+    return new Date(querySubmitted).toLocaleString("zh-TW", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  if (storeSubmitted) {
+    return new Date(storeSubmitted).toLocaleString("zh-TW", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // Fallback to current time
+  return new Date().toLocaleString("zh-TW", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 });
 </script>
