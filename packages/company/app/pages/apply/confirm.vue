@@ -163,100 +163,21 @@
     <!-- Person Information Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Responsible Person Information -->
-      <UCard
-        class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300 h-fit"
-      >
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-100 rounded-lg">
-              <UIcon name="i-lucide-user-check" class="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">負責人</h3>
-              <p class="text-sm text-gray-500">責任代表人</p>
-            </div>
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >姓名</label
-            >
-            <p class="text-lg font-bold text-gray-900 mt-1">
-              {{ form.responsiblePerson?.name }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >身分證字號</label
-            >
-            <p
-              class="font-mono text-sm text-gray-700 mt-1 bg-gray-50 px-2 py-1 rounded"
-            >
-              {{ form.responsiblePerson?.idNumber }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >地址</label
-            >
-            <p class="text-sm text-gray-700 mt-1 leading-relaxed">
-              {{ form.responsiblePerson?.address }}
-            </p>
-          </div>
-        </div>
-      </UCard>
+      <PersonCard
+        :person="form.responsiblePerson"
+        title="負責人"
+        subtitle="責任代表人"
+        icon="i-lucide-user-check"
+      />
 
       <!-- Director Information -->
-      <UCard
+      <PersonCard
         v-if="!form.isDirectorSameAsResponsiblePerson"
-        class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300 h-fit"
-      >
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-purple-100 rounded-lg">
-              <UIcon
-                name="i-lucide-briefcase"
-                class="w-5 h-5 text-purple-600"
-              />
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">董事</h3>
-              <p class="text-sm text-gray-500">公司董事</p>
-            </div>
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide">
-              姓名
-            </label>
-            <p class="text-lg font-bold text-gray-900 mt-1">
-              {{ form.director?.name }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide">
-              身分證字號
-            </label>
-            <p
-              class="font-mono text-sm text-gray-700 mt-1 bg-gray-50 px-2 py-1 rounded"
-            >
-              {{ form.director?.idNumber }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide">
-              地址
-            </label>
-            <p class="text-sm text-gray-700 mt-1 leading-relaxed">
-              {{ form.director?.address }}
-            </p>
-          </div>
-        </div>
-      </UCard>
+        :person="form.director"
+        title="董事"
+        subtitle="公司董事"
+        icon="i-lucide-briefcase"
+      />
       <UAlert
         v-else
         icon="i-lucide-briefcase"
@@ -267,57 +188,19 @@
       />
 
       <!-- Contact Person Information -->
-      <UCard
+      <PersonCard
         v-if="
           !form.isContactPersonSameAsResponsiblePerson &&
           !form.isContactPersonSameAsDirector
         "
-        class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300 h-fit"
-      >
-        <template #header>
-          <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 rounded-lg">
-              <UIcon name="i-lucide-phone" class="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">聯絡人</h3>
-              <p class="text-sm text-gray-500">主要聯絡窗口</p>
-            </div>
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >姓名</label
-            >
-            <p class="text-lg font-bold text-gray-900 mt-1">
-              {{ form.contactPerson?.name }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >身分證字號</label
-            >
-            <p
-              class="font-mono text-sm text-gray-700 mt-1 bg-gray-50 px-2 py-1 rounded"
-            >
-              {{ form.contactPerson?.idNumber }}
-            </p>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 tracking-wide"
-              >地址</label
-            >
-            <p class="text-sm text-gray-700 mt-1 leading-relaxed">
-              {{ form.contactPerson?.address }}
-            </p>
-          </div>
-        </div>
-      </UCard>
+        :person="form.contactPerson"
+        title="聯絡人"
+        subtitle="主要聯絡窗口"
+        icon="i-lucide-phone"
+      />
       <UAlert
         v-else
-        icon="i-lucide-user-check"
+        icon="i-lucide-phone"
         color="primary"
         variant="soft"
         title="聯絡人"
@@ -349,71 +232,18 @@
         </div>
       </template>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UCard
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <PersonCard
           v-for="(shareholder, index) in form.shareholders"
           :key="index"
-          :class="[
-            shareholder.isReadonly
-              ? 'border-2 border-blue-200 bg-blue-50/30'
-              : 'border-2 border-gray-200 bg-white',
-          ]"
-        >
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-user" class="w-5 h-5 text-gray-600" />
-                <h4 class="font-bold text-gray-900">股東 {{ index + 1 }}</h4>
-              </div>
-              <div class="flex gap-1">
-                <UBadge
-                  v-if="shareholder.isReadonly"
-                  icon="i-lucide-lock"
-                  label="既有人員"
-                  color="primary"
-                  variant="soft"
-                  size="lg"
-                />
-                <UBadge
-                  v-if="applicationStore.isStockCompany && shareholder.shares"
-                  :label="`${shareholder.shares?.toLocaleString()} 股`"
-                  color="success"
-                  variant="soft"
-                  size="lg"
-                />
-              </div>
-            </div>
-          </template>
-
-          <div class="space-y-3">
-            <div>
-              <label class="text-xs font-semibold text-gray-500 tracking-wide"
-                >姓名</label
-              >
-              <p class="text-lg font-bold text-gray-900 mt-1">
-                {{ shareholder.name }}
-              </p>
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-gray-500 tracking-wide"
-                >身分證字號</label
-              >
-              <p
-                class="font-mono text-sm text-gray-700 mt-1 bg-gray-50 px-2 py-1 rounded"
-              >
-                {{ shareholder.idNumber }}
-              </p>
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-gray-500 tracking-wide"
-                >地址</label
-              >
-              <p class="text-sm text-gray-700 mt-1 leading-relaxed">
-                {{ shareholder.address }}
-              </p>
-            </div>
-          </div>
-        </UCard>
+          :person="shareholder"
+          :title="`股東 ${index + 1}`"
+          subtitle=""
+          icon="i-lucide-user"
+          icon-color="gray"
+          show-badges
+          :show-shares="applicationStore.isStockCompany"
+        />
       </div>
     </UCard>
 
