@@ -1,52 +1,36 @@
-import { acceptHMRUpdate, defineStore } from "pinia";
-
-type ApplicationReviewState = {
-  applicationId: string | null;
-  application: CompanyApplicationResponse | null;
-  currentReviewRound: ReviewRoundResponse | null;
-  localIssues: ReviewIssueSchema[];
-  localVerifications: ReviewVerificationSchema[];
-  isSubmitting: boolean;
-  isDirty: boolean;
-};
-
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
   () => {
-    // State
-    const state = reactive<ApplicationReviewState>({
-      applicationId: null,
-      application: null,
-      currentReviewRound: null,
-      localIssues: [],
-      localVerifications: [],
-      isSubmitting: false,
-      isDirty: false,
-    });
+    const applicationId = ref<string | null>(null);
+    const application = ref<CompanyApplicationResponse | null>(null);
 
-    // Getters
-    const isInitialReview = computed(() => {
-      return (
-        !state.application?.reviewRounds ||
-        state.application.reviewRounds.length === 0
-      );
-    });
+    const localIssues = ref<ReviewIssueSchema[]>([]);
+    const localVerifications = ref<ReviewVerificationSchema[]>([]);
+
+    const isSubmitting = ref<boolean>(false);
+    const isDirty = ref<boolean>(false);
+
+    const isInitialReview = computed(
+      () =>
+        !application.value?.reviewRounds ||
+        application.value.reviewRounds.length === 0
+    );
 
     const latestRoundNo = computed(() => {
-      if (!state.application?.reviewRounds?.length) return 1;
-      return Math.max(...state.application.reviewRounds.map((r) => r.roundNo));
+      if (!application.value?.reviewRounds?.length) return 1;
+      return Math.max(...application.value.reviewRounds.map((r) => r.roundNo));
     });
 
     const allIssues = computed(() => {
       const existingIssues =
-        state.application?.reviewRounds?.[0]?.reviewIssues || [];
-      return [...existingIssues, ...state.localIssues];
+        application.value?.reviewRounds?.[0]?.reviewIssues || [];
+      return [...existingIssues, ...localIssues.value];
     });
 
     const allVerifications = computed(() => {
       const existingVerifications =
-        state.application?.reviewRounds?.[0]?.reviewVerifications || [];
-      return [...existingVerifications, ...state.localVerifications];
+        application.value?.reviewRounds?.[0]?.reviewVerifications || [];
+      return [...existingVerifications, ...localVerifications.value];
     });
 
     const reviewOverlay = computed(() => ({
@@ -71,16 +55,14 @@ export const useCompanyApplicationReviewStore = defineStore(
 
     const canSubmitReview = computed(() => {
       return (
-        state.isDirty &&
-        (state.localIssues.length > 0 || state.localVerifications.length > 0)
+        isDirty.value &&
+        (localIssues.value.length > 0 || localVerifications.value.length > 0)
       );
     });
 
-    const loadApplication = async (applicationId: string) => {
-      state.applicationId = applicationId;
-      const rawData = await $fetch(
-        `/api/applications/${applicationId as "[id]"}`
-      );
+    const loadApplication = async (id: string) => {
+      applicationId.value = id;
+      const rawData = await $fetch(`/api/applications/${id as "[id]"}`);
 
       const { success, data, error } =
         companyApplicationResponseSchema.safeParse(rawData);
@@ -90,71 +72,71 @@ export const useCompanyApplicationReviewStore = defineStore(
         throw error;
       }
 
-      state.application = data;
-      state.localIssues = [];
-      state.localVerifications = [];
-      state.isDirty = false;
+      application.value = data;
+      localIssues.value = [];
+      localVerifications.value = [];
+      isDirty.value = false;
     };
 
     const addIssue = (issue: ReviewIssueSchema): void => {
       // Remove existing issue for this field path if any
-      const existingIndex = state.localIssues.findIndex(
+      const existingIndex = localIssues.value.findIndex(
         (i) => i.fieldPath === issue.fieldPath
       );
       if (existingIndex !== -1) {
-        state.localIssues.splice(existingIndex, 1);
+        localIssues.value.splice(existingIndex, 1);
       }
 
       // Remove any verification for this field path
-      const verificationIndex = state.localVerifications.findIndex(
+      const verificationIndex = localVerifications.value.findIndex(
         (v) => v.fieldPath === issue.fieldPath
       );
       if (verificationIndex !== -1) {
-        state.localVerifications.splice(verificationIndex, 1);
+        localVerifications.value.splice(verificationIndex, 1);
       }
 
-      state.localIssues.push(issue);
-      state.isDirty = true;
+      localIssues.value.push(issue);
+      isDirty.value = true;
     };
 
     const removeIssue = (fieldPath: string): void => {
-      const index = state.localIssues.findIndex(
+      const index = localIssues.value.findIndex(
         (i) => i.fieldPath === fieldPath
       );
       if (index !== -1) {
-        state.localIssues.splice(index, 1);
-        state.isDirty = true;
+        localIssues.value.splice(index, 1);
+        isDirty.value = true;
       }
     };
 
     const addVerification = (verification: ReviewVerificationSchema): void => {
       // Remove existing verification for this field path if any
-      const existingIndex = state.localVerifications.findIndex(
+      const existingIndex = localVerifications.value.findIndex(
         (v) => v.fieldPath === verification.fieldPath
       );
       if (existingIndex !== -1) {
-        state.localVerifications.splice(existingIndex, 1);
+        localVerifications.value.splice(existingIndex, 1);
       }
 
       // Remove any issue for this field path
-      const issueIndex = state.localIssues.findIndex(
+      const issueIndex = localIssues.value.findIndex(
         (i) => i.fieldPath === verification.fieldPath
       );
       if (issueIndex !== -1) {
-        state.localIssues.splice(issueIndex, 1);
+        localIssues.value.splice(issueIndex, 1);
       }
 
-      state.localVerifications.push(verification);
-      state.isDirty = true;
+      localVerifications.value.push(verification);
+      isDirty.value = true;
     };
 
     const removeVerification = (fieldPath: string): void => {
-      const index = state.localVerifications.findIndex(
+      const index = localVerifications.value.findIndex(
         (v) => v.fieldPath === fieldPath
       );
       if (index !== -1) {
-        state.localVerifications.splice(index, 1);
-        state.isDirty = true;
+        localVerifications.value.splice(index, 1);
+        isDirty.value = true;
       }
     };
 
@@ -196,45 +178,50 @@ export const useCompanyApplicationReviewStore = defineStore(
       });
     };
 
-    const submitReview = async (): Promise<void> => {
-      if (!state.applicationId || !canSubmitReview.value) return;
+    const submitReview = async () => {
+      if (!applicationId.value || !canSubmitReview.value) return;
 
-      state.isSubmitting = true;
+      isSubmitting.value = true;
       try {
         const reviewData = {
-          issues: state.localIssues,
-          verifications: state.localVerifications,
+          issues: localIssues.value,
+          verifications: localVerifications.value,
           summary: "", // TODO: Add summary input
         };
 
-        await $fetch(`/api/applications/${state.applicationId}/review-rounds`, {
+        await $fetch(`/api/applications/${applicationId.value}/review-rounds`, {
           method: "POST",
           body: reviewData,
         });
 
         // Reload application to get updated review rounds
-        await loadApplication(state.applicationId);
+        await loadApplication(applicationId.value);
 
         // Clear local changes
-        state.localIssues = [];
-        state.localVerifications = [];
-        state.isDirty = false;
+        localIssues.value = [];
+        localVerifications.value = [];
+        isDirty.value = false;
       } catch (error) {
         console.error("Failed to submit review:", error);
         throw error;
       } finally {
-        state.isSubmitting = false;
+        isSubmitting.value = false;
       }
     };
 
-    const resetLocalChanges = (): void => {
-      state.localIssues = [];
-      state.localVerifications = [];
-      state.isDirty = false;
+    const resetLocalChanges = () => {
+      localIssues.value = [];
+      localVerifications.value = [];
+      isDirty.value = false;
     };
 
     return {
-      ...toRefs(state),
+      applicationId,
+      application,
+      localIssues,
+      localVerifications,
+      isSubmitting,
+      isDirty,
 
       isInitialReview,
       latestRoundNo,

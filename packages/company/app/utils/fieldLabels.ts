@@ -3,50 +3,50 @@
  */
 export const fieldLabels: Record<string, string> = {
   // Company section
-  'company.candidateNames': 'Candidate Company Names',
-  'company.chosenName': 'Chosen Company Name',
-  'company.organizationType': 'Organization Type',
-  'company.isCloselyHeld': 'Closely Held Corporation',
+  'company.candidateNames': '候選公司名稱',
+  'company.chosenName': '選定公司名稱',
+  'company.organizationType': '組織型態',
+  'company.isCloselyHeld': '閉鎖性公司',
 
   // Business section
-  'business.businessItemsDescription': 'Business Description',
-  'business.address': 'Registered Address',
+  'business.businessItemsDescription': '營業項目描述',
+  'business.address': '登記地址',
 
   // Capital section
-  'capital.capitalAmount': 'Capital Amount',
-  'capital.authorizedShares': 'Authorized Shares',
-  'capital.ordinaryShares': 'Ordinary Shares',
-  'capital.preferredShares': 'Preferred Shares',
-  'capital.hasParValueFreeShares': 'Par Value Free Shares',
+  'capital.capitalAmount': '資本額',
+  'capital.authorizedShares': '核准股數',
+  'capital.ordinaryShares': '普通股數',
+  'capital.preferredShares': '特別股數',
+  'capital.hasParValueFreeShares': '無面額股',
 
   // People section
-  'people.responsiblePerson': 'Responsible Person',
-  'people.contactPerson': 'Contact Person',
-  'people.representative': 'Representative',
+  'people.responsiblePerson': '負責人',
+  'people.contactPerson': '聯絡人',
+  'people.representative': '代表人',
 
   // Shareholders section
-  'shareholders.shareholders': 'Shareholders List',
+  'shareholders.shareholders': '股東名單',
 
   // Documents section
-  'documents.documents': 'Required Documents',
+  'documents.documents': '必要文件',
 
   // Individual field fallbacks (without section prefix)
-  candidateNames: 'Candidate Names',
-  chosenName: 'Chosen Name',
-  organizationType: 'Organization Type',
-  isCloselyHeld: 'Closely Held',
-  businessItemsDescription: 'Business Description',
-  address: 'Address',
-  capitalAmount: 'Capital Amount',
-  authorizedShares: 'Authorized Shares',
-  ordinaryShares: 'Ordinary Shares',
-  preferredShares: 'Preferred Shares',
-  hasParValueFreeShares: 'Par Value Free Shares',
-  responsiblePerson: 'Responsible Person',
-  contactPerson: 'Contact Person',
-  representative: 'Representative',
-  shareholders: 'Shareholders',
-  documents: 'Documents'
+  candidateNames: '候選名稱',
+  chosenName: '選定名稱',
+  organizationType: '組織型態',
+  isCloselyHeld: '閉鎖性公司',
+  businessItemsDescription: '營業項目描述',
+  address: '地址',
+  capitalAmount: '資本額',
+  authorizedShares: '核准股數',
+  ordinaryShares: '普通股數',
+  preferredShares: '特別股數',
+  hasParValueFreeShares: '無面額股',
+  responsiblePerson: '負責人',
+  contactPerson: '聯絡人',
+  representative: '代表人',
+  shareholders: '股東',
+  documents: '文件'
 };
 
 export const getFieldLabel = (fieldPath: string): string => {
