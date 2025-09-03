@@ -9,26 +9,39 @@
       block
       @click="$emit('verify')"
     />
-    <UButton
-      icon="i-lucide-alert-triangle"
-      label="標記問題"
-      color="warning"
-      variant="subtle"
-      block
-      @click="$emit('reportIssue')"
-    />
+    <!-- Issue Modal -->
+    <CompanyApplicationReviewIssueModal
+      v-if="!hasIssue"
+      :title="modalTitle"
+      :description="modalDescription"
+      :field-path="fieldPath"
+      @submit="(issue) => $emit('addIssue', issue)"
+    >
+      <UButton
+        icon="i-lucide-alert-triangle"
+        label="標記問題"
+        color="warning"
+        variant="subtle"
+        block
+      />
+    </CompanyApplicationReviewIssueModal>
   </div>
 </template>
 
 <script setup lang="ts">
 interface Props {
   isVerified?: boolean;
+  hasIssue?: boolean;
+  modalTitle?: string;
+  modalDescription?: string;
+  fieldPath: string;
+}
+
+interface Emits {
+  verify: [];
+  addIssue: [issue: ReviewIssueSchema];
 }
 
 defineProps<Props>();
-
-defineEmits<{
-  verify: [];
-  reportIssue: [];
-}>();
+defineEmits<Emits>();
 </script>

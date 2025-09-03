@@ -64,7 +64,7 @@ interface Props {
     | "neutral";
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 defineEmits<{
   toggle: [];
 }>();

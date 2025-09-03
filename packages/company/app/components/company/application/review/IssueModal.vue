@@ -1,133 +1,139 @@
 <template>
-  <UModal
-    :title="title"
-    :description="description"
-    @update:open="handleOpenModal"
-  >
+  <UModal :title="title" :description="description">
     <slot />
     <template #body>
       <UForm
         ref="issueFormRef"
-        :schema="reviewIssueSchema"
-        :state="formState"
-        @submit="(e) => $emit('submit', e.data)"
+        :state="issueFormState"
+        :schema="reviewIssueSchema.omit({ fieldPath: true })"
+        @submit="handleSubmit"
+        @error="handleError"
         class="md:space-y-4 space-y-2"
       >
         <UFormField label="問題類型" name="issueType">
           <URadioGroup
-            v-model="formState.issueType"
-            :items="reviewIssueTypeItems"
+            v-model="issueFormState.issueType"
+            :items="issueTypeItems"
             value-key="id"
             variant="table"
             orientation="horizontal"
+            placeholder="選擇問題類型"
             class="w-full"
+            :ui="{ item: 'flex-1' }"
           />
         </UFormField>
-        <UFormField label="問題嚴重性" name="severity">
+
+        <UFormField label="嚴重程度" name="severity">
           <URadioGroup
-            v-model="formState.severity"
-            :items="reviewIssueSeverityItems"
+            v-model="issueFormState.severity"
+            :items="severityItems"
             value-key="id"
             variant="table"
             orientation="horizontal"
+            placeholder="選擇嚴重程度"
             class="w-full"
+            :ui="{ item: 'flex-1' }"
           />
         </UFormField>
+
         <UFormField label="問題描述" name="description">
           <UTextarea
-            v-model="formState.description"
-            placeholder="請輸入問題描述 (選填)"
-            class="w-full"
-            autoresize
+            v-model="issueFormState.description"
+            placeholder="詳細描述問題..."
             :rows="5"
+            autoresize
+            class="w-full"
           />
         </UFormField>
       </UForm>
     </template>
     <template #footer="{ close }">
-      <UButton
-        v-if="reviewEntry?.state === 'hasIssue'"
-        icon="i-lucide-trash"
-        label="刪除問題"
-        color="error"
-        class="mr-auto"
-        @click="
-          () => {
-            $emit('delete');
-            close();
-          }
-        "
-      />
-      <UButton
-        label="確認"
-        icon="i-lucide-check"
-        class="ml-auto"
-        @click="
-          () => {
-            issueFormRef?.submit();
-            close();
-          }
-        "
-      />
+      <div class="w-full flex justify-end gap-3">
+        <UButton
+          label="取消"
+          icon="i-lucide-x"
+          variant="ghost"
+          @click="handleCancel(close)"
+        />
+        <UButton
+          icon="i-lucide-alert-triangle"
+          color="error"
+          label="標記問題"
+          @click="handleSubmitIssue(close)"
+        />
+      </div>
     </template>
   </UModal>
 </template>
 
 <script setup lang="ts">
-import type { RadioGroupItem } from "@nuxt/ui";
-import type { FieldPath } from "~/composables/stores/reviewEntry";
+import type { FormErrorEvent, FormSubmitEvent, RadioGroupItem } from "@nuxt/ui";
 
-const reviewIssueTypeItems = [
-  { label: "缺失", id: "missing" },
-  { label: "無效", id: "invalid" },
+const issueTypeItems: RadioGroupItem[] = [
+  { label: "缺少資料", id: "missing" },
+  { label: "資料無效", id: "invalid" },
   { label: "需要澄清", id: "clarification" },
-] satisfies RadioGroupItem[];
+  { label: "需要修改", id: "modification" },
+] as const;
 
-const reviewIssueSeverityItems: RadioGroupItem[] = [
+const severityItems: RadioGroupItem[] = [
   { label: "低", id: "low" },
   { label: "中", id: "medium" },
   { label: "高", id: "high" },
   { label: "嚴重", id: "critical" },
-];
+] as const;
 
-const props = defineProps<{
-  reviewPath: FieldPath;
+const props = withDefaults(
+  defineProps<{
+    title?: string;
+    description?: string;
+    fieldPath: string;
+  }>(),
+  {
+    title: "標記問題",
+    description: "請選擇問題類型和嚴重程度，並提供詳細描述以協助後續處理。",
+  }
+);
+
+const emit = defineEmits<{
+  submit: [issue: ReviewIssueSchema];
 }>();
-
-defineEmits<{
-  (e: "submit", event: ReviewIssue): void;
-  (e: "delete"): void;
-}>();
-
-const reviewStore = useCompanyApplicationReviewStore();
-const reviewEntry = computed(() => reviewStore.getEntry(props.reviewPath));
 
 const issueFormRef = useTemplateRef("issueFormRef");
-const formState = ref<Partial<ReviewIssue>>({});
 
-const title = computed(() => {
-  if (reviewEntry.value?.state === "hasIssue") {
-    return "編輯問題";
+const issueFormState = ref<Partial<Omit<ReviewIssueSchema, "fieldPath">>>({});
+
+const resetForm = () => {
+  issueFormState.value = {};
+};
+
+const handleCancel = (close: () => void) => {
+  resetForm();
+  close();
+};
+
+const handleSubmitIssue = (close: () => void) => {
+  try {
+    if (!issueFormRef.value) throw new Error("Issue form ref not found");
+    issueFormRef.value.submit();
+    close();
+  } catch (error) {
+    console.error("Form validation failed:", error);
   }
-  return "新增問題";
-});
+};
 
-const description = computed(() => {
-  if (reviewEntry.value?.state === "hasIssue") {
-    return "請修改問題描述";
-  }
-  return "請新增問題描述";
-});
+const handleSubmit = (
+  event: FormSubmitEvent<Omit<ReviewIssueSchema, "fieldPath">>
+) => {
+  console.log("Modal handleSubmit called", issueFormState.value);
+  emit("submit", {
+    ...event.data,
+    fieldPath: props.fieldPath,
+  });
+  resetForm();
+};
 
-const handleOpenModal = (value: boolean) => {
-  formState.value = {};
-
-  if (value && reviewEntry.value?.state === "hasIssue") {
-    formState.value = {
-      issueType: reviewEntry.value.issue?.issueType,
-      severity: reviewEntry.value.issue?.severity,
-      description: reviewEntry.value.issue?.description,
-    };
-  }
+const handleError = (event: FormErrorEvent) => {
+  console.error("Form validation failed:", event.errors);
 };
 </script>

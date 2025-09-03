@@ -1,29 +1,19 @@
 <template>
-  <CompanyApplicationReviewUiSectionCard
+  <CompanyApplicationReviewUiSectionBase
     title="公司基本資料"
     description="公司名稱、組織類型與營業地址"
-    :is-open="isOpen"
+    :is-open="sectionIsOpen"
     :section-border-class="sectionBorderClass"
     :status-icon="statusIcon"
     :status-icon-class="statusIconClass"
     :status-label="statusLabel"
     :status-badge-color="statusBadgeColor"
-    @toggle="toggleSection"
+    :status="status"
+    :field-statuses="fieldStatuses"
+    :quick-action-items="quickActionItems"
+    @toggle="handleToggleSection"
   >
-    <template #header-actions>
-      <UDropdownMenu :items="quickActionItems">
-        <UButton icon="i-lucide-more-vertical" variant="ghost" />
-      </UDropdownMenu>
-    </template>
-
-    <CompanyApplicationReviewUiSectionSummary
-      :issues-count="status.issueCount"
-      :verified-count="status.verificationCount"
-      :total-count="status.totalFields"
-    />
-
-    <!-- Field Review Cards -->
-    <div class="grid gap-6 px-4">
+    <template #default>
       <!-- Company Names -->
       <CompanyApplicationReviewUiFieldCard
         label="公司預查名稱"
@@ -52,8 +42,10 @@
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.candidateNames.isVerified"
-            @verify="() => handleVerifyField('candidateNames')"
-            @report-issue="() => handleReportIssue('candidateNames')"
+            :has-issue="fieldStatuses.candidateNames.hasIssue"
+            field-path="company.candidateNames"
+            @verify="() => verifyField('candidateNames')"
+            @add-issue="submitIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -67,8 +59,10 @@
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.organizationType.isVerified"
-            @verify="() => handleVerifyField('organizationType')"
-            @report-issue="() => handleReportIssue('organizationType')"
+            :has-issue="fieldStatuses.organizationType.hasIssue"
+            field-path="company.organizationType"
+            @verify="() => verifyField('organizationType')"
+            @add-issue="submitIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -82,135 +76,81 @@
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.address.isVerified"
-            @verify="() => handleVerifyField('address')"
-            @report-issue="() => handleReportIssue('address')"
+            :has-issue="fieldStatuses.address.hasIssue"
+            field-path="company.address"
+            @verify="() => verifyField('address')"
+            @add-issue="submitIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
-    </div>
-  </CompanyApplicationReviewUiSectionCard>
+
+      <!-- Capital Amount -->
+      <CompanyApplicationReviewUiFieldCard
+        label="資本額"
+        :value="`NT$ ${companyBasicInfo.capitalAmount?.toLocaleString() || 'N/A'}`"
+        v-bind="getFieldStatusProps('capitalAmount')"
+      >
+        <template #default>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+              <h5 class="text-sm font-semibold text-amber-800">資本額詳情</h5>
+            </div>
+            <p class="text-xl font-bold text-amber-700">
+              NT$
+              {{ companyBasicInfo.capitalAmount?.toLocaleString() || "N/A" }}
+            </p>
+            <p class="text-sm text-amber-600 mt-1">公司註冊登記的資本總額</p>
+          </div>
+        </template>
+        <template #actions>
+          <CompanyApplicationReviewUiFieldActions
+            :is-verified="fieldStatuses.capitalAmount.isVerified"
+            :has-issue="fieldStatuses.capitalAmount.hasIssue"
+            field-path="company.capitalAmount"
+            @verify="() => verifyField('capitalAmount')"
+            @add-issue="submitIssue"
+          />
+        </template>
+      </CompanyApplicationReviewUiFieldCard>
+    </template>
+  </CompanyApplicationReviewUiSectionBase>
 </template>
 
 <script setup lang="ts">
-import type { DropdownMenuItem } from "@nuxt/ui";
 import {
   type CompanyBasicInfoField,
+  COMPANY_BASIC_INFO_FIELDS,
   useCompanyReview,
 } from "./useCompanyReview";
+import { useCompanyReviewSection } from "./useCompanyReviewSection";
+
+const { companyBasicInfo } = useCompanyReview();
 
 const {
-  companyBasicInfo,
-  basicInfoFieldStatuses: fieldStatuses,
-  basicInfoSectionIsOpen: isOpen,
-  verifyField,
-  reportFieldIssue,
-  toggleSection,
-} = useCompanyReview();
-
-// Filter fields for this section only
-const basicInfoFields: CompanyBasicInfoField[] = [
-  "candidateNames",
-  "organizationType",
-  "address",
-];
-
-// Section-specific status calculation
-const status = computed(() => {
-  const section = fieldStatuses.value;
-  const sectionIssues = basicInfoFields.filter(
-    (field) => section[field].hasIssue
-  );
-  const sectionVerifications = basicInfoFields.filter(
-    (field) => section[field].isVerified
-  );
-  const criticalIssues = sectionIssues.filter(
-    (field) => section[field].issue?.severity === "critical"
-  );
-
-  return {
-    hasIssues: sectionIssues.length > 0,
-    hasCriticalIssues: criticalIssues.length > 0,
-    hasVerifications: sectionVerifications.length > 0,
-    issueCount: sectionIssues.length,
-    criticalIssueCount: criticalIssues.length,
-    verificationCount: sectionVerifications.length,
-    totalFields: basicInfoFields.length,
-    isComplete:
-      sectionVerifications.length === basicInfoFields.length &&
-      sectionIssues.length === 0,
-  };
-});
-
-const {
+  sectionIsOpen,
+  fieldStatuses,
+  status,
   sectionBorderClass,
   statusIcon,
   statusIconClass,
   statusBadgeColor,
   statusLabel,
-} = useReviewSectionStatus(status);
+  quickActionItems,
+  addFieldIssue,
+  verifyField,
+  handleToggleSection,
+  getFieldStatusProps,
+} = useCompanyReviewSection<CompanyBasicInfoField>({
+  sectionKey: "companyBasicInfo",
+  fields: COMPANY_BASIC_INFO_FIELDS,
+  sectionTitle: "公司基本資料",
+  verifyAllLabel: "驗證全部欄位",
+  clearAllLabel: "清除所有標記",
+  markReviewedLabel: "標記為已審核",
+});
 
-const quickActionItems = computed((): DropdownMenuItem[] => [
-  [
-    {
-      label: "驗證全部欄位",
-      icon: "i-lucide-check-circle",
-      color: "success",
-      disabled: status.value.isComplete,
-      onSelect: () => verifyAllBasicInfoFields(),
-    },
-    {
-      label: "清除所有標記",
-      icon: "i-lucide-eraser",
-      color: "gray",
-      disabled: !status.value.hasIssues && !status.value.hasVerifications,
-      onSelect: () => clearAllBasicInfoMarkers(),
-    },
-    {
-      label: "標記為已審核",
-      icon: "i-lucide-eye-check",
-      color: "primary",
-      disabled: status.value.isComplete,
-      onSelect: () => verifyAllBasicInfoFields(),
-    },
-  ],
-]);
-
-const handleVerifyField = (fieldKey: CompanyBasicInfoField) => {
-  verifyField("companyBasicInfo", fieldKey);
-};
-
-const handleReportIssue = (fieldKey: CompanyBasicInfoField) => {
-  reportFieldIssue(
-    "companyBasicInfo",
-    fieldKey,
-    "clarification",
-    "medium",
-    "需要進一步確認此欄位"
-  );
-};
-
-const verifyAllBasicInfoFields = () => {
-  basicInfoFields.forEach((field) => verifyField("companyBasicInfo", field));
-};
-
-const clearAllBasicInfoMarkers = () => {
-  // This would need to be implemented in the composable to clear specific fields only
-  basicInfoFields.forEach((field) => {
-    // TODO: implement clearFieldMarkers in composable
-  });
-};
-
-// Helper function to get field status props
-const getFieldStatusProps = (
-  fieldKey: CompanyBasicInfoField
-): {
-  statusLabel: string;
-  statusBadgeColor: "success" | "warning" | "neutral";
-} => {
-  const { isVerified, hasIssue } = fieldStatuses.value[fieldKey];
-  return {
-    statusLabel: isVerified ? "已驗證" : hasIssue ? "有問題" : "",
-    statusBadgeColor: isVerified ? "success" : hasIssue ? "warning" : "neutral",
-  };
+const submitIssue = (issue: ReviewIssueSchema) => {
+  addFieldIssue(issue);
 };
 </script>

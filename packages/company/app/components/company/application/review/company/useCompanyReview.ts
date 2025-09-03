@@ -1,8 +1,3 @@
-type CompanyReviewSection =
-  | "companyBasicInfo"
-  | "companyBusinessItems"
-  | "companyMonetaryInfo";
-
 export const COMPANY_BASIC_INFO_FIELDS = [
   "candidateNames",
   "organizationType",
@@ -28,24 +23,15 @@ export const COMPANY_MONETARY_INFO_FIELDS = [
 export type CompanyMonetaryInfoField =
   (typeof COMPANY_MONETARY_INFO_FIELDS)[number];
 
-type FieldStatus = {
-  hasIssue: boolean;
-  issue: ReviewIssueSchema | undefined;
-  isVerified: boolean;
-  verification: ReviewVerificationSchema | undefined;
-};
+export type CompanyField =
+  | CompanyBasicInfoField
+  | CompanyBusinessItemsField
+  | CompanyMonetaryInfoField;
 
 export const useCompanyReview = () => {
   const detailsStore = useCompanyApplicationDetailsStore();
   const reviewStore = useCompanyApplicationReviewStore();
-  const {
-    addIssue,
-    removeIssue,
-    addVerification,
-    removeVerification,
-    getSectionState,
-    toggleSection,
-  } = reviewStore;
+  const { getSectionState, toggleSection } = reviewStore;
 
   const { application } = storeToRefs(detailsStore);
 
@@ -57,6 +43,7 @@ export const useCompanyReview = () => {
       candidateNames: application.value.candidateNames,
       organizationType: application.value.organizationType,
       address: application.value.address,
+      capitalAmount: application.value.capitalAmount,
     };
   });
 
@@ -107,137 +94,6 @@ export const useCompanyReview = () => {
     set: () => toggleSection("companyMonetaryInfo"),
   });
 
-  const statusesReducer = <T extends string>(
-    acc: Record<T, FieldStatus>,
-    field: T
-  ) => {
-    const fieldPath = `company.${field}`;
-    const issue = basicInfoSectionState.value.issues.find(
-      (i) => i.fieldPath === fieldPath
-    );
-    const verification = basicInfoSectionState.value.verifications.find(
-      (v) => v.fieldPath === fieldPath
-    );
-
-    acc[field] = {
-      hasIssue: !!issue,
-      issue,
-      isVerified: !!verification,
-      verification,
-    };
-
-    return acc;
-  };
-
-  const basicInfoFieldStatuses = computed(
-    (): Record<CompanyBasicInfoField, FieldStatus> =>
-      COMPANY_BASIC_INFO_FIELDS.reduce(
-        statusesReducer,
-        {} as Record<CompanyBasicInfoField, FieldStatus>
-      )
-  );
-
-  const businessItemsFieldStatuses = computed(
-    (): Record<CompanyBusinessItemsField, FieldStatus> =>
-      COMPANY_BUSINESS_ITEMS_FIELDS.reduce(
-        statusesReducer,
-        {} as Record<CompanyBusinessItemsField, FieldStatus>
-      )
-  );
-
-  const monetaryInfoFieldStatuses = computed(
-    (): Record<CompanyMonetaryInfoField, FieldStatus> =>
-      COMPANY_MONETARY_INFO_FIELDS.reduce(
-        statusesReducer,
-        {} as Record<CompanyMonetaryInfoField, FieldStatus>
-      )
-  );
-
-  // Field actions
-  const verifyField = (
-    sectionKey: CompanyReviewSection,
-    fieldKey:
-      | CompanyBasicInfoField
-      | CompanyBusinessItemsField
-      | CompanyMonetaryInfoField,
-    note?: string
-  ) => {
-    const fieldPath = `company.${fieldKey}`;
-    // Remove any existing issue first
-    removeIssue(sectionKey, fieldPath);
-    // Add verification
-    addVerification(sectionKey, { fieldPath, note });
-  };
-
-  const reportFieldIssue = (
-    sectionKey: CompanyReviewSection,
-    fieldKey:
-      | CompanyBasicInfoField
-      | CompanyBusinessItemsField
-      | CompanyMonetaryInfoField,
-    issueType: ReviewIssueSchema["issueType"],
-    severity: ReviewIssueSchema["severity"],
-    description?: string
-  ) => {
-    const fieldPath = `company.${fieldKey}`;
-    // Remove any existing verification first
-    removeVerification(sectionKey, fieldPath);
-    // Add issue
-    addIssue(sectionKey, {
-      fieldPath,
-      issueType,
-      severity,
-      description,
-    });
-  };
-
-  // Bulk actions
-  const verifyAllFields = (sectionKey: CompanyReviewSection) => {
-    let fields;
-    if (sectionKey === "companyBasicInfo") {
-      fields = COMPANY_BASIC_INFO_FIELDS;
-    } else if (sectionKey === "companyBusinessItems") {
-      fields = COMPANY_BUSINESS_ITEMS_FIELDS;
-    } else if (sectionKey === "companyMonetaryInfo") {
-      fields = COMPANY_MONETARY_INFO_FIELDS;
-    } else {
-      throw new Error("Invalid section key");
-    }
-    fields.forEach((field) => {
-      verifyField(sectionKey, field);
-    });
-  };
-
-  const clearAllMarkers = () => {
-    basicInfoSectionState.value.issues = [];
-    basicInfoSectionState.value.verifications = [];
-    businessItemsSectionState.value.issues = [];
-    businessItemsSectionState.value.verifications = [];
-    monetaryInfoSectionState.value.issues = [];
-    monetaryInfoSectionState.value.verifications = [];
-  };
-
-  // Status computed
-  const status = computed(() => {
-    const section = basicInfoSectionState.value;
-    const criticalIssues = section.issues.filter(
-      (i) => i.severity === "critical"
-    );
-
-    return {
-      hasIssues: section.issues.length > 0,
-      hasCriticalIssues: criticalIssues.length > 0,
-      hasVerifications: section.verifications.length > 0,
-      issueCount: section.issues.length,
-      criticalIssueCount: criticalIssues.length,
-      verificationCount: section.verifications.length,
-      totalFields: COMPANY_BASIC_INFO_FIELDS.length,
-      isComplete:
-        section.verifications.length === COMPANY_BASIC_INFO_FIELDS.length &&
-        section.issues.length === 0,
-    };
-  });
-
   return {
     // State
     companyBasicInfo,
@@ -246,19 +102,8 @@ export const useCompanyReview = () => {
     basicInfoSectionState,
     businessItemsSectionState,
     monetaryInfoSectionState,
-    basicInfoFieldStatuses,
-    businessItemsFieldStatuses,
-    monetaryInfoFieldStatuses,
     basicInfoSectionIsOpen,
     businessItemsSectionIsOpen,
     monetaryInfoSectionIsOpen,
-    status,
-
-    // Actions
-    verifyField,
-    reportFieldIssue,
-    verifyAllFields,
-    clearAllMarkers,
-    toggleSection: () => toggleSection("companyBasicInfo"),
   };
 };
