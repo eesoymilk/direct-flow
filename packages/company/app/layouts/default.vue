@@ -9,7 +9,7 @@
       <slot />
     </main>
     <AppFooter />
-    <DebugPopover />
+    <!-- <DebugPopover /> -->
   </div>
 </template>
 

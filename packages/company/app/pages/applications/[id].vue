@@ -39,10 +39,14 @@
             </h1>
             <div class="flex items-center gap-4 text-sm text-gray-600">
               <span>申請編號：{{ application.id }}</span>
-              <span>申請日期：{{ formatDate(application.createdAt) }}</span>
               <UBadge
-                :label="getStatusLabel(application.status)"
-                :color="getStatusColor(application.status)"
+                :label="format(application.createdAt, 'yyyy/MM/dd HH:mm:ss')"
+                color="info"
+                variant="subtle"
+              />
+              <UBadge
+                :label="badgeLabel"
+                :color="badgeColor"
                 variant="subtle"
               />
             </div>
@@ -74,17 +78,27 @@
 </template>
 
 <script setup lang="ts">
+import { format } from "date-fns";
+
 definePageMeta({
   middleware: "auth",
 });
 
 const route = useRoute();
-const reviewStore = useCompanyApplicationReviewStore();
-const { application } = storeToRefs(reviewStore);
+const detailsStore = useCompanyApplicationDetailsStore();
+const { application } = storeToRefs(detailsStore);
 
 const applicationId = route.params.id as string;
 const { pending, error, refresh } = await useLazyAsyncData(
   `application-${applicationId}`,
-  () => reviewStore.loadApplication(applicationId)
+  () => detailsStore.loadApplication(applicationId)
+);
+
+const badgeLabel = computed(() =>
+  getApplicationStatusLabel(application.value?.status)
+);
+
+const badgeColor = computed(() =>
+  getApplicationStatusColor(application.value?.status)
 );
 </script>

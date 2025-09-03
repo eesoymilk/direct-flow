@@ -11,15 +11,13 @@ import {
 import { relations } from "drizzle-orm";
 import { people } from "../person/schema";
 import { documents } from "../document/schema";
+import { ORGANIZATION_TYPE } from "../../../../shared/utils/constants";
 
 // Organization type enum
-export const organizationTypeEnum = pgEnum("organization_type", [
-  "company_limited", // 股份有限公司
-  "closely_held_company_limited", // 閉鎖型股份有限公司
-  "limited_company", // 有限公司
-  "sole_proprietorship", // 獨資
-  "partnership", // 合夥
-]);
+export const organizationTypeEnum = pgEnum(
+  "organization_type",
+  ORGANIZATION_TYPE
+);
 
 // Companies table
 export const companies = pgTable("companies", {
@@ -124,21 +122,27 @@ export const companyDocumentsRelations = relations(
   })
 );
 
-export const shareholdersRelations = relations(shareholders, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [shareholders.companyId],
-    references: [companies.id],
-  }),
-  person: one(people, {
-    fields: [shareholders.personId],
-    references: [people.id],
-  }),
-  shareholderShares: many(shareholderShares),
-}));
+export const shareholdersRelations = relations(
+  shareholders,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [shareholders.companyId],
+      references: [companies.id],
+    }),
+    person: one(people, {
+      fields: [shareholders.personId],
+      references: [people.id],
+    }),
+    shareholderShares: many(shareholderShares),
+  })
+);
 
-export const shareholderSharesRelations = relations(shareholderShares, ({ one }) => ({
-  shareholder: one(shareholders, {
-    fields: [shareholderShares.shareholderId],
-    references: [shareholders.id],
-  }),
-}));
+export const shareholderSharesRelations = relations(
+  shareholderShares,
+  ({ one }) => ({
+    shareholder: one(shareholders, {
+      fields: [shareholderShares.shareholderId],
+      references: [shareholders.id],
+    }),
+  })
+);

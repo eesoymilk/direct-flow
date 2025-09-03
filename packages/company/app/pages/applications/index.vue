@@ -40,19 +40,19 @@
         </UCard>
         <UCard class="text-center">
           <div class="text-2xl font-bold text-blue-600">
-            {{ getStatusCount("submitted") }}
+            {{ statusCounts.submitted || 0 }}
           </div>
           <div class="text-sm text-text-secondary">已提交</div>
         </UCard>
         <UCard class="text-center">
           <div class="text-2xl font-bold text-yellow-600">
-            {{ getStatusCount("staff_review") }}
+            {{ statusCounts.staff_review || 0 }}
           </div>
           <div class="text-sm text-text-secondary">審核中</div>
         </UCard>
         <UCard class="text-center">
           <div class="text-2xl font-bold text-green-600">
-            {{ getStatusCount("approved") }}
+            {{ statusCounts.approved || 0 }}
           </div>
           <div class="text-sm text-text-secondary">已核准</div>
         </UCard>
@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import type { TableRow } from "@nuxt/ui";
+import { format } from "date-fns";
 import type { InternalApi } from "nitropack";
 
 type Row = TableRow<
@@ -147,7 +148,7 @@ const { data, pending, error, refresh } = useLazyFetch("/api/applications", {
   query: filters,
 });
 
-const columns = [
+const columns = computed(() => [
   {
     accessorKey: "id",
     header: "申請編號",
@@ -177,22 +178,28 @@ const columns = [
     accessorKey: "status",
     header: "狀態",
     cell: ({ row }: { row: Row }) => {
-      return getStatusLabel(row.original.status);
+      return getApplicationStatusLabel(row.original.status);
     },
   },
   {
     accessorKey: "createdAt",
     header: "申請日期",
     cell: ({ row }: { row: Row }) => {
-      return formatDate(row.original.createdAt);
+      return format(row.original.createdAt, "yyyy/MM/dd HH:mm:ss");
     },
   },
-];
+]);
 
-const getStatusCount = (status: string) => {
-  return data.value?.applications.filter((app: any) => app.status === status)
-    .length;
-};
+const statusCounts = computed(() => {
+  if (!data.value?.applications) return {};
+
+  const counts: Record<string, number> = {};
+  data.value.applications.forEach((app: any) => {
+    counts[app.status] = (counts[app.status] || 0) + 1;
+  });
+
+  return counts;
+});
 
 const changePage = (page: number) => {
   // TODO: Implement pagination
@@ -200,67 +207,6 @@ const changePage = (page: number) => {
 };
 
 const viewApplication = (id: string) => {
-  // Find the application data from the current list
-  const application = data.value?.applications.find(
-    (app: any) => app.id === id
-  );
-
-  if (application) {
-    // Get the review store
-    const reviewStore = useCompanyApplicationReviewStore();
-
-    // Map flat fields
-    const flatFields = [
-      "candidateNames",
-      "organizationType",
-      "businessItemsDescription",
-      "address",
-    ] as const;
-
-    flatFields.forEach((field) => {
-      const entry = reviewStore.reviewEntries.company[field];
-
-      if (!entry) {
-        console.warn(`Entry not found for field: ${field}`);
-        return;
-      }
-
-      reviewStore.reviewEntries.company[field] = {
-        ...entry,
-        value: application[field],
-      };
-    });
-
-    // Map nested person objects
-    const personFields = [
-      "name",
-      "idNumber",
-      "address",
-      "telephone",
-      "cellphone",
-      "email",
-    ] as const;
-
-    (["responsiblePerson", "contactPerson", "representative"] as const).forEach(
-      (personType) => {
-        const personData = reviewStore.reviewEntries[personType];
-
-        personFields.forEach((field) => {
-          const entry = personData[field];
-          if (!entry) {
-            console.warn(`Entry not found for field: ${field}`);
-            return;
-          }
-
-          personData[field] = {
-            ...entry,
-            value: application[personType]?.[field] ?? "",
-          };
-        });
-      }
-    );
-  }
-
   navigateTo(`/applications/${id}`);
 };
 

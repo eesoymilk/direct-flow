@@ -25,7 +25,7 @@
     <!-- Shareholders array validation wrapper -->
     <UForm
       :state="{ shareholders: applicationStore.form.shareholders }"
-      :schema="z.object({ shareholders: shareholdersArraySchema })"
+      :schema="z.object({ shareholders: shareholderArraySchema })"
       attach
     >
       <UFormField name="shareholders">

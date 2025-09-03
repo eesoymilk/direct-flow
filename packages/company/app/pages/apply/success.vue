@@ -168,6 +168,8 @@
 </template>
 
 <script setup lang="ts">
+import { format } from "date-fns";
+
 definePageMeta({
   middleware: "apply-success",
 });
@@ -181,36 +183,11 @@ const applicationId =
 
 // Get submission time from query params, store, or fallback to current time
 const submissionTime = computed(() => {
-  const querySubmitted = route.query.submitted as string;
-  const storeSubmitted = applicationStore.submissionState.submissionTime;
+  const submissionTimeRaw =
+    (route.query.submitted as string) ||
+    applicationStore.submissionState.submissionTime ||
+    new Date().toISOString();
 
-  if (querySubmitted) {
-    return new Date(querySubmitted).toLocaleString("zh-TW", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  if (storeSubmitted) {
-    return new Date(storeSubmitted).toLocaleString("zh-TW", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  // Fallback to current time
-  return new Date().toLocaleString("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return format(new Date(submissionTimeRaw), "yyyy/MM/dd HH:mm");
 });
 </script>

@@ -25,6 +25,9 @@ export default eventHandler(async (event) => {
       contactPerson,
       director,
       shareholders,
+      isDirectorSameAsResponsiblePerson,
+      isContactPersonSameAsResponsiblePerson,
+      isContactPersonSameAsDirector,
       ...data
     } = body.data;
 
@@ -32,26 +35,23 @@ export default eventHandler(async (event) => {
       const responsiblePersonResult = await createPerson(tx, responsiblePerson);
 
       let directorResult: Person;
-      if (data.isDirectorSameAsResponsiblePerson) {
+      if (isDirectorSameAsResponsiblePerson) {
         directorResult = responsiblePersonResult;
       } else {
         directorResult = await createPerson(tx, director);
       }
 
       let contactPersonResult: Person;
-      if (data.isContactPersonSameAsResponsiblePerson) {
+      if (isContactPersonSameAsResponsiblePerson) {
         contactPersonResult = responsiblePersonResult;
-      } else if (data.isContactPersonSameAsDirector) {
+      } else if (isContactPersonSameAsDirector) {
         contactPersonResult = directorResult;
       } else {
         contactPersonResult = await createPerson(tx, contactPerson);
       }
 
       const application = await createCompanyApplication(tx, {
-        candidateNames: data.candidateNames,
-        organizationType: data.organizationType,
-        businessItemsDescription: data.businessItemsDescription,
-        address: data.address,
+        ...data,
         responsiblePersonId: responsiblePersonResult.id,
         contactPersonId: contactPersonResult.id,
         representativeId: directorResult.id,

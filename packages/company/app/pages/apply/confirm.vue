@@ -351,8 +351,6 @@ const submitApplication = async () => {
       icon: "i-lucide-check-circle",
     });
 
-    applicationStore.resetForm();
-
     // Navigate to success page with query parameters
     navigateTo({
       path: "/apply/success",

@@ -9,21 +9,18 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
 import { people } from "../person/schema";
 import { documents } from "../document/schema";
 import { organizationTypeEnum } from "../company/schema";
 import { reviewRounds } from "../companyApplicationReview/schema";
+import { COMPANY_APPLICATION_STATUS } from "../../../../shared/utils/constants";
 
 // Application status enum
-export const applicationStatusEnum = pgEnum("application_status", [
-  "submitted",
-  "staff_review",
-  "pending_client_update",
-  "filing",
-  "filed",
-  "approved",
-  "rejected",
-]);
+export const applicationStatusEnum = pgEnum(
+  "application_status",
+  COMPANY_APPLICATION_STATUS
+);
 
 // Company applications table
 export const companyApplications = pgTable("company_applications", {
@@ -43,12 +40,12 @@ export const companyApplications = pgTable("company_applications", {
     () => people.id,
     { onDelete: "cascade" }
   ), // 負責人ID
-  contactPersonId: uuid("contact_person_id").references(() => people.id, {
-    onDelete: "set null",
-  }), // 聯絡人ID
   representativeId: uuid("representative_id").references(() => people.id, {
     onDelete: "set null",
   }), // 代表人ID
+  contactPersonId: uuid("contact_person_id").references(() => people.id, {
+    onDelete: "set null",
+  }), // 聯絡人ID
   status: applicationStatusEnum("status").notNull().default("submitted"), // 狀態
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
