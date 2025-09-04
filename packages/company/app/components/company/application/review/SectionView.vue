@@ -34,6 +34,12 @@
       <CompanyApplicationReviewCompanyBasicInfoSection />
       <CompanyApplicationReviewCompanyBusinessItemsSection />
       <CompanyApplicationReviewCompanyMonetaryInfoSection />
+
+      <CompanyApplicationReviewPersonSection person-type="responsiblePerson" />
+      <CompanyApplicationReviewPersonSection person-type="representative" />
+      <CompanyApplicationReviewPersonSection person-type="contactPerson" />
+
+      <CompanyApplicationReviewShareholdersSection />
     </div>
   </div>
 </template>

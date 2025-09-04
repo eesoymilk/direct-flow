@@ -35,7 +35,7 @@
 
     <UCollapsible :open="isOpen" class="w-full">
       <template #content>
-        <div class="space-y-4 pt-4 md:space-y-6 md:pt-6">
+        <div class="space-y-4 md:space-y-6">
           <slot />
         </div>
       </template>

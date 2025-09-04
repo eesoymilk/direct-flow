@@ -19,33 +19,31 @@
         label="公司預查名稱"
         v-bind="getFieldStatusProps('candidateNames')"
       >
-        <template #default>
-          <div class="space-y-3">
+        <div class="space-y-3">
+          <div
+            v-for="(name, index) in companyBasicInfo.candidateNames"
+            :key="index"
+            class="group flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          >
             <div
-              v-for="(name, index) in companyBasicInfo.candidateNames"
-              :key="index"
-              class="group flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-xl border border-indigo-200 hover:border-indigo-300 transition-all duration-200 shadow-sm hover:shadow-md"
+              class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-sm font-bold rounded-full flex items-center justify-center shadow-md"
             >
-              <div
-                class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 text-white text-sm font-bold rounded-full flex items-center justify-center shadow-md"
-              >
-                {{ index + 1 }}
-              </div>
-              <span
-                class="text-base font-semibold text-gray-900 group-hover:text-indigo-900 transition-colors duration-200"
-              >
-                {{ name }}
-              </span>
+              {{ index + 1 }}
             </div>
+            <span
+              class="text-base font-semibold text-gray-900 group-hover:text-indigo-900 transition-colors duration-200"
+            >
+              {{ name }}
+            </span>
           </div>
-        </template>
+        </div>
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.candidateNames.isVerified"
             :has-issue="fieldStatuses.candidateNames.hasIssue"
             field-path="company.candidateNames"
             @verify="() => verifyField('candidateNames')"
-            @add-issue="submitIssue"
+            @add-issue="addFieldIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -62,7 +60,7 @@
             :has-issue="fieldStatuses.organizationType.hasIssue"
             field-path="company.organizationType"
             @verify="() => verifyField('organizationType')"
-            @add-issue="submitIssue"
+            @add-issue="addFieldIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -79,7 +77,7 @@
             :has-issue="fieldStatuses.address.hasIssue"
             field-path="company.address"
             @verify="() => verifyField('address')"
-            @add-issue="submitIssue"
+            @add-issue="addFieldIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -88,28 +86,25 @@
       <CompanyApplicationReviewUiFieldCard
         label="資本額"
         :value="`NT$ ${companyBasicInfo.capitalAmount?.toLocaleString() || 'N/A'}`"
+        display-class="bg-amber-50 border border-amber-200 rounded-lg p-4"
         v-bind="getFieldStatusProps('capitalAmount')"
       >
-        <template #default>
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
-              <h5 class="text-sm font-semibold text-amber-800">資本額詳情</h5>
-            </div>
-            <p class="text-xl font-bold text-amber-700">
-              NT$
-              {{ companyBasicInfo.capitalAmount?.toLocaleString() || "N/A" }}
-            </p>
-            <p class="text-sm text-amber-600 mt-1">公司註冊登記的資本總額</p>
-          </div>
-        </template>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+          <h5 class="text-sm font-semibold text-amber-800">資本額詳情</h5>
+        </div>
+        <p class="text-xl font-bold text-amber-700">
+          NT$
+          {{ companyBasicInfo.capitalAmount?.toLocaleString() || "N/A" }}
+        </p>
+        <p class="text-sm text-amber-600 mt-1">公司註冊登記的資本總額</p>
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.capitalAmount.isVerified"
             :has-issue="fieldStatuses.capitalAmount.hasIssue"
             field-path="company.capitalAmount"
             @verify="() => verifyField('capitalAmount')"
-            @add-issue="submitIssue"
+            @add-issue="addFieldIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -149,8 +144,4 @@ const {
   clearAllLabel: "清除所有標記",
   markReviewedLabel: "標記為已審核",
 });
-
-const submitIssue = (issue: ReviewIssueSchema) => {
-  addFieldIssue(issue);
-};
 </script>

@@ -30,8 +30,6 @@ export type CompanyField =
 
 export const useCompanyReview = () => {
   const detailsStore = useCompanyApplicationDetailsStore();
-  const reviewStore = useCompanyApplicationReviewStore();
-  const { getSectionState, toggleSection } = reviewStore;
 
   const { application } = storeToRefs(detailsStore);
 
@@ -67,43 +65,9 @@ export const useCompanyReview = () => {
     };
   });
 
-  const basicInfoSectionState = computed(() =>
-    getSectionState("companyBasicInfo")
-  );
-
-  const businessItemsSectionState = computed(() =>
-    getSectionState("companyBusinessItems")
-  );
-
-  const monetaryInfoSectionState = computed(() =>
-    getSectionState("companyMonetaryInfo")
-  );
-
-  const basicInfoSectionIsOpen = computed({
-    get: () => basicInfoSectionState.value.isOpen,
-    set: () => toggleSection("companyBasicInfo"),
-  });
-
-  const businessItemsSectionIsOpen = computed({
-    get: () => businessItemsSectionState.value.isOpen,
-    set: () => toggleSection("companyBusinessItems"),
-  });
-
-  const monetaryInfoSectionIsOpen = computed({
-    get: () => monetaryInfoSectionState.value.isOpen,
-    set: () => toggleSection("companyMonetaryInfo"),
-  });
-
   return {
-    // State
     companyBasicInfo,
     companyBusinessItems,
     companyMonetaryInfo,
-    basicInfoSectionState,
-    businessItemsSectionState,
-    monetaryInfoSectionState,
-    basicInfoSectionIsOpen,
-    businessItemsSectionIsOpen,
-    monetaryInfoSectionIsOpen,
   };
 };

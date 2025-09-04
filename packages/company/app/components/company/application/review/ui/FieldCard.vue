@@ -16,9 +16,7 @@
       </div>
     </template>
     <!-- Field Value Display -->
-    <div
-      class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 rounded-lg border border-blue-100 p-4"
-    >
+    <div :class="displayClass">
       <slot>
         <p class="text-base text-gray-800 leading-relaxed font-medium">
           {{ value }}
@@ -36,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ClassValue } from "clsx";
+
 interface Props {
   label: string;
   value?: string;
@@ -48,7 +48,15 @@ interface Props {
     | "warning"
     | "error"
     | "neutral";
+  displayClass?: ClassValue;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const displayClass = computed(() =>
+  cn([
+    "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 rounded-lg border border-blue-100 p-4",
+    props.displayClass,
+  ])
+);
 </script>

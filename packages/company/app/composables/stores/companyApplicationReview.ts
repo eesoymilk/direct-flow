@@ -2,7 +2,9 @@ export type SectionKey =
   | "companyBasicInfo"
   | "companyBusinessItems"
   | "companyMonetaryInfo"
-  | "representatives"
+  | "responsiblePerson"
+  | "representative"
+  | "contactPerson"
   | "shareholders"
   | "documents";
 
@@ -28,12 +30,22 @@ export const useCompanyApplicationReviewStore = defineStore(
         verifications: [],
         isOpen: false,
       },
-      companyMonetaryInfo: {
+      responsiblePerson: {
         issues: [],
         verifications: [],
         isOpen: false,
       },
-      representatives: {
+      representative: {
+        issues: [],
+        verifications: [],
+        isOpen: false,
+      },
+      contactPerson: {
+        issues: [],
+        verifications: [],
+        isOpen: false,
+      },
+      companyMonetaryInfo: {
         issues: [],
         verifications: [],
         isOpen: false,
@@ -109,6 +121,11 @@ export const useCompanyApplicationReviewStore = defineStore(
       isDirty.value = true;
     };
 
+    const clearField = (sectionKey: SectionKey, fieldPath: string) => {
+      removeIssue(sectionKey, fieldPath);
+      removeVerification(sectionKey, fieldPath);
+    };
+
     // Review submission
     const submitReview = async () => {
       isSubmitting.value = true;
@@ -128,7 +145,9 @@ export const useCompanyApplicationReviewStore = defineStore(
         companyBasicInfo: { issues: [], verifications: [], isOpen: false },
         companyBusinessItems: { issues: [], verifications: [], isOpen: false },
         companyMonetaryInfo: { issues: [], verifications: [], isOpen: false },
-        representatives: { issues: [], verifications: [], isOpen: false },
+        responsiblePerson: { issues: [], verifications: [], isOpen: false },
+        representative: { issues: [], verifications: [], isOpen: false },
+        contactPerson: { issues: [], verifications: [], isOpen: false },
         shareholders: { issues: [], verifications: [], isOpen: false },
         documents: { issues: [], verifications: [], isOpen: false },
       };
@@ -150,6 +169,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       removeIssue,
       addVerification,
       removeVerification,
+      clearField,
 
       // Review management
       submitReview,

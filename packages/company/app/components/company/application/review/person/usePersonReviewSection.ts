@@ -1,33 +1,41 @@
 import type { DropdownMenuItem } from "@nuxt/ui";
 import type {
   FieldStatus,
-  SectionConfig as SectionConfigBase,
+  SectionConfig as BaseSectionConfig,
   SectionStatus,
 } from "../types";
 import { generateFieldStatus } from "../utils";
 
-type CompanyReviewSection =
-  | "companyBasicInfo"
-  | "companyBusinessItems"
-  | "companyMonetaryInfo";
+type PersonReviewSection =
+  | "responsiblePerson"
+  | "representative"
+  | "contactPerson";
 
-type SectionConfig<T extends string> = {
-  sectionKey: CompanyReviewSection;
-  fields: readonly T[];
-} & SectionConfigBase;
+type SectionConfig = BaseSectionConfig & {
+  sectionKey: PersonReviewSection;
+};
 
-export const useCompanyReviewSection = <T extends string>(
-  config: SectionConfig<T>
-) => {
+const PERSON_FIELDS = [
+  "name",
+  "idNumber",
+  "address",
+  "telephone",
+  "cellphone",
+  "email",
+] as const;
+
+type PersonField = (typeof PERSON_FIELDS)[number];
+
+export const usePersonReviewSection = (config: SectionConfig) => {
   const reviewStore = useCompanyApplicationReviewStore();
   const {
     addIssue,
     removeIssue,
     addVerification,
     removeVerification,
+    clearField,
     getSectionState,
     toggleSection,
-    clearField,
   } = reviewStore;
 
   const sectionState = computed(() => getSectionState(config.sectionKey));
@@ -35,15 +43,13 @@ export const useCompanyReviewSection = <T extends string>(
   const sectionIsOpen = computed(() => sectionState.value.isOpen);
 
   const statusesReducer = (
-    acc: Record<T, FieldStatus>,
-    field: T
-  ): Record<T, FieldStatus> => {
-    const fieldPath = `company.${field}`;
-
+    acc: Record<PersonField, FieldStatus>,
+    field: PersonField
+  ): Record<PersonField, FieldStatus> => {
+    const fieldPath = `${config.sectionKey}.${field}`;
     const issue = sectionState.value.issues.find(
       (i) => i.fieldPath === fieldPath
     );
-
     const verification = sectionState.value.verifications.find(
       (v) => v.fieldPath === fieldPath
     );
@@ -54,17 +60,20 @@ export const useCompanyReviewSection = <T extends string>(
   };
 
   const fieldStatuses = computed(
-    (): Record<T, FieldStatus> =>
-      config.fields.reduce(statusesReducer, {} as Record<T, FieldStatus>)
+    (): Record<PersonField, FieldStatus> =>
+      PERSON_FIELDS.reduce(
+        statusesReducer,
+        {} as Record<PersonField, FieldStatus>
+      )
   );
 
   // Section-specific status calculation
   const status = computed((): SectionStatus => {
     const section = fieldStatuses.value;
-    const sectionIssues = config.fields.filter(
+    const sectionIssues = PERSON_FIELDS.filter(
       (field) => section[field].hasIssue
     );
-    const sectionVerifications = config.fields.filter(
+    const sectionVerifications = PERSON_FIELDS.filter(
       (field) => section[field].isVerified
     );
     const criticalIssues = sectionIssues.filter(
@@ -78,9 +87,9 @@ export const useCompanyReviewSection = <T extends string>(
       issueCount: sectionIssues.length,
       criticalIssueCount: criticalIssues.length,
       verificationCount: sectionVerifications.length,
-      totalFields: config.fields.length,
+      totalFields: PERSON_FIELDS.length,
       isComplete:
-        sectionVerifications.length === config.fields.length &&
+        sectionVerifications.length === PERSON_FIELDS.length &&
         sectionIssues.length === 0,
     };
   });
@@ -102,24 +111,26 @@ export const useCompanyReviewSection = <T extends string>(
     addIssue(config.sectionKey, issue);
   };
 
-  const verifyField = (fieldKey: T, note?: string) => {
-    clearField(config.sectionKey, `company.${fieldKey}`);
+  const verifyField = (fieldKey: PersonField, note?: string) => {
+    const fieldPath = `${config.sectionKey}.${fieldKey}`;
+    clearField(config.sectionKey, fieldPath);
 
     addVerification(config.sectionKey, {
-      fieldPath: `company.${fieldKey}`,
+      fieldPath,
       note,
     });
   };
 
   // Bulk actions
   const verifyAllFields = () => {
-    config.fields.forEach((field) => verifyField(field));
+    PERSON_FIELDS.forEach((field) => verifyField(field));
   };
 
   const clearAllMarkers = () => {
-    config.fields.forEach((field) => {
-      const fieldPath = `company.${field}`;
-      clearField(config.sectionKey, fieldPath);
+    PERSON_FIELDS.forEach((field) => {
+      const fieldPath = `${config.sectionKey}.${field}`;
+      removeIssue(config.sectionKey, fieldPath);
+      removeVerification(config.sectionKey, fieldPath);
     });
   };
 
@@ -150,7 +161,7 @@ export const useCompanyReviewSection = <T extends string>(
 
   // Helper function to get field status props
   const getFieldStatusProps = (
-    fieldKey: T
+    fieldKey: PersonField
   ): {
     statusLabel: string;
     statusBadgeColor: "success" | "warning" | "neutral";

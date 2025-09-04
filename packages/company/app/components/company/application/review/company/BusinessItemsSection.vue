@@ -17,35 +17,19 @@
       <!-- Business Description -->
       <CompanyApplicationReviewUiFieldCard
         label="營業項目描述"
+        display-class="p-4 bg-gradient-to-r from-amber-50 via-amber-100 to-orange-50 rounded-lg border border-amber-200"
         v-bind="getFieldStatusProps('businessItemsDescription')"
       >
-        <template #default>
-          <div class="space-y-4">
-            <!-- Main Description -->
-            <div
-              class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200"
-            >
-              <h5 class="text-sm font-semibold text-amber-800 mb-2">
-                營業項目內容
-              </h5>
-              <p class="text-base text-gray-800 leading-relaxed">
-                {{ companyBusinessItems.businessItemsDescription }}
-              </p>
-            </div>
-
-            <!-- Future: Business categories breakdown, codes, etc. -->
-            <div class="text-xs text-gray-500 italic">
-              * 未來此區塊將擴展為詳細的營業項目分類與代碼管理
-            </div>
-          </div>
-        </template>
+        <p class="text-base text-gray-800 leading-relaxed font-medium">
+          {{ companyBusinessItems.businessItemsDescription }}
+        </p>
         <template #actions>
           <CompanyApplicationReviewUiFieldActions
             :is-verified="fieldStatuses.businessItemsDescription.isVerified"
             :has-issue="fieldStatuses.businessItemsDescription.hasIssue"
             field-path="company.businessItemsDescription"
             @verify="() => verifyField('businessItemsDescription')"
-            @add-issue="submitIssue"
+            @add-issue="addFieldIssue"
           />
         </template>
       </CompanyApplicationReviewUiFieldCard>
@@ -85,8 +69,4 @@ const {
   clearAllLabel: "清除標記",
   markReviewedLabel: "標記為已審核",
 });
-
-const submitIssue = (issue: ReviewIssueSchema) => {
-  addFieldIssue(issue);
-};
 </script>
