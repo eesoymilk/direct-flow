@@ -151,6 +151,27 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     };
   };
 
+  const getShareholderStatuses = (shareholderIndex: number) =>
+    SHAREHOLDER_FIELDS.reduce(
+      (acc, field) => {
+        acc[field] = getShareholderFieldStatus(field, shareholderIndex);
+        return acc;
+      },
+      {} as Record<ShareholderField, FieldStatus>
+    );
+
+  const getShareholderOverallStatus = (shareholderIndex: number) => {
+    const shareholderFields = getShareholderStatuses(shareholderIndex);
+    return {
+      hasVerified: Object.values(shareholderFields).every(
+        (field) => field.isVerified
+      ),
+      hasIssues: Object.values(shareholderFields).some(
+        (field) => field.hasIssue
+      ),
+    };
+  };
+
   // Field actions
   const addFieldIssue = (issue: ReviewIssueSchema) => {
     clearField(SHAREHOLDER_SECTION_KEY, issue.fieldPath);
@@ -257,6 +278,8 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     // Field helpers (optimized)
     getShareholderFieldStatus,
     getShareholderFieldStatusProps,
+    getShareholderStatuses,
+    getShareholderOverallStatus,
 
     // Actions
     addFieldIssue,
