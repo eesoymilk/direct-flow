@@ -76,11 +76,10 @@
       </div>
 
       <!-- Expandable Content -->
-      <div
-        v-if="expandedShareholders[index]"
-        class="border-t border-gray-200 p-4 bg-gray-50"
-      >
-        <div class="grid gap-4 grid-cols-1 md:grid-cols-2 md:gap-6">
+      <UCollapsible :open="expandedShareholders[index]" class="w-full">
+        <template #content>
+          <div class="border-t border-gray-200 p-4 bg-gray-50">
+            <div class="grid gap-4 grid-cols-1 md:grid-cols-2 md:gap-6">
           <!-- Name -->
           <CompanyApplicationReviewUiFieldCard
             label="姓名"
@@ -222,8 +221,10 @@
               />
             </template>
           </CompanyApplicationReviewUiFieldCard>
-        </div>
-      </div>
+            </div>
+          </div>
+        </template>
+      </UCollapsible>
     </div>
   </CompanyApplicationReviewShareholdersSectionBase>
 </template>
