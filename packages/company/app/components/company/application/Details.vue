@@ -2,42 +2,35 @@
   <UTabs :items="tabItems" :unmount-on-hide="false" variant="link">
     <template #company-details>
       <div class="space-y-6">
-        <CompanyApplicationReviewCompanyEntries :application="application" />
+        <CompanyApplicationReviewCompanyBasicInfoSection />
+        <CompanyApplicationReviewCompanyBusinessItemsSection />
+        <CompanyApplicationReviewCompanyMonetaryInfoSection />
       </div>
     </template>
 
     <template #responsible-person>
       <div class="space-y-6">
-        <CompanyApplicationReviewPersonEntries
+        <CompanyApplicationReviewPersonSection
           person-type="responsiblePerson"
-          :application="application"
         />
       </div>
     </template>
 
     <template #contact-person>
       <div class="space-y-6">
-        <CompanyApplicationReviewPersonEntries
-          person-type="contactPerson"
-          :application="application"
-        />
+        <CompanyApplicationReviewPersonSection person-type="contactPerson" />
       </div>
     </template>
 
     <template #representative>
       <div class="space-y-6">
-        <CompanyApplicationReviewPersonEntries
-          person-type="representative"
-          :application="application"
-        />
+        <CompanyApplicationReviewPersonSection person-type="representative" />
       </div>
     </template>
 
     <template #shareholders>
       <div class="space-y-6">
-        <CompanyApplicationReviewShareholdersEntries
-          :application="application"
-        />
+        <CompanyApplicationReviewShareholdersSection />
       </div>
     </template>
   </UTabs>

@@ -40,6 +40,8 @@
       <CompanyApplicationReviewPersonSection person-type="contactPerson" />
 
       <CompanyApplicationReviewShareholdersSection />
+
+      <CompanyApplicationReviewDocumentsSection />
     </div>
   </div>
 </template>
