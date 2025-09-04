@@ -172,6 +172,21 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     };
   };
 
+  const getShareholderStatusesProps = (shareholderIndex: number) =>
+    SHAREHOLDER_FIELDS.reduce(
+      (acc, field) => {
+        acc[field] = getShareholderFieldStatusProps(field, shareholderIndex);
+        return acc;
+      },
+      {} as Record<
+        ShareholderField,
+        {
+          statusLabel: string;
+          statusBadgeColor: "success" | "warning" | "neutral";
+        }
+      >
+    );
+
   // Field actions
   const addFieldIssue = (issue: ReviewIssueSchema) => {
     clearField(SHAREHOLDER_SECTION_KEY, issue.fieldPath);
@@ -280,6 +295,7 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     getShareholderFieldStatusProps,
     getShareholderStatuses,
     getShareholderOverallStatus,
+    getShareholderStatusesProps,
 
     // Actions
     addFieldIssue,

@@ -35,7 +35,7 @@
     </div>
 
     <!-- Shareholders Content -->
-    <div v-else class="space-y-6">
+    <div v-else class="space-y-6 px-2 pb-2">
       <slot />
     </div>
   </CompanyApplicationReviewUiSectionCard>
