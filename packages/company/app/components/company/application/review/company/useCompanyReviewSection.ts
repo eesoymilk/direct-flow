@@ -5,6 +5,7 @@ import type {
   SectionStatus,
 } from "../types";
 import { generateFieldStatus } from "../utils";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 type CompanyReviewSection =
   | "companyBasicInfo"

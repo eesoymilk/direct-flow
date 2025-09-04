@@ -3,8 +3,11 @@ import type {
   FieldStatus,
   SectionConfig as BaseSectionConfig,
   SectionStatus,
+  PersonField,
 } from "../types";
+import { PERSON_FIELDS } from "../constants";
 import { generateFieldStatus } from "../utils";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 type PersonReviewSection =
   | "responsiblePerson"
@@ -14,17 +17,6 @@ type PersonReviewSection =
 type SectionConfig = BaseSectionConfig & {
   sectionKey: PersonReviewSection;
 };
-
-const PERSON_FIELDS = [
-  "name",
-  "idNumber",
-  "address",
-  "telephone",
-  "cellphone",
-  "email",
-] as const;
-
-type PersonField = (typeof PERSON_FIELDS)[number];
 
 export const usePersonReviewSection = (config: SectionConfig) => {
   const {

@@ -252,6 +252,7 @@
 </template>
 
 <script setup lang="ts">
+import { useCompanyApplicationReviewStore } from "./useCompanyApplicationReviewStore";
 import {
   getFieldDisplayName,
   getIssueTypeLabel,

@@ -58,6 +58,7 @@ import {
   getSectionName,
   getFieldDisplayName,
 } from "~/components/company/application/helpers";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 const reviewStore = useCompanyApplicationReviewStore();
 const { totalVerifications, verificationsBySection } = storeToRefs(reviewStore);

@@ -32,22 +32,18 @@
 
           <div class="space-y-3">
             <!-- Select from candidate names or custom input -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                選擇或輸入公司名稱
-              </label>
-              <USelect
-                v-model="staffProvidedFields.chosenName"
-                :items="chosenNameSelectItems"
-                placeholder="選擇候選名稱或輸入自定義名稱..."
-                class="w-full"
-                searchable
-                creatable
-              />
-              <p class="text-xs text-gray-500 mt-1">
-                可從候選名稱選擇，或輸入自定義名稱，或選擇「稍後處理」
-              </p>
-            </div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              選擇或輸入公司名稱
+            </label>
+            <USelect
+              v-model="staffProvidedFields.chosenName"
+              :items="chosenNameSelectItems"
+              placeholder="選擇候選名稱或輸入自定義名稱..."
+              class="w-full"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              可從候選名稱選擇，或輸入自定義名稱，或留空不選擇待後續處理
+            </p>
           </div>
 
           <!-- Current selection display -->
@@ -61,7 +57,7 @@
                 class="size-4 text-green-600"
               />
               <span class="text-sm font-medium text-green-800">
-                已選擇：{{ chosenNameDisplayText }}
+                已選擇：{{ staffProvidedFields.chosenName }}
               </span>
             </div>
           </div>
@@ -168,12 +164,11 @@
 
 <script setup lang="ts">
 import type { SelectItem } from "@nuxt/ui";
-import {
-  type CompanyBasicInfoField,
-  COMPANY_BASIC_INFO_FIELDS,
-  useCompanyReview,
-} from "./useCompanyReview";
+import { COMPANY_BASIC_INFO_FIELDS } from "../constants";
+import type { CompanyBasicInfoField } from "../types";
+import { useCompanyReview } from "./useCompanyReview";
 import { useCompanyReviewSection } from "./useCompanyReviewSection";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 const { companyBasicInfo } = useCompanyReview();
 
@@ -194,28 +189,13 @@ const chosenNameSelectItems = computed(() => {
     });
   });
 
-  // Add "Handle Later" option
-  items.push({
-    label: "稍後處理 (公司核准後再設定)",
-    value: "",
-    disabled: false,
-  });
-
   return items;
 });
 
-// Get display text for the current selection
-const chosenNameDisplayText = computed(() => {
-  return staffProvidedFields.value.chosenName === ""
-    ? "稍後處理"
-    : staffProvidedFields.value.chosenName;
-});
-
 // Show selection status when user has interacted with the select
-const showSelectionStatus = computed(() => {
-  // Show when there's a non-empty value OR when explicitly set to empty string (meaning "Handle Later" was chosen)
-  return staffProvidedFields.value.chosenName !== "";
-});
+const showSelectionStatus = computed(
+  () => !!staffProvidedFields.value.chosenName
+);
 
 const {
   sectionIsOpen,

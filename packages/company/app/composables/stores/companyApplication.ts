@@ -18,7 +18,6 @@ export const useCompanyApplicationStore = defineStore(
       }
     >(createInitialForm());
 
-    // Track submission state for route protection
     const submissionState = ref<{
       justSubmitted: boolean;
       applicationId?: string;
@@ -99,7 +98,6 @@ export const useCompanyApplicationStore = defineStore(
       submissionState.value = { justSubmitted: false };
     };
 
-    // Submission state management
     const markSubmissionSuccess = (
       applicationId: string,
       submissionTime: string
@@ -115,19 +113,16 @@ export const useCompanyApplicationStore = defineStore(
       submissionState.value.justSubmitted = false;
     };
 
-    // Populate form with mock data for testing
     const populateWithMockData = () => {
       const mockData = generateMockFormData();
       Object.assign(form.value, mockData);
     };
 
-    // Populate form with organization type test data
     const populateWithOrgTypeTestData = () => {
       const mockData = generateOrgTypeTestData();
       Object.assign(form.value, mockData);
     };
 
-    // Reset closely held and par value free shares when organization type is not company limited
     watch(
       () => form.value.organizationType,
       (newVal) => {
@@ -139,7 +134,6 @@ export const useCompanyApplicationStore = defineStore(
       { immediate: true }
     );
 
-    // Authorized shares is the sum of ordinary and preferred shares
     watch(
       [() => form.value.ordinaryShares, () => form.value.preferredShares],
       ([ordinaryShares, preferredShares]) => {

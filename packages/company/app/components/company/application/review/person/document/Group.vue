@@ -57,10 +57,8 @@
 
 <script setup lang="ts">
 import type { ClassValue } from "clsx";
-import {
-  useDocumentReview,
-  type PersonDocumentField,
-} from "../documents/useDocumentReview";
+import { useDocumentReview } from "../../documents/useDocumentReview";
+import type { PersonDocumentField } from "../../types";
 
 interface Props {
   title: string;
@@ -129,7 +127,7 @@ const frontCardFileUrl = computed(
 
 const frontCardFieldPath = computed(() => {
   if (props.shareholderId) {
-    return `documents.shareholder.${props.shareholderId}.idCardFront`;
+    return `documents.shareholder[${props.shareholderId}].idCardFront`;
   }
   return `documents.${props.personType}.idCardFront`;
 });
@@ -153,7 +151,7 @@ const backCardFileUrl = computed(
 
 const backCardFieldPath = computed(() => {
   if (props.shareholderId) {
-    return `documents.shareholder.${props.shareholderId}.idCardBack`;
+    return `documents.shareholder[${props.shareholderId}].idCardBack`;
   }
   return `documents.${props.personType}.idCardBack`;
 });

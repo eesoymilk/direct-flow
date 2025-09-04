@@ -1,14 +1,3 @@
-export const PERSON_FIELDS = [
-  "name",
-  "idNumber",
-  "address",
-  "telephone",
-  "cellphone",
-  "email",
-] as const;
-
-export type PersonField = (typeof PERSON_FIELDS)[number];
-
 export const usePersonReview = () => {
   const detailsStore = useCompanyApplicationDetailsStore();
 

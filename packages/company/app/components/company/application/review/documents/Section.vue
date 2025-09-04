@@ -186,7 +186,7 @@
     </CompanyApplicationReviewUiDocumentCategorySection>
 
     <!-- Person Documents Section -->
-    <CompanyApplicationReviewDocumentsPersonDocumentSection />
+    <CompanyApplicationReviewPersonDocumentSubSection />
   </CompanyApplicationReviewUiSectionBase>
 </template>
 

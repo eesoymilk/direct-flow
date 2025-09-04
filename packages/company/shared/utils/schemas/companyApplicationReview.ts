@@ -1,7 +1,6 @@
 import * as z from "zod";
 import { responseBaseSchema } from "./helpers";
 import {
-  FIELD_CLASSIFICATION,
   COMPANY_APPLICATION_STATUS,
   REVIEW_ROUND_STATUS,
   REVIEW_ISSUE_TYPE,
@@ -30,10 +29,8 @@ export const reviewVerificationSchema = z.object({
 
 // Staff-provided fields schema for first review round
 export const staffProvidedFieldsSchema = z.object({
-  chosenName: z.string().min(1, "請選擇公司名稱"),
-  businessItems: z
-    .array(z.string().min(1, "營業項目不能為空"))
-    .min(1, "請至少提供一個營業項目"),
+  chosenName: z.string().min(1, "請選擇公司名稱").optional(),
+  businessItems: z.array(z.string().min(1, "營業項目不能為空")).optional(),
 });
 
 export const reviewRoundSchema = z.object({
@@ -46,15 +43,17 @@ export const reviewRoundSchema = z.object({
 });
 
 export const reviewIssueResponseSchema = z.object({
-  ...reviewIssueSchema.shape,
-  ...responseBaseSchema.omit({ updatedAt: true }).shape,
+  ...reviewIssueSchema.omit({ description: true }).shape,
+  ...responseBaseSchema.omit({ createdAt: true, updatedAt: true }).shape,
+  description: z.string().nullable(),
   roundId: z.string().uuid(),
   resolvedAt: z.coerce.date().optional(),
 });
 
 export const reviewVerificationResponseSchema = z.object({
-  ...reviewVerificationSchema.shape,
-  ...responseBaseSchema.omit({ updatedAt: true }).shape,
+  ...reviewVerificationSchema.omit({ note: true }).shape,
+  ...responseBaseSchema.omit({ createdAt: true, updatedAt: true }).shape,
+  note: z.string().nullable(),
   roundId: z.string().uuid(),
   verifiedAt: z.coerce.date(),
 });

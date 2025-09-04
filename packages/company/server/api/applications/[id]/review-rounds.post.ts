@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
 import {
   companyApplications,
@@ -15,16 +14,14 @@ const bodySchema = reviewRoundSchema.extend({
 export default eventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
-  const { status, summary, issues, verifications } = await readValidatedBody(
-    event,
-    bodySchema.parse
-  ).catch((error) => {
-    console.error(error);
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid request body",
+  const { applicationStatus, summary, issues, verifications } =
+    await readValidatedBody(event, bodySchema.parse).catch((error) => {
+      console.error(error);
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Invalid request body",
+      });
     });
-  });
 
   const db = useDrizzle();
   const applicationId = getRouterParam(event, "id");
@@ -67,7 +64,7 @@ export default eventHandler(async (event) => {
       .insert(reviewRounds)
       .values({
         applicationId,
-        status,
+        status: "reviewing",
         summary,
         createdBySub: currentUserSub,
         roundNo: previousRound ? previousRound.roundNo + 1 : undefined,
@@ -115,11 +112,11 @@ export default eventHandler(async (event) => {
       );
     }
 
-    if (status !== application.status) {
+    if (applicationStatus !== application.status) {
       await tx
         .update(companyApplications)
         .set({
-          status,
+          status: applicationStatus,
           updatedAt: timestamp,
         })
         .where(eq(companyApplications.id, applicationId));

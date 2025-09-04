@@ -40,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+import { useCompanyApplicationReviewStore } from "./useCompanyApplicationReviewStore";
+
 const reviewStore = useCompanyApplicationReviewStore();
 const { totalIssues, totalVerifications } = storeToRefs(reviewStore);
 

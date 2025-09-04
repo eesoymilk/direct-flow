@@ -124,12 +124,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  COMPANY_BUSINESS_ITEMS_FIELDS,
-  type CompanyBusinessItemsField,
-  useCompanyReview,
-} from "./useCompanyReview";
+import { COMPANY_BUSINESS_ITEMS_FIELDS } from "../constants";
+import { useCompanyReview } from "./useCompanyReview";
+import type { CompanyBusinessItemsField } from "../types";
 import { useCompanyReviewSection } from "./useCompanyReviewSection";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 const { companyBusinessItems } = useCompanyReview();
 

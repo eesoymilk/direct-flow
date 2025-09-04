@@ -13,7 +13,7 @@
     </div>
 
     <!-- Responsible Person Documents -->
-    <CompanyApplicationReviewUiPersonDocumentGroup
+    <CompanyApplicationReviewPersonDocumentGroup
       title="負責人身分證"
       icon="i-heroicons-user-circle"
       icon-class="text-blue-600"
@@ -23,7 +23,7 @@
     />
 
     <!-- Representative Documents -->
-    <CompanyApplicationReviewUiPersonDocumentGroup
+    <CompanyApplicationReviewPersonDocumentGroup
       title="代表人身分證"
       icon="i-heroicons-user-circle"
       icon-class="text-green-600"
@@ -33,7 +33,7 @@
     />
 
     <!-- Contact Person Documents -->
-    <CompanyApplicationReviewUiPersonDocumentGroup
+    <CompanyApplicationReviewPersonDocumentGroup
       title="聯絡人身分證"
       icon="i-heroicons-user-circle"
       icon-class="text-purple-600"
@@ -110,7 +110,7 @@
                     shareholder.id
                   ).hasIssue
                 "
-                :field-path="`documents.shareholder.${shareholder.id}.idCardFront`"
+                :field-path="`documents.shareholder[${shareholder.id}].idCardFront`"
                 @verify="
                   () =>
                     verifyPersonField(
@@ -165,7 +165,7 @@
                     shareholder.id
                   ).hasIssue
                 "
-                :field-path="`documents.shareholder.${shareholder.id}.idCardBack`"
+                :field-path="`documents.shareholder[${shareholder.id}].idCardBack`"
                 @verify="
                   () =>
                     verifyPersonField(
@@ -185,16 +185,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  useDocumentReview,
-  type PersonDocumentField,
-} from "./useDocumentReview";
+import { useDocumentReview } from "../../documents/useDocumentReview";
+import type { PersonDocumentField } from "../../types";
+import { useCompanyApplicationReviewStore } from "../../useCompanyApplicationReviewStore";
 
 const { getPersonDocuments, getPersonDocumentStatus } = useDocumentReview();
 const { addIssue, addVerification, getSectionState } =
   useCompanyApplicationReviewStore();
 
-// Get application data for shareholders
 const detailsStore = useCompanyApplicationDetailsStore();
 const { application } = storeToRefs(detailsStore);
 
@@ -207,7 +205,7 @@ const getPersonFieldStatus = (
 ) => {
   let fieldPath = `documents.${personType}.${field}`;
   if (shareholderId) {
-    fieldPath = `documents.shareholder.${shareholderId}.${field}`;
+    fieldPath = `documents.shareholder[${shareholderId}].${field}`;
   }
 
   const documentsSection = getSectionState("documents");
@@ -245,7 +243,7 @@ const verifyPersonField = (
 ) => {
   let fieldPath = `documents.${personType}.${field}`;
   if (shareholderId) {
-    fieldPath = `documents.shareholder.${shareholderId}.${field}`;
+    fieldPath = `documents.shareholder[${shareholderId}].${field}`;
   }
   addVerification("documents", {
     fieldPath,

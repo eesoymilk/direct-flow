@@ -3,20 +3,11 @@ import type { SectionStatus } from "~/composables/useReviewSectionStatus";
 import { useShareholderReview } from "./useShareholderReview";
 import type { FieldStatus, SectionConfig } from "../types";
 import { generateFieldStatus } from "../utils";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
+import { SHAREHOLDER_FIELDS } from "../constants";
+import type { ShareholderField } from "../types";
 
 export const SHAREHOLDER_SECTION_KEY = "shareholders";
-
-export const SHAREHOLDER_FIELDS = [
-  "name",
-  "idNumber",
-  "address",
-  "telephone",
-  "cellphone",
-  "email",
-  "shares",
-] as const;
-
-export type ShareholderField = (typeof SHAREHOLDER_FIELDS)[number];
 
 export const useShareholderReviewSection = (config: SectionConfig) => {
   const { shareholders } = useShareholderReview();

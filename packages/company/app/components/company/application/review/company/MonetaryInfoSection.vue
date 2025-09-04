@@ -117,11 +117,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-  COMPANY_MONETARY_INFO_FIELDS,
-  type CompanyMonetaryInfoField,
-  useCompanyReview,
-} from "./useCompanyReview";
+import { COMPANY_MONETARY_INFO_FIELDS } from "../constants";
+import { useCompanyReview } from "./useCompanyReview";
+import type { CompanyMonetaryInfoField } from "../types";
 import { useCompanyReviewSection } from "./useCompanyReviewSection";
 
 const { companyMonetaryInfo } = useCompanyReview();

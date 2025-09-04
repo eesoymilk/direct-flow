@@ -1,9 +1,8 @@
-import {
-  type CompanyDocumentField,
-  COMPANY_DOCUMENT_FIELDS,
-} from "./useDocumentReview";
+import { COMPANY_DOCUMENT_FIELDS } from "../constants";
+import type { CompanyDocumentField } from "../types";
 import type { FieldStatus, SectionStatus } from "../types";
 import { generateFieldStatus } from "../utils";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 const DOCUMENT_SECTION_KEY = "documents";
 

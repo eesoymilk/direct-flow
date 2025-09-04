@@ -65,6 +65,7 @@ import {
   getSeverityLabel,
   getSeverityColor,
 } from "~/components/company/application/helpers";
+import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
 const reviewStore = useCompanyApplicationReviewStore();
 const { totalIssues, issuesBySection } = storeToRefs(reviewStore);

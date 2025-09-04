@@ -17,6 +17,14 @@
         </div>
         <div class="flex gap-2">
           <UButton
+            v-if="isFirstReviewRound"
+            icon="i-lucide-file-plus"
+            label="自動標記缺失文件"
+            color="secondary"
+            variant="soft"
+            @click="autoCreateMissingDocumentIssues"
+          />
+          <UButton
             label="重置更改"
             color="neutral"
             variant="outline"
@@ -54,12 +62,13 @@
 </template>
 
 <script setup lang="ts">
+import { useCompanyApplicationReviewStore } from "./useCompanyApplicationReviewStore";
+
 const detailsStore = useCompanyApplicationDetailsStore();
 const reviewStore = useCompanyApplicationReviewStore();
-const { resetLocalChanges } = reviewStore;
-const { sections } = storeToRefs(reviewStore);
 
-// applicationId is now handled by the review store via details store
+const { resetLocalChanges, autoCreateMissingDocumentIssues } = reviewStore;
+const { sections, isFirstReviewRound } = storeToRefs(reviewStore);
 
 const headerDescription = computed(() =>
   detailsStore.application?.reviewRounds?.length
