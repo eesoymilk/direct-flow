@@ -8,9 +8,11 @@
       </div>
       <div class="flex items-center gap-4">
         <div class="text-sm text-gray-600">
-          <span class="font-medium text-red-600"> 9 </span>
+          <span class="font-medium text-red-600">{{ totalIssues }}</span>
           嚴重問題 •
-          <span class="font-medium text-yellow-600"> 9 </span>
+          <span class="font-medium text-yellow-600">{{
+            totalCriticalIssues
+          }}</span>
           總共問題
         </div>
         <div class="flex gap-2">
@@ -20,35 +22,44 @@
             variant="outline"
             @click="resetLocalChanges"
           />
-          <UButton
-            label="提交審查"
-            color="success"
-            @click="handleSubmitReview"
-          />
         </div>
       </div>
     </div>
 
-    <!-- Review Sections -->
-    <div class="space-y-4">
-      <CompanyApplicationReviewCompanyBasicInfoSection />
-      <CompanyApplicationReviewCompanyBusinessItemsSection />
-      <CompanyApplicationReviewCompanyMonetaryInfoSection />
+    <!-- Review Layout with Integrated Panel -->
+    <CompanyApplicationReviewLayout>
+      <template #content>
+        <div class="space-y-4">
+          <CompanyApplicationReviewCompanyBasicInfoSection />
+          <CompanyApplicationReviewCompanyBusinessItemsSection />
+          <CompanyApplicationReviewCompanyMonetaryInfoSection />
 
-      <CompanyApplicationReviewPersonSection person-type="responsiblePerson" />
-      <CompanyApplicationReviewPersonSection person-type="representative" />
-      <CompanyApplicationReviewPersonSection person-type="contactPerson" />
+          <CompanyApplicationReviewPersonSection
+            person-type="responsiblePerson"
+          />
+          <CompanyApplicationReviewPersonSection person-type="representative" />
+          <CompanyApplicationReviewPersonSection person-type="contactPerson" />
 
-      <CompanyApplicationReviewShareholdersSection />
+          <CompanyApplicationReviewShareholdersSection />
 
-      <CompanyApplicationReviewDocumentsSection />
-    </div>
+          <CompanyApplicationReviewDocumentsSection />
+        </div>
+      </template>
+      <template #sidebar>
+        <CompanyApplicationReviewSummary />
+        <CompanyApplicationReviewRoundHistory />
+      </template>
+    </CompanyApplicationReviewLayout>
   </div>
 </template>
 
 <script setup lang="ts">
 const detailsStore = useCompanyApplicationDetailsStore();
-const { resetLocalChanges } = useCompanyApplicationReviewStore();
+const reviewStore = useCompanyApplicationReviewStore();
+const { resetLocalChanges } = reviewStore;
+const { sections } = storeToRefs(reviewStore);
+
+// applicationId is now handled by the review store via details store
 
 const headerDescription = computed(() =>
   detailsStore.application?.reviewRounds?.length
@@ -56,12 +67,19 @@ const headerDescription = computed(() =>
     : "初始審查"
 );
 
-const handleSubmitReview = async () => {
-  try {
-    // TODO: Submit review
-  } catch (error) {
-    // TODO: Show error message
-    console.error("Failed to submit review:", error);
-  }
-};
+// Calculate total issues from all sections
+const totalIssues = computed(() => {
+  return Object.values(sections.value).reduce((total, section) => {
+    return total + section.issues.length;
+  }, 0);
+});
+
+const totalCriticalIssues = computed(() => {
+  return Object.values(sections.value).reduce((total, section) => {
+    return (
+      total +
+      section.issues.filter((issue) => issue.severity === "critical").length
+    );
+  }, 0);
+});
 </script>

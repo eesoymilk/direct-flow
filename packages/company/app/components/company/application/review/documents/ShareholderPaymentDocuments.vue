@@ -1,7 +1,10 @@
 <template>
   <div class="space-y-4">
     <!-- Status Overview -->
-    <div class="flex items-center justify-between p-4 rounded-lg border" :class="statusClasses">
+    <div
+      class="flex items-center justify-between p-4 rounded-lg border"
+      :class="statusClasses"
+    >
       <div class="flex items-center gap-3">
         <UIcon :name="statusIcon" :class="statusIconClass" class="w-6 h-6" />
         <div>
@@ -9,14 +12,14 @@
           <p class="text-sm" :class="statusTextClass">{{ statusText }}</p>
         </div>
       </div>
-      
+
       <div class="flex items-center gap-2">
-        <UBadge 
-          :label="statusLabel" 
-          :color="statusBadgeColor" 
+        <UBadge
+          :label="statusLabel"
+          :color="statusBadgeColor"
           variant="subtle"
         />
-        
+
         <!-- Add Document Button -->
         <UButton
           v-if="canUpload"
@@ -32,16 +35,20 @@
 
     <!-- Document List -->
     <div v-if="documents.length > 0" class="space-y-3">
-      <h6 class="font-medium text-gray-900">已上傳的匯款資料 ({{ documents.length }} 份)</h6>
-      
+      <h6 class="font-medium text-gray-900">
+        已上傳的匯款資料 ({{ documents.length }} 份)
+      </h6>
+
       <div class="space-y-2">
-        <div 
-          v-for="(doc, index) in documents" 
+        <div
+          v-for="(doc, index) in documents"
           :key="index"
           class="flex items-center justify-between p-3 bg-white border rounded-lg hover:bg-gray-50 transition-colors"
         >
           <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-medium">
+            <div
+              class="flex-shrink-0 w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-medium"
+            >
               {{ index + 1 }}
             </div>
             <div>
@@ -49,18 +56,18 @@
               <p class="text-sm text-gray-600">股東匯款條或存摺資料</p>
             </div>
           </div>
-          
+
           <div class="flex items-center gap-2">
             <UButton
               size="xs"
-              color="gray"
+              color="neutral"
               variant="outline"
               icon="i-heroicons-eye"
               @click="handleViewDocument(index)"
             />
             <UButton
               size="xs"
-              color="red"
+              color="error"
               variant="outline"
               icon="i-heroicons-trash"
               @click="handleDeleteDocument(index)"
@@ -71,11 +78,19 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-      <UIcon name="i-heroicons-document-minus" class="w-12 h-12 text-gray-400 mx-auto mb-3" />
+    <div
+      v-else
+      class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+    >
+      <UIcon
+        name="i-heroicons-document-minus"
+        class="w-12 h-12 text-gray-400 mx-auto mb-3"
+      />
       <h5 class="font-medium text-gray-900 mb-1">尚未上傳股東匯款資料</h5>
-      <p class="text-sm text-gray-600 mb-4">請上傳至少一份股東匯款條或存摺資料</p>
-      
+      <p class="text-sm text-gray-600 mb-4">
+        請上傳至少一份股東匯款條或存摺資料
+      </p>
+
       <UButton
         v-if="canUpload"
         color="primary"
@@ -87,48 +102,40 @@
     </div>
 
     <!-- Add Document Modal/Area -->
-    <div 
-      v-if="showAddDocument"
-      class="border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg p-6 space-y-4"
-    >
-      <div class="text-center">
-        <UIcon name="i-heroicons-cloud-arrow-up" class="w-10 h-10 text-blue-500 mx-auto mb-2" />
-        <h5 class="font-medium text-blue-900">上傳股東匯款資料</h5>
-        <p class="text-sm text-blue-700 mt-1">
-          支援 JPEG、PNG 或 PDF 格式，檔案大小不超過 2MB
-        </p>
-      </div>
-      
-      <div class="flex justify-center gap-2">
+    <div v-if="showAddDocument" class="space-y-4">
+      <UFileUpload
+        v-model="selectedFiles"
+        multiple
+        accept="image/jpeg,image/jpg,image/png,application/pdf"
+        label="上傳股東匯款資料"
+        description="支援 JPEG、PNG 或 PDF 格式，檔案大小不超過 2MB"
+        icon="i-heroicons-cloud-arrow-up"
+        class="w-full min-h-48"
+      />
+
+      <div class="flex justify-end gap-2">
         <UButton
-          color="primary"
-          label="選擇檔案"
-          icon="i-heroicons-folder"
-          @click="triggerFileInput"
-        />
-        <UButton
-          color="gray"
+          color="neutral"
           variant="ghost"
           label="取消"
-          @click="showAddDocument = false"
+          @click="cancelUpload"
+        />
+        <UButton
+          v-if="selectedFiles && selectedFiles.length > 0"
+          color="primary"
+          label="確認上傳"
+          @click="confirmUpload"
         />
       </div>
-      
-      <!-- Hidden file input -->
-      <input
-        ref="fileInput"
-        type="file"
-        class="hidden"
-        accept="image/jpeg,image/jpg,image/png,application/pdf"
-        multiple
-        @change="handleFileSelect"
-      />
     </div>
 
     <!-- Requirements Info -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
       <div class="flex items-start gap-2">
-        <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-blue-600 mt-0.5" />
+        <UIcon
+          name="i-heroicons-information-circle"
+          class="w-5 h-5 text-blue-600 mt-0.5"
+        />
         <div>
           <h6 class="font-medium text-blue-900">上傳要求</h6>
           <ul class="text-sm text-blue-800 mt-1 space-y-1">
@@ -145,7 +152,7 @@
 <script setup lang="ts">
 interface Props {
   documents: string[];
-  documentStatus: 'missing' | 'uploaded' | 'optional';
+  documentStatus: "missing" | "uploaded" | "optional";
   canUpload?: boolean;
 }
 
@@ -160,86 +167,79 @@ const emit = defineEmits<{
 }>();
 
 const showAddDocument = ref(false);
-const fileInput = ref<HTMLInputElement>();
+const selectedFiles = ref<File[] | null>(null);
 
 const statusClasses = computed(() => {
   if (props.documents.length === 0) {
-    return 'bg-red-50 border-red-200';
+    return "bg-red-50 border-red-200";
   }
-  return 'bg-green-50 border-green-200';
+  return "bg-green-50 border-green-200";
 });
 
 const statusIcon = computed(() => {
   if (props.documents.length === 0) {
-    return 'i-heroicons-exclamation-triangle';
+    return "i-heroicons-exclamation-triangle";
   }
-  return 'i-heroicons-check-circle';
+  return "i-heroicons-check-circle";
 });
 
 const statusIconClass = computed(() => {
   if (props.documents.length === 0) {
-    return 'text-red-600';
+    return "text-red-600";
   }
-  return 'text-green-600';
+  return "text-green-600";
 });
 
 const statusTextClass = computed(() => {
   if (props.documents.length === 0) {
-    return 'text-red-700';
+    return "text-red-700";
   }
-  return 'text-green-700';
+  return "text-green-700";
 });
 
 const statusText = computed(() => {
   if (props.documents.length === 0) {
-    return '尚未上傳任何股東匯款資料（至少需要1份）';
+    return "尚未上傳任何股東匯款資料（至少需要1份）";
   }
   return `已上傳 ${props.documents.length} 份股東匯款資料`;
 });
 
 const statusLabel = computed(() => {
   if (props.documents.length === 0) {
-    return '缺少';
+    return "缺少";
   }
   return `${props.documents.length} 份`;
 });
 
 const statusBadgeColor = computed(() => {
   if (props.documents.length === 0) {
-    return 'red';
+    return "error";
   }
-  return 'green';
+  return "success";
 });
 
-const triggerFileInput = () => {
-  fileInput.value?.click();
+const confirmUpload = () => {
+  if (selectedFiles.value) {
+    selectedFiles.value.forEach((file) => {
+      emit("uploadDocument", file);
+    });
+
+    // Reset and close
+    selectedFiles.value = null;
+    showAddDocument.value = false;
+  }
 };
 
-const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const files = target.files;
-  
-  if (files) {
-    Array.from(files).forEach(file => {
-      // TODO: Implement actual file upload logic
-      console.log('Selected file:', file);
-      emit('uploadDocument', file);
-    });
-    
-    showAddDocument.value = false;
-    
-    // Reset file input
-    if (target) {
-      target.value = '';
-    }
-  }
+const cancelUpload = () => {
+  selectedFiles.value = null;
+  showAddDocument.value = false;
 };
 
 const handleViewDocument = (index: number) => {
-  emit('viewDocument', index);
+  emit("viewDocument", index);
 };
 
 const handleDeleteDocument = (index: number) => {
-  emit('deleteDocument', index);
+  emit("deleteDocument", index);
 };
 </script>

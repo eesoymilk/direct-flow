@@ -19,6 +19,9 @@ export type ReviewSections = Record<SectionKey, SectionState>;
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
   () => {
+    const detailsStore = useCompanyApplicationDetailsStore();
+    const { applicationId } = storeToRefs(detailsStore);
+
     const sections = ref<ReviewSections>({
       companyBasicInfo: {
         issues: [],
@@ -65,7 +68,53 @@ export const useCompanyApplicationReviewStore = defineStore(
     const isSubmitting = ref<boolean>(false);
     const isDirty = ref<boolean>(false);
 
-    // Section management
+    const submitForm = ref<ReviewRoundSchema>({
+      status: "reviewing",
+      summary: "",
+    });
+
+    const allIssues = computed(() =>
+      Object.values(sections.value).flatMap((section) => section.issues)
+    );
+
+    const allVerifications = computed(() =>
+      Object.values(sections.value).flatMap((section) => section.verifications)
+    );
+
+    const totalIssues = computed(() => allIssues.value.length);
+
+    const totalVerifications = computed(() => allVerifications.value.length);
+
+    const issuesBySection = computed(() => {
+      // TODO: use reducer
+      const grouped: Record<string, ReviewIssueSchema[]> = {};
+      Object.entries(sections.value).forEach(([sectionKey, section]) => {
+        if (section.issues.length > 0) {
+          grouped[sectionKey] = [...section.issues];
+        }
+      });
+      return grouped;
+    });
+
+    const verificationsBySection = computed(() => {
+      // TODO: use reducer
+      const grouped: Record<string, ReviewVerificationSchema[]> = {};
+      Object.entries(sections.value).forEach(([sectionKey, section]) => {
+        if (section.verifications.length > 0) {
+          grouped[sectionKey] = [...section.verifications];
+        }
+      });
+      return grouped;
+    });
+
+    const canSubmit = computed(() => {
+      return totalIssues.value > 0 || totalVerifications.value > 0;
+    });
+
+    const canSubmitForm = computed(() => {
+      return submitForm.value.status && canSubmit.value;
+    });
+
     const toggleSection = (sectionKey: SectionKey) => {
       sections.value[sectionKey].isOpen = !sections.value[sectionKey].isOpen;
     };
@@ -75,23 +124,16 @@ export const useCompanyApplicationReviewStore = defineStore(
     };
 
     // Issue management
-    const addIssue = (
-      sectionKey: SectionKey,
-      issue: ReviewIssueSchema
-    ): void => {
-      const section = sections.value[sectionKey];
-      // Remove existing issue for the same field path if any
-      section.issues = section.issues.filter(
-        (i) => i.fieldPath !== issue.fieldPath
-      );
-      // Add new issue
-      section.issues.push(issue);
+    const addIssue = (sectionKey: SectionKey, issue: ReviewIssueSchema) => {
+      clearField(sectionKey, issue.fieldPath);
+      sections.value[sectionKey].issues.push(issue);
       isDirty.value = true;
     };
 
-    const removeIssue = (sectionKey: SectionKey, fieldPath: string): void => {
-      const section = sections.value[sectionKey];
-      section.issues = section.issues.filter((i) => i.fieldPath !== fieldPath);
+    const removeIssue = (sectionKey: SectionKey, fieldPath: string) => {
+      sections.value[sectionKey].issues = sections.value[
+        sectionKey
+      ].issues.filter((i) => i.fieldPath !== fieldPath);
       isDirty.value = true;
     };
 
@@ -99,25 +141,16 @@ export const useCompanyApplicationReviewStore = defineStore(
     const addVerification = (
       sectionKey: SectionKey,
       verification: ReviewVerificationSchema
-    ): void => {
-      const section = sections.value[sectionKey];
-      // Remove existing verification for the same field path if any
-      section.verifications = section.verifications.filter(
-        (v) => v.fieldPath !== verification.fieldPath
-      );
-      // Add new verification
-      section.verifications.push(verification);
+    ) => {
+      clearField(sectionKey, verification.fieldPath);
+      sections.value[sectionKey].verifications.push(verification);
       isDirty.value = true;
     };
 
-    const removeVerification = (
-      sectionKey: SectionKey,
-      fieldPath: string
-    ): void => {
-      const section = sections.value[sectionKey];
-      section.verifications = section.verifications.filter(
-        (v) => v.fieldPath !== fieldPath
-      );
+    const removeVerification = (sectionKey: SectionKey, fieldPath: string) => {
+      sections.value[sectionKey].verifications = sections.value[
+        sectionKey
+      ].verifications.filter((v) => v.fieldPath !== fieldPath);
       isDirty.value = true;
     };
 
@@ -126,17 +159,55 @@ export const useCompanyApplicationReviewStore = defineStore(
       removeVerification(sectionKey, fieldPath);
     };
 
-    // Review submission
-    const submitReview = async () => {
+    const submitReviewRound = async () => {
+      if (!applicationId.value) {
+        throw new Error("No application ID available");
+      }
+
       isSubmitting.value = true;
       try {
-        // TODO: Implement API call to submit review
-        isDirty.value = false;
+        const payload = {
+          status: submitForm.value.status,
+          summary: submitForm.value.summary,
+          issues: [...allIssues.value],
+          verifications: [...allVerifications.value],
+        };
+
+        console.log("payload", payload);
+
+        const response = await $fetch(
+          `/api/applications/${applicationId.value as "[id]"}/review-rounds`,
+          {
+            method: "POST",
+            body: payload,
+          }
+        );
+
+        resetLocalChanges();
+        resetSubmitForm();
+
+        return response;
       } catch (error) {
-        console.error("Failed to submit review:", error);
+        console.error("Failed to submit review round:", error);
         throw error;
       } finally {
         isSubmitting.value = false;
+      }
+    };
+
+    const loadReviewHistory = async () => {
+      if (!applicationId.value) {
+        throw new Error("No application ID available");
+      }
+
+      try {
+        const response = await $fetch(
+          `/api/applications/${applicationId.value as "[id]"}/review-rounds`
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Failed to load review history:", error);
+        throw error;
       }
     };
 
@@ -154,26 +225,41 @@ export const useCompanyApplicationReviewStore = defineStore(
       isDirty.value = false;
     };
 
+    const resetSubmitForm = () => {
+      submitForm.value = {
+        status: "reviewing",
+        summary: "",
+      };
+    };
+
     return {
-      // State
       sections: readonly(sections),
       isSubmitting: readonly(isSubmitting),
       isDirty: readonly(isDirty),
+      submitForm,
 
-      // Section management
+      allIssues: readonly(allIssues),
+      allVerifications: readonly(allVerifications),
+      totalIssues: readonly(totalIssues),
+      totalVerifications: readonly(totalVerifications),
+      issuesBySection: readonly(issuesBySection),
+      verificationsBySection: readonly(verificationsBySection),
+      canSubmit: readonly(canSubmit),
+      canSubmitForm: readonly(canSubmitForm),
+
       toggleSection,
       getSectionState,
 
-      // Issue/Verification management
       addIssue,
       removeIssue,
       addVerification,
       removeVerification,
       clearField,
 
-      // Review management
-      submitReview,
+      submitReviewRound,
+      loadReviewHistory,
       resetLocalChanges,
+      resetSubmitForm,
     };
   }
 );

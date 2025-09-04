@@ -15,14 +15,17 @@
         />
       </div>
     </template>
+
     <!-- Field Value Display -->
-    <div :class="displayClass">
+    <div v-if="slots.default || value" :class="displayClass">
       <slot>
         <p class="text-base text-gray-800 leading-relaxed font-medium">
           {{ value }}
         </p>
       </slot>
     </div>
+
+    <slot name="custom-display" />
 
     <!-- Field Actions -->
     <template #footer>
@@ -52,6 +55,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const slots = useSlots();
 
 const displayClass = computed(() =>
   cn([

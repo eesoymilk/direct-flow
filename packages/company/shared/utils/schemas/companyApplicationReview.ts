@@ -26,7 +26,6 @@ export const reviewVerificationSchema = z.object({
 });
 
 export const reviewRoundSchema = z.object({
-  applicationId: z.string().uuid("無效的申請ID"),
   summary: z.string().optional(),
   status: reviewRoundStatusSchema,
 });
@@ -48,6 +47,7 @@ export const reviewVerificationResponseSchema = z.object({
 export const reviewRoundResponseSchema = z.object({
   ...reviewRoundSchema.shape,
   ...responseBaseSchema.shape,
+  applicationId: z.string().uuid(),
   reviewIssues: reviewIssueResponseSchema.array(),
   reviewVerifications: reviewVerificationResponseSchema.array(),
   roundNo: z.number().int(),

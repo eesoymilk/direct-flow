@@ -1,86 +1,115 @@
-import { type CompanyDocumentField, COMPANY_DOCUMENT_FIELDS } from "./useDocumentReview";
+import {
+  type CompanyDocumentField,
+  COMPANY_DOCUMENT_FIELDS,
+} from "./useDocumentReview";
+import type { FieldStatus, SectionStatus } from "../types";
+import { generateFieldStatus } from "../utils";
+
+const DOCUMENT_SECTION_KEY = "documents";
 
 export const useDocumentReviewSection = () => {
-  const { getFieldStatus, addIssue, verifyField, clearField } = 
-    useCompanyApplicationReviewStore();
+  const {
+    addIssue,
+    addVerification,
+    clearField,
+    getSectionState,
+    toggleSection,
+  } = useCompanyApplicationReviewStore();
 
-  const sectionIsOpen = ref(false);
+  const sectionState = computed(() => getSectionState(DOCUMENT_SECTION_KEY));
 
-  // Get field statuses for all document fields
-  const fieldStatuses = computed(() => {
-    const statuses: Record<CompanyDocumentField, FieldStatus> = {} as any;
-    
-    for (const field of COMPANY_DOCUMENT_FIELDS) {
-      statuses[field] = getFieldStatus(`documents.${field}`);
-    }
-    
-    return statuses;
-  });
+  const sectionIsOpen = computed(() => sectionState.value.isOpen);
+
+  const statusesReducer = (
+    acc: Record<CompanyDocumentField, FieldStatus>,
+    field: CompanyDocumentField
+  ): Record<CompanyDocumentField, FieldStatus> => {
+    const fieldPath = `documents.${field}`;
+    const issue = sectionState.value.issues.find(
+      (i) => i.fieldPath === fieldPath
+    );
+    const verification = sectionState.value.verifications.find(
+      (v) => v.fieldPath === fieldPath
+    );
+
+    acc[field] = generateFieldStatus(issue, verification);
+
+    return acc;
+  };
+
+  const fieldStatuses = computed(
+    (): Record<CompanyDocumentField, FieldStatus> =>
+      COMPANY_DOCUMENT_FIELDS.reduce(
+        statusesReducer,
+        {} as Record<CompanyDocumentField, FieldStatus>
+      )
+  );
 
   // Calculate section status
   const status = computed((): SectionStatus => {
-    const fields = Object.values(fieldStatuses.value);
-    const totalFields = fields.length;
-    
-    const issueCount = fields.filter(f => f.hasIssue).length;
-    const criticalIssueCount = fields.filter(f => 
-      f.hasIssue && f.issue?.severity === 'critical'
-    ).length;
-    const verificationCount = fields.filter(f => f.isVerified).length;
-    
+    const section = fieldStatuses.value;
+
+    const sectionIssues = COMPANY_DOCUMENT_FIELDS.filter(
+      (f) => section[f].hasIssue
+    );
+    const sectionVerifications = COMPANY_DOCUMENT_FIELDS.filter(
+      (f) => section[f].isVerified
+    );
+    const criticalIssues = sectionIssues.filter(
+      (f) => section[f].issue?.severity === "critical"
+    );
+
     return {
-      hasIssues: issueCount > 0,
-      hasCriticalIssues: criticalIssueCount > 0, 
-      hasVerifications: verificationCount > 0,
-      issueCount,
-      criticalIssueCount,
-      verificationCount,
-      totalFields,
-      isComplete: verificationCount === totalFields && issueCount === 0,
+      hasIssues: sectionIssues.length > 0,
+      hasCriticalIssues: criticalIssues.length > 0,
+      hasVerifications: sectionVerifications.length > 0,
+      issueCount: sectionIssues.length,
+      criticalIssueCount: criticalIssues.length,
+      verificationCount: sectionVerifications.length,
+      totalFields: COMPANY_DOCUMENT_FIELDS.length,
+      isComplete:
+        sectionVerifications.length === COMPANY_DOCUMENT_FIELDS.length &&
+        sectionIssues.length === 0,
     };
   });
 
-  // UI styling based on status
-  const sectionBorderClass = computed(() => {
-    if (status.value.hasCriticalIssues) return "border-red-300 bg-red-50";
-    if (status.value.hasIssues) return "border-yellow-300 bg-yellow-50";
-    if (status.value.hasVerifications) return "border-green-300 bg-green-50";
-    return "border-gray-200 bg-white";
-  });
+  const {
+    sectionBorderClass,
+    statusIcon,
+    statusIconClass,
+    statusBadgeColor,
+    statusLabel,
+  } = useReviewSectionStatus(status);
 
-  const statusIcon = computed(() => {
-    if (status.value.hasCriticalIssues) return "i-heroicons-exclamation-triangle";
-    if (status.value.hasIssues) return "i-heroicons-exclamation-circle";
-    if (status.value.isComplete) return "i-heroicons-check-circle";
-    return "i-heroicons-document-text";
-  });
+  // Field actions
+  const addFieldIssue = (issue: ReviewIssueSchema) => {
+    clearField(DOCUMENT_SECTION_KEY, issue.fieldPath);
 
-  const statusIconClass = computed(() => {
-    if (status.value.hasCriticalIssues) return "text-red-600";
-    if (status.value.hasIssues) return "text-yellow-600";
-    if (status.value.isComplete) return "text-green-600";
-    return "text-gray-500";
-  });
+    console.log("Adding issue for:", DOCUMENT_SECTION_KEY);
+    console.log("Issue:", issue);
+    addIssue(DOCUMENT_SECTION_KEY, issue);
+  };
 
-  const statusBadgeColor = computed(() => {
-    if (status.value.hasCriticalIssues) return "red";
-    if (status.value.hasIssues) return "yellow";
-    if (status.value.isComplete) return "green";
-    return "gray";
-  });
+  const verifyField = (fieldKey: CompanyDocumentField, note?: string) => {
+    clearField(DOCUMENT_SECTION_KEY, `documents.${fieldKey}`);
 
-  const statusLabel = computed(() => {
-    if (status.value.hasCriticalIssues) {
-      return `${status.value.criticalIssueCount} 嚴重問題`;
-    }
-    if (status.value.hasIssues) {
-      return `${status.value.issueCount} 個問題`;
-    }
-    if (status.value.isComplete) {
-      return "已完成審核";
-    }
-    return "待審核";
-  });
+    addVerification(DOCUMENT_SECTION_KEY, {
+      fieldPath: `documents.${fieldKey}`,
+      note,
+    });
+  };
+
+  // Bulk actions
+  const verifyAllFields = () => {
+    COMPANY_DOCUMENT_FIELDS.forEach((field) => verifyField(field));
+  };
+
+  const clearAllFields = () => {
+    COMPANY_DOCUMENT_FIELDS.forEach((field) => {
+      const fieldPath = `documents.${field}`;
+      clearField(DOCUMENT_SECTION_KEY, fieldPath);
+    });
+  };
 
   // Quick action items
   const quickActionItems = computed(() => [
@@ -92,7 +121,7 @@ export const useDocumentReviewSection = () => {
       action: () => verifyAllFields(),
     },
     {
-      label: "清除所有標記", 
+      label: "清除所有標記",
       icon: "i-heroicons-x-circle",
       color: "neutral" as const,
       disabled: !status.value.hasVerifications && !status.value.hasIssues,
@@ -103,49 +132,26 @@ export const useDocumentReviewSection = () => {
       icon: "i-heroicons-eye",
       color: "info" as const,
       disabled: false,
-      action: () => markAsReviewed(),
+      action: () => verifyAllFields(),
     },
   ]);
 
-  // Actions
-  const verifyAllFields = () => {
-    COMPANY_DOCUMENT_FIELDS.forEach(field => {
-      if (!fieldStatuses.value[field].hasIssue) {
-        verifyField(`documents.${field}`);
-      }
-    });
-  };
+  const handleToggleSection = () => toggleSection(DOCUMENT_SECTION_KEY);
 
-  const clearAllFields = () => {
-    COMPANY_DOCUMENT_FIELDS.forEach(field => {
-      clearField(`documents.${field}`);
-    });
-  };
-
-  const markAsReviewed = () => {
-    // TODO: Implement mark as reviewed logic
-    console.log("Mark documents section as reviewed");
-  };
-
-  const addFieldIssue = (fieldPath: string) => {
-    addIssue(fieldPath);
-  };
-
-  const verifyFieldAction = (field: CompanyDocumentField) => {
-    verifyField(`documents.${field}`);
-  };
-
-  const handleToggleSection = () => {
-    sectionIsOpen.value = !sectionIsOpen.value;
-  };
-
-  const getFieldStatusProps = (field: CompanyDocumentField) => {
-    const fieldStatus = fieldStatuses.value[field];
+  const getFieldStatusProps = (
+    field: CompanyDocumentField
+  ): {
+    statusLabel: string;
+    statusBadgeColor: "success" | "warning" | "neutral";
+  } => {
+    const { isVerified, hasIssue } = fieldStatuses.value[field];
     return {
-      isVerified: fieldStatus.isVerified,
-      hasIssue: fieldStatus.hasIssue,
-      issue: fieldStatus.issue,
-      verification: fieldStatus.verification,
+      statusLabel: isVerified ? "已驗證" : hasIssue ? "有問題" : "",
+      statusBadgeColor: isVerified
+        ? "success"
+        : hasIssue
+          ? "warning"
+          : "neutral",
     };
   };
 
@@ -160,7 +166,7 @@ export const useDocumentReviewSection = () => {
     statusLabel,
     quickActionItems,
     addFieldIssue,
-    verifyField: verifyFieldAction,
+    verifyField,
     handleToggleSection,
     getFieldStatusProps,
   };

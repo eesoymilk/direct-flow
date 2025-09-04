@@ -23,7 +23,14 @@
     />
 
     <!-- Field Review Cards -->
-    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 md:gap-6 px-4">
+    <div
+      :class="[
+        {
+          'grid gap-4 grid-cols-1 md:grid-cols-2 md:gap-6': useGrid,
+        },
+        'space-y-4 md:space-y-6 px-4',
+      ]"
+    >
       <slot :field-statuses="fieldStatuses" />
     </div>
   </CompanyApplicationReviewUiSectionCard>
@@ -69,10 +76,19 @@ interface Props {
   status: SectionStatus;
   fieldStatuses: Record<T, FieldStatus>;
   quickActionItems: DropdownMenuItem[];
+  useGrid?: boolean;
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  useGrid: true,
+});
 defineEmits<{
   toggle: [];
 }>();
+
+const cardsWrapperClass = computed(() => {
+  return props.useGrid
+    ? "grid gap-4 grid-cols-1 md:grid-cols-2 md:gap-6 px-4"
+    : "";
+});
 </script>

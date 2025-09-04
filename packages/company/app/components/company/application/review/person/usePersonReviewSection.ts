@@ -27,7 +27,6 @@ const PERSON_FIELDS = [
 type PersonField = (typeof PERSON_FIELDS)[number];
 
 export const usePersonReviewSection = (config: SectionConfig) => {
-  const reviewStore = useCompanyApplicationReviewStore();
   const {
     addIssue,
     removeIssue,
@@ -36,7 +35,7 @@ export const usePersonReviewSection = (config: SectionConfig) => {
     clearField,
     getSectionState,
     toggleSection,
-  } = reviewStore;
+  } = useCompanyApplicationReviewStore();
 
   const sectionState = computed(() => getSectionState(config.sectionKey));
 
