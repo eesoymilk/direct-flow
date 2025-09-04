@@ -21,10 +21,10 @@
       @submit="onSubmitReview"
     >
       <div class="space-y-4">
-        <UFormField label="審查狀態" name="status" required>
+        <UFormField label="審查狀態" name="applicationStatus" required>
           <USelect
-            v-model="submitForm.status"
-            :options="statusOptions"
+            v-model="submitForm.applicationStatus"
+            :items="statusItems"
             placeholder="選擇審查狀態"
           />
         </UFormField>
@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent, SelectItem } from "@nuxt/ui";
 
 const reviewStore = useCompanyApplicationReviewStore();
 const {
@@ -66,10 +66,18 @@ const {
   canSubmitForm,
 } = storeToRefs(reviewStore);
 
-const statusOptions = [
-  { label: "審查中 (有問題需修正)", value: "reviewing" as const },
-  { label: "審查通過 (可進入下階段)", value: "resolved" as const },
-];
+const statusItems: {
+  label: string;
+  value: ApplicationStatus;
+}[] = [
+  { value: "submitted" as const, label: "已提交" },
+  { value: "staff_review" as const, label: "待審查" },
+  { value: "pending_client_update" as const, label: "待更新" },
+  { value: "filing" as const, label: "待核准" },
+  { value: "filed" as const, label: "已核准" },
+  { value: "approved" as const, label: "已核准" },
+  { value: "rejected" as const, label: "已拒絕" },
+] satisfies SelectItem[];
 
 // Actions
 const onSubmitReview = async (event: FormSubmitEvent<ReviewRoundSchema>) => {

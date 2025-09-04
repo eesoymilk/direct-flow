@@ -9,10 +9,6 @@ export const reviewIssueSeveritySchema = z.enum(REVIEW_ISSUE_SEVERITY, {
   message: "請選擇問題嚴重性",
 });
 
-export const reviewRoundStatusSchema = z.enum(REVIEW_ROUND_STATUS, {
-  message: "請選擇狀態",
-});
-
 export const reviewIssueSchema = z.object({
   fieldPath: z.string().min(1, "欄位路徑為必填"),
   issueType: reviewIssueTypeSchema,
@@ -27,7 +23,9 @@ export const reviewVerificationSchema = z.object({
 
 export const reviewRoundSchema = z.object({
   summary: z.string().optional(),
-  status: reviewRoundStatusSchema,
+  applicationStatus: z.enum(COMPANY_APPLICATION_STATUS, {
+    message: "請選擇申請狀態",
+  }),
 });
 
 export const reviewIssueResponseSchema = z.object({
@@ -45,9 +43,10 @@ export const reviewVerificationResponseSchema = z.object({
 });
 
 export const reviewRoundResponseSchema = z.object({
-  ...reviewRoundSchema.shape,
+  ...reviewRoundSchema.omit({ applicationStatus: true }).shape,
   ...responseBaseSchema.shape,
   applicationId: z.string().uuid(),
+  status: z.enum(REVIEW_ROUND_STATUS),
   reviewIssues: reviewIssueResponseSchema.array(),
   reviewVerifications: reviewVerificationResponseSchema.array(),
   roundNo: z.number().int(),
