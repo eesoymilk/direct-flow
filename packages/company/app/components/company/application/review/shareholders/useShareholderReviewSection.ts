@@ -44,9 +44,10 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     > = {};
 
     shareholders.value.forEach((_, index) => {
-      shareholderStatuses[index] = {} as Record<ShareholderField, FieldStatus>;
-
-      SHAREHOLDER_FIELDS.forEach((field) => {
+      const statusesReducer = (
+        acc: Record<ShareholderField, FieldStatus>,
+        field: ShareholderField
+      ): Record<ShareholderField, FieldStatus> => {
         const fieldPath = `shareholders[${index}].${field}`;
         const issue = sectionState.value.issues.find(
           (i) => i.fieldPath === fieldPath
@@ -55,11 +56,15 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
           (v) => v.fieldPath === fieldPath
         );
 
-        shareholderStatuses[index]![field] = generateFieldStatus(
-          issue,
-          verification
-        );
-      });
+        acc[field] = generateFieldStatus(issue, verification);
+
+        return acc;
+      };
+
+      shareholderStatuses[index] = SHAREHOLDER_FIELDS.reduce(
+        statusesReducer,
+        {} as Record<ShareholderField, FieldStatus>
+      );
     });
 
     return shareholderStatuses;
@@ -129,17 +134,26 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
   const getShareholderFieldStatusProps = (
     field: ShareholderField,
     shareholderIndex: number
-  ) => {
+  ): {
+    statusLabel: string;
+    statusBadgeColor: "success" | "warning" | "neutral";
+  } => {
     const fieldStatus = fieldStatuses.value[shareholderIndex]?.[field];
+    const { isVerified = false, hasIssue = false } = fieldStatus || {};
+
     return {
-      hasIssue: fieldStatus?.hasIssue || false,
-      isVerified: fieldStatus?.isVerified || false,
-      issue: fieldStatus?.issue,
+      statusLabel: isVerified ? "已驗證" : hasIssue ? "有問題" : "",
+      statusBadgeColor: isVerified
+        ? "success"
+        : hasIssue
+          ? "warning"
+          : "neutral",
     };
   };
 
   // Field actions
   const addFieldIssue = (issue: ReviewIssueSchema) => {
+    clearField(SHAREHOLDER_SECTION_KEY, issue.fieldPath);
     console.log("Adding issue for shareholders:", issue);
     addIssue(SHAREHOLDER_SECTION_KEY, issue);
   };
@@ -149,15 +163,9 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     shareholderIndex: number,
     note?: string
   ) => {
-    clearField(
-      SHAREHOLDER_SECTION_KEY,
-      `shareholders[${shareholderIndex}].${field}`
-    );
-
-    addVerification(SHAREHOLDER_SECTION_KEY, {
-      fieldPath: `shareholders[${shareholderIndex}].${field}`,
-      note: note || "已驗證",
-    });
+    const fieldPath = `shareholders[${shareholderIndex}].${field}`;
+    clearField(SHAREHOLDER_SECTION_KEY, fieldPath);
+    addVerification(SHAREHOLDER_SECTION_KEY, { fieldPath, note });
   };
 
   // Bulk actions
