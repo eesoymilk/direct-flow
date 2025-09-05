@@ -93,9 +93,6 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
       ui:3.2:
         specifier: link:@nuxt/ui:3.2
         version: link:@nuxt/ui:3.2
@@ -145,6 +142,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.8
         version: 4.1.11
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
 
 packages:
 
