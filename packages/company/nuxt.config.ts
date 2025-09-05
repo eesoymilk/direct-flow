@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    preset: "vercel",
     experimental: {
       database: true,
     },
