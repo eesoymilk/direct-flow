@@ -112,6 +112,7 @@ const stepperItems: StepperItem[] = [
 ];
 
 const stepper = useTemplateRef("stepper");
+
 const applicationStore = useCompanyApplicationStore();
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
