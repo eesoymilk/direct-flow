@@ -10,7 +10,10 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    preset: "vercel",
+    commands: {
+      preview: "",
+      deploy: "npx vercel deploy --prebuilt",
+    },
     experimental: {
       database: true,
     },
