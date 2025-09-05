@@ -85,12 +85,6 @@
           :min="0"
           placeholder="請輸入普通股數"
           class="w-full"
-          :format-options="{
-            style: 'currency',
-            currency: 'TWD',
-            currencyDisplay: 'code',
-            currencySign: 'accounting',
-          }"
         />
       </UFormField>
 
@@ -100,12 +94,6 @@
           :min="0"
           placeholder="請輸入特別股數"
           class="w-full"
-          :format-options="{
-            style: 'currency',
-            currency: 'TWD',
-            currencyDisplay: 'code',
-            currencySign: 'accounting',
-          }"
         />
       </UFormField>
 
@@ -115,12 +103,6 @@
           disabled
           placeholder="實收資本額股數"
           class="w-full"
-          :format-options="{
-            style: 'currency',
-            currency: 'TWD',
-            currencyDisplay: 'code',
-            currencySign: 'accounting',
-          }"
         />
       </UFormField>
     </div>

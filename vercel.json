@@ -1,8 +1,8 @@
 {
   "version": 2,
   "buildCommand": "pnpm --filter=@direct-flow/company run build",
-  "devCommand": "pnpm --filter=@direct-flow/company run dev",
+  "devCommand": "pnpm --filter=@direct-flow/company run dev", 
   "installCommand": "pnpm install",
-  "outputDirectory": "packages/company/.vercel/output",
+  "outputDirectory": ".vercel/output",
   "framework": "nuxtjs"
 }
