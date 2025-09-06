@@ -1,5 +1,7 @@
 import { fakerZH_TW as faker } from "@faker-js/faker";
 import type { z } from "zod";
+import { CalendarDate } from "@internationalized/date";
+import { shallowRef } from "vue";
 
 // Helper function to generate a random Taiwanese ID number (since Faker doesn't have this)
 const generateTaiwaneseIdNumber = (): string => {
@@ -10,7 +12,7 @@ const generateTaiwaneseIdNumber = (): string => {
   return `${letter}${oneOrTwo}${numbers}`;
 };
 
-// Generate mock person data using Taiwanese locale
+// Generate mock person data for contact/responsible/representative (includes email, tel/cel required)
 export const generateMockPerson = (): z.output<typeof personSchema> => ({
   name: faker.person.fullName(),
   idNumber: generateTaiwaneseIdNumber(),
@@ -18,22 +20,33 @@ export const generateMockPerson = (): z.output<typeof personSchema> => ({
   telephone: faker.phone.number(),
   cellphone: faker.phone.number(),
   email: faker.internet.email(),
+  dateOfBirth: undefined, // Not required for contact/responsible/representative persons
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
 });
 
-// Generate mock shareholder data including shares
-export const generateMockShareholder = (): z.output<typeof shareholderSchema> => ({
-  name: faker.person.fullName(),
-  idNumber: generateTaiwaneseIdNumber(),
-  address: faker.location.streetAddress(true),
-  telephone: faker.phone.number(),
-  cellphone: faker.phone.number(),
-  email: faker.internet.email(),
-  shares: faker.number.int({ min: 1000, max: 100000 }), // Random shares between 1K-100K
-  isReadonly: false,
-});
+// Generate mock shareholder data including shares (dateOfBirth required, contact info not displayed)
+export const generateMockShareholder = (): z.output<
+  typeof shareholderSchema
+> => {
+  const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
+  return {
+    name: faker.person.fullName(),
+    idNumber: generateTaiwaneseIdNumber(),
+    address: faker.location.streetAddress(true),
+    telephone: "", // Not displayed in form
+    cellphone: "", // Not displayed in form
+    email: "", // Not displayed in form
+    dateOfBirth: new CalendarDate(
+      birthDate.getFullYear(),
+      birthDate.getMonth() + 1,
+      birthDate.getDate()
+    ),
+    shares: faker.number.int({ min: 1000, max: 100000 }), // Random shares between 1K-100K
+    isReadonly: false,
+  };
+};
 
 // Generate mock document data
 export const generateMockDocument = (): z.output<typeof documentSchema> => {
@@ -118,7 +131,7 @@ export const generateOrgTypeTestData = () => {
 
   // Randomly choose between company_limited and closely_held_company_limited
   const isCloselyHeld = faker.datatype.boolean();
-  
+
   // Generate basic form data with only stock company types
   const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
     candidateNames: generateMockCompanyNames(),
@@ -137,7 +150,8 @@ export const generateOrgTypeTestData = () => {
   };
 
   // Calculate authorizedShares as sum (will be overridden by computed property)
-  mockFormData.authorizedShares = (mockFormData.ordinaryShares || 0) + (mockFormData.preferredShares || 0);
+  mockFormData.authorizedShares =
+    (mockFormData.ordinaryShares || 0) + (mockFormData.preferredShares || 0);
 
   // Generate person data
   form.responsiblePerson = generateMockPerson();
@@ -202,7 +216,7 @@ export const generateMockFormData = () => {
   const shareholderCount = faker.number.int({ min: 2, max: 5 });
   form.shareholders = Array.from({ length: shareholderCount }, () => {
     // Only add shares for stock companies
-    if (mockFormData.organizationType === 'company_limited') {
+    if (mockFormData.organizationType === "company_limited") {
       return generateMockShareholder();
     } else {
       // For non-stock companies, create person without shares

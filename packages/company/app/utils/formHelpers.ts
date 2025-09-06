@@ -1,6 +1,8 @@
 import * as z from "zod";
+import { CalendarDate } from "@internationalized/date";
+import { shallowRef } from "vue";
 
-// Helper functions to create initial values
+// Helper functions to create initial values for contact/responsible/representative persons
 export const createEmptyPerson = (): PersonSchema => ({
   name: "",
   idNumber: "",
@@ -8,6 +10,7 @@ export const createEmptyPerson = (): PersonSchema => ({
   telephone: "",
   cellphone: "",
   email: "",
+  dateOfBirth: undefined,
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -22,6 +25,7 @@ export const createEmptyShareholder = (): z.output<
   telephone: "",
   cellphone: "",
   email: "",
+  dateOfBirth: new CalendarDate(2000, 1, 1), // Default CalendarDate
   shares: undefined,
   isReadonly: false,
   referenceType: undefined,

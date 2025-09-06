@@ -88,34 +88,10 @@
                   />
                 </UFormField>
 
-                <UFormField label="電話" name="telephone">
-                  <UInput
-                    v-model="shareholder.telephone"
-                    :readonly="shareholder.isReadonly"
+                <UFormField label="出生日期" name="dateOfBirth">
+                  <UCalendar
+                    v-model="shareholder.dateOfBirth"
                     :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東電話"
-                    class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
-                  />
-                </UFormField>
-
-                <UFormField label="手機" name="cellphone">
-                  <UInput
-                    v-model="shareholder.cellphone"
-                    :readonly="shareholder.isReadonly"
-                    :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東手機"
-                    class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
-                  />
-                </UFormField>
-
-                <UFormField label="電子郵件" name="email">
-                  <UInput
-                    v-model="shareholder.email"
-                    :readonly="shareholder.isReadonly"
-                    :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東電子郵件"
                     class="w-full"
                     :class="{ 'opacity-60': shareholder.isReadonly }"
                   />
@@ -168,6 +144,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
 import * as z from "zod";
+import { CalendarDate } from "@internationalized/date";
 
 const applicationStore = useCompanyApplicationStore();
 

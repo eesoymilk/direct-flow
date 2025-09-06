@@ -1,4 +1,6 @@
 import * as z from "zod";
+import { CalendarDate } from "@internationalized/date";
+import { shallowRef } from "vue";
 import { createInitialForm, createEmptyShareholder } from "~/utils/formHelpers";
 import {
   generateMockFormData,
@@ -64,9 +66,10 @@ export const useCompanyApplicationStore = defineStore(
         name: sourcePerson.name,
         idNumber: sourcePerson.idNumber,
         address: sourcePerson.address,
-        telephone: sourcePerson.telephone,
-        cellphone: sourcePerson.cellphone,
-        email: sourcePerson.email,
+        telephone: "", // Don't copy contact info to shareholders
+        cellphone: "", // Don't copy contact info to shareholders
+        email: "", // Don't copy contact info to shareholders
+        dateOfBirth: sourcePerson.dateOfBirth || new CalendarDate(2000, 1, 1), // Default to reasonable date if not provided
         shares: isStockCompany.value ? 0 : undefined,
         isReadonly: true,
         referenceType: personType,

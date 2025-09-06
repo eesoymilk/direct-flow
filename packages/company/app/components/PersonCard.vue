@@ -88,7 +88,7 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="text-sm text-gray-700 break-all font-medium">
-            {{ person.email }}
+            {{ person.email || "未提供" }}
           </p>
         </div>
       </div>
@@ -105,7 +105,7 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="font-mono text-sm text-gray-800 font-medium">
-            {{ person.telephone }}
+            {{ person.telephone || "未提供" }}
           </p>
         </div>
       </div>
@@ -122,7 +122,28 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="font-mono text-sm text-gray-800 font-medium">
-            {{ person.cellphone }}
+            {{ person.cellphone || "未提供" }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Date of Birth Field -->
+      <div v-if="person.dateOfBirth" class="space-y-2">
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-calendar" class="w-4 h-4 text-gray-400" />
+          <label
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          >
+            出生日期
+          </label>
+        </div>
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <p class="text-sm text-gray-700 font-medium">
+            {{
+              person.dateOfBirth
+                ? `${person.dateOfBirth.year}/${person.dateOfBirth.month}/${person.dateOfBirth.day}`
+                : "未提供"
+            }}
           </p>
         </div>
       </div>
@@ -131,13 +152,17 @@
 </template>
 
 <script setup lang="ts">
+import { CalendarDate } from "@internationalized/date";
+import type { ShallowRef } from "vue";
+
 interface Person {
   name: string;
   idNumber: string;
   address: string;
-  email: string;
-  telephone: string;
-  cellphone: string;
+  email?: string;
+  telephone?: string;
+  cellphone?: string;
+  dateOfBirth?: CalendarDate;
   isReadonly?: boolean;
   shares?: number;
 }

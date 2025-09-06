@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
-import { pgTable, serial, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  timestamp,
+  uuid,
+  date,
+} from "drizzle-orm/pg-core";
 import { documents } from "../document/schema";
 import { companies } from "../company/schema";
 
@@ -12,6 +19,7 @@ export const people = pgTable("people", {
   telephone: varchar("telephone"),
   cellphone: varchar("cellphone"),
   email: varchar("email"),
+  dateOfBirth: date("date_of_birth"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

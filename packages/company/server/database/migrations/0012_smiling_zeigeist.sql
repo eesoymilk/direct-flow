@@ -1,0 +1,1 @@
+ALTER TABLE "people" ADD COLUMN "date_of_birth" date;

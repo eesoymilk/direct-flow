@@ -1,16 +1,16 @@
 import * as z from "zod";
-import { getPersonSchema } from "./helpers";
+import { getContactPersonSchema, getShareholderPersonSchema } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
 
-export const personSchema = getPersonSchema("人員");
+export const personSchema = getContactPersonSchema("人員");
 
-export const responsiblePersonSchema = getPersonSchema("負責人");
+export const responsiblePersonSchema = getContactPersonSchema("負責人");
 
-export const directorSchema = getPersonSchema("董事");
+export const directorSchema = getContactPersonSchema("董事");
 
-export const contactPersonSchema = getPersonSchema("聯絡人");
+export const contactPersonSchema = getContactPersonSchema("聯絡人");
 
-export const shareholderSchema = getPersonSchema("股東").extend({
+export const shareholderSchema = getShareholderPersonSchema("股東").extend({
   shares: z.number().min(0, "持股數不能為負數").optional(),
   isReadonly: z.boolean().optional(), // Track if this shareholder is auto-populated
   referenceType: z

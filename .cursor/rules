@@ -1,0 +1,208 @@
+You are an expert in TypeScript, Node.js, NuxtJS 4, Vue 3, Nuxt UI, VueUse, Tailwind, PNPM monorepo architecture, and company registration management systems.
+
+## Monorepo Structure and Management
+
+**PNPM Workspace Configuration**
+
+- Use PNPM workspaces with proper `pnpm-workspace.yaml` configuration.
+- Leverage PNPM's efficient dependency hoisting and shared node_modules.
+- Use workspace protocols (`workspace:*`) for internal package dependencies.
+- Implement proper workspace scripts for build orchestration.
+
+**Project Architecture**
+
+- **Base Package** (`packages/base/`): Core shared functionality, components, and utilities.
+- **Company Package** (`packages/company/`): Main application extending base functionality.
+- Company app uses Nuxt layers to extend base package functionality.
+- Focus development efforts primarily on the company application.
+
+**Dependency Management**
+
+- Install shared dependencies at workspace root when possible.
+- Use precise workspace versions for internal dependencies.
+- Leverage PNPM's `--filter` flag for package-specific operations.
+- Structure package.json scripts for both individual and cross-package operations.
+
+## Code Style and Structure
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use composition API and declarative programming patterns; avoid options API.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, composables, helpers, static content, types.
+
+## Naming Conventions
+
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Use PascalCase for component names (e.g., AuthWizard.vue).
+- Use camelCase for composables (e.g., useAuthState.ts).
+- Prefix shared utilities with package name when exported across workspace.
+
+## TypeScript Usage
+
+- Use TypeScript for all code; prefer types over interfaces.
+- Avoid enums; use const objects instead.
+- Use Vue 3 with TypeScript, leveraging defineComponent and PropType.
+- Define shared types in base package, import in company package.
+- Utilize TypeScript path mapping for clean imports between packages.
+
+## Syntax and Formatting
+
+- Use arrow functions for methods and computed properties.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use template syntax for declarative rendering.
+
+## UI and Styling
+
+- Use Nuxt UI v3.3.0 and Tailwind CSS v4.1.8 for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Use Nuxt UI components: UFormField, UInputTags, URadioGroup, UCheckbox, UTabs, UButton.
+- Define design system tokens in base package.
+- Extend and customize base components in company package.
+- Color mode is disabled (`ui: { colorMode: false }`) in nuxt.config.ts.
+
+## Performance Optimization
+
+- Leverage Nuxt's built-in performance optimizations.
+- Use Suspense for asynchronous components.
+- Implement lazy loading for routes and components.
+- Optimize images: use WebP format, include size data, implement lazy loading.
+- Utilize PNPM's efficient node_modules structure for faster builds.
+
+## Key Conventions
+
+- Use VueUse for common composables and utility functions.
+- Use Pinia for state management across layers.
+- Optimize Web Vitals (LCP, CLS, FID).
+- Utilize Nuxt's auto-imports feature for components and composables.
+
+## Nuxt 4 Specific Guidelines
+
+**Layer Architecture**
+
+- Configure base package as a Nuxt layer with proper `nuxt.config.ts`.
+- Extend base layer in company package using `extends` configuration.
+- Share components, composables, and utilities through layer system.
+- Override base configurations in company layer when needed.
+
+**Directory Structure**
+
+- Follow Nuxt 4 directory structure in both packages.
+- Use consistent folder organization: pages/, components/, composables/, utils/.
+- Place shared assets and components in base package.
+- Company-specific implementations in company package.
+
+**Auto-imports and Module Resolution**
+
+- Configure auto-imports to work across layer boundaries.
+- Use proper TypeScript path resolution for cross-package imports.
+- Leverage Nuxt's module resolution for seamless layer integration.
+
+**Data Fetching and State Management**
+
+- Use useFetch and useAsyncData with explicit generic types for data fetching.
+- Implement proper type-safe error handling with typed error responses.
+- Share Pinia stores between base and company layers with strict typing.
+- Define store state, getters, and actions with explicit return types.
+- Implement proper SSR/hydration patterns for monorepo structure with type safety.
+- Use type-safe API client configuration and response handling.
+
+## Development Workflow
+
+**Build and Development**
+
+- Use PNPM workspace commands for development (`pnpm dev --filter=@direct-flow/company`).
+- Implement watch mode for base package changes during company development.
+- Configure proper build dependencies between packages.
+- Primary development focus on company package with base as foundation.
+
+**Layer Integration Best Practices**
+
+- Define clear boundaries between base functionality and company customizations within app/ directories.
+- Use Nuxt layer's `srcDir` and component override capabilities with app/ structure.
+- Implement proper theming and configuration extension patterns through Nuxt UI.
+- Configure Nuxt UI theme inheritance from base to company layer using app.config.ts.
+- Test layer integration thoroughly with both packages and app/ directory structure.
+- Share Nuxt UI component customizations through base layer's app/components/ directory.
+- Leverage Nuxt 4's enhanced layer system with app/ directory benefits.
+
+## Vue 3 and Composition API Best Practices
+
+- Use `<script setup>` syntax for concise component definitions.
+- Leverage ref, reactive, and computed for reactive state management.
+- Use provide/inject for dependency injection when appropriate.
+- Implement custom composables for reusable logic across layers.
+- Share composables through base layer for company package consumption.
+
+## Domain-Specific Guidelines
+
+### Company Registration System
+
+This is a company registration management system with specific domain patterns:
+
+**Core Entities and Schemas:**
+
+- Use Zod schemas from `shared/utils/schemas/` for validation
+- Main schemas: `companyApplicationFormSchema`, `personSchema`, `shareholderSchema`
+- Database types from `shared/types/database.ts` using Drizzle `InferSelectModel`
+- Organization types: `company_limited`, `closely_held_company_limited`, `limited_company`, `sole_proprietorship`, `partnership`
+
+**Application Review System:**
+
+- Multi-round review workflow with issues and verifications tracking
+- Section-based review interface: company basic info, business items, monetary info, persons, shareholders, documents
+- Issue severity levels: `critical`, `major`, `minor`
+- Review round statuses: `reviewing`, `completed`
+- Application statuses: `submitted`, `staff_review`, `pending_client_update`, `approved`, `rejected`
+
+**Document Management:**
+
+- Required documents: `bankBookFront`, `bankBookInside`, `bankBookStamp`, `shareholderPayments`, `balanceProof`, `houseUseAgreement`, `shareholderAgreement`, `directorConsent`, `declaration`, `legalPersonDeclaration`
+- File validation: JPEG, PNG, PDF formats with size and dimension checks
+- Use `getFileField()` helper for document schema fields
+
+**Person Types and Relationships:**
+
+- Three main person types: `responsiblePerson`, `representative`, `contactPerson`
+- Person relationships tracked with boolean flags: `isDirectorSameAsResponsiblePerson`, `isContactPersonSameAsResponsiblePerson`, `isContactPersonSameAsDirector`
+- Shareholders managed separately with share information
+
+**API Patterns:**
+
+- RESTful endpoints under `/api/applications/`
+- Standard response format: `{ success: boolean, data: any, message?: string }`
+- Error handling with appropriate HTTP status codes (400, 404, 500)
+- Use `eventHandler`, `getRouterParam`, `getQuery`, `createError` from Nuxt
+- Database access via `useDrizzle()` composable
+
+**State Management Patterns:**
+
+- Pinia stores in `composables/stores/` with strict typing
+- Main stores: `useCompanyApplicationStore`, `useCompanyApplicationDetailsStore`, `useCompanyApplicationReviewStore`
+- Store patterns: reactive state, computed getters, async actions with error handling
+- Use `storeToRefs()` for reactivity in components
+
+**Component Organization:**
+
+- Domain-based: `components/company/application/`
+- Review components: `review/[section]/` structure
+- Form components: `form/part/[number].vue` for multi-step forms
+- Shared form components: `Formed/Input.vue`, `Formed/Actions.vue`
+
+### Database Patterns
+
+**Schema Organization:**
+
+- Domain-based schemas in `server/database/schema/[domain]/`
+- Domains: `company`, `person`, `document`, `companyApplication`, `companyApplicationReview`
+- Use Drizzle ORM with PostgreSQL
+- Migration files in `server/database/migrations/`
+
+**Query Patterns:**
+
+- Use Drizzle query builder with proper typing
+- Relational queries with `with` clause for joined data
+- Transaction patterns for complex operations
+- Helper functions in `server/utils/companyApplication/`
+
+Follow the official Nuxt 4, Vue.js, and PNPM documentation for up-to-date best practices on monorepo management, layer architecture, data fetching, rendering, and routing.

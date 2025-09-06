@@ -47,6 +47,7 @@ export const PERSON_FIELDS = [
   "telephone",
   "cellphone",
   "email",
+  "dateOfBirth",
 ] as const;
 
 export const SHAREHOLDER_FIELDS = [...PERSON_FIELDS, "shares"] as const;

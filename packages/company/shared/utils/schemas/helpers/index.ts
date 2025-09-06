@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { CalendarDate } from "@internationalized/date";
 
 export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 export const MIN_DIMENSIONS = { width: 200, height: 200 };
@@ -76,7 +77,38 @@ export const documentSchema = z.object({
     ),
 });
 
-export const getPersonSchema = (name: string) =>
+// Schema for contact person, representative, and responsible person
+// Requires: name, id, address, (tel OR cel), email
+export const getContactPersonSchema = (name: string) =>
+  z
+    .object(
+      {
+        name: z.string().min(1, { message: `${name}姓名不能為空` }),
+        idNumber: idNumberSchema,
+        address: z
+          .string()
+          .min(1, { message: `${name}戶籍地址不能為空` })
+          .max(255, { message: `${name}戶籍地址最多255個字` }),
+        telephone: z.string().optional(),
+        cellphone: z.string().optional(),
+        email: z
+          .string()
+          .email({ message: "請輸入有效的電子郵件" })
+          .min(1, { message: `${name}電子郵件不能為空` }),
+        dateOfBirth: z.instanceof(CalendarDate).optional(),
+      },
+      {
+        message: `${name}資料不能為空`,
+      }
+    )
+    .refine((data) => data.telephone || data.cellphone, {
+      message: `${name}必須提供電話或手機其中一項`,
+      path: ["telephone", "cellphone"], // This will show the error on telephone and cellphone fields
+    });
+
+// Schema for shareholders
+// Requires: name, id, address, dateOfBirth
+export const getShareholderPersonSchema = (name: string) =>
   z.object(
     {
       name: z.string().min(1, { message: `${name}姓名不能為空` }),
@@ -85,9 +117,12 @@ export const getPersonSchema = (name: string) =>
         .string()
         .min(1, { message: `${name}戶籍地址不能為空` })
         .max(255, { message: `${name}戶籍地址最多255個字` }),
-      telephone: z.string().min(1, { message: `${name}電話不能為空` }),
-      cellphone: z.string().min(1, { message: `${name}手機不能為空` }),
-      email: z.string().min(1, { message: `${name}電子郵件不能為空` }),
+      telephone: z.string().optional(),
+      cellphone: z.string().optional(),
+      email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
+      dateOfBirth: z.instanceof(CalendarDate, {
+        message: `${name}出生日期不能為空`,
+      }),
     },
     {
       message: `${name}資料不能為空`,

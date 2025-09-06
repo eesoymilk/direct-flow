@@ -1,4 +1,6 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import { CalendarDate } from "@internationalized/date";
+import type { ShallowRef } from "vue";
 import {
   companies,
   people,
@@ -76,9 +78,10 @@ export type PersonForm = {
   name: string;
   idNumber: string;
   address: string;
-  telephone: string;
-  cellphone: string;
-  email: string;
+  telephone?: string;
+  cellphone?: string;
+  email?: string;
+  dateOfBirth?: CalendarDate;
 };
 
 export type CompanyApplicationForm = {

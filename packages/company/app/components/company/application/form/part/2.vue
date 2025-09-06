@@ -36,7 +36,7 @@
       <UFormField label="電話" name="telephone">
         <UInput
           v-model="applicationStore.form.responsiblePerson.telephone"
-          placeholder="請輸入負責人電話"
+          placeholder="請輸入負責人電話 (必須提供電話或手機其中一項)"
           class="w-full"
         />
       </UFormField>
@@ -44,7 +44,7 @@
       <UFormField label="手機" name="cellphone">
         <UInput
           v-model="applicationStore.form.responsiblePerson.cellphone"
-          placeholder="請輸入負責人手機"
+          placeholder="請輸入負責人手機 (必須提供電話或手機其中一項)"
           class="w-full"
         />
       </UFormField>
@@ -193,7 +193,7 @@
       <UFormField label="電話" name="telephone">
         <UInput
           v-model="applicationStore.form.contactPerson.telephone"
-          placeholder="請輸入聯絡人電話"
+          placeholder="請輸入聯絡人電話 (必須提供電話或手機其中一項)"
           class="w-full"
         />
       </UFormField>
@@ -201,7 +201,7 @@
       <UFormField label="手機" name="cellphone">
         <UInput
           v-model="applicationStore.form.contactPerson.cellphone"
-          placeholder="請輸入聯絡人手機"
+          placeholder="請輸入聯絡人手機 (必須提供電話或手機其中一項)"
           class="w-full"
         />
       </UFormField>

@@ -67,7 +67,7 @@
     <!-- Telephone -->
     <CompanyApplicationReviewUiFieldCard
       label="電話"
-      :value="person.telephone"
+      :value="person.telephone || '未提供'"
       v-bind="getFieldStatusProps('telephone')"
     >
       <template #actions>
@@ -84,7 +84,7 @@
     <!-- Cellphone -->
     <CompanyApplicationReviewUiFieldCard
       label="手機"
-      :value="person.cellphone"
+      :value="person.cellphone || '未提供'"
       v-bind="getFieldStatusProps('cellphone')"
     >
       <template #actions>
@@ -101,7 +101,7 @@
     <!-- Email -->
     <CompanyApplicationReviewUiFieldCard
       label="電子郵件"
-      :value="person.email"
+      :value="person.email || '未提供'"
       v-bind="getFieldStatusProps('email')"
     >
       <template #actions>
@@ -110,6 +110,23 @@
           :has-issue="fieldStatuses.email.hasIssue"
           :field-path="`${props.personType}.email`"
           @verify="() => verifyField('email')"
+          @add-issue="addFieldIssue"
+        />
+      </template>
+    </CompanyApplicationReviewUiFieldCard>
+
+    <!-- Date of Birth -->
+    <CompanyApplicationReviewUiFieldCard
+      label="出生日期"
+      :value="person.dateOfBirth || '未提供'"
+      v-bind="getFieldStatusProps('dateOfBirth')"
+    >
+      <template #actions>
+        <CompanyApplicationReviewUiFieldActions
+          :is-verified="fieldStatuses.dateOfBirth.isVerified"
+          :has-issue="fieldStatuses.dateOfBirth.hasIssue"
+          :field-path="`${props.personType}.dateOfBirth`"
+          @verify="() => verifyField('dateOfBirth')"
           @add-issue="addFieldIssue"
         />
       </template>
