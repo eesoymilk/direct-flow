@@ -1,3 +1,22 @@
+---
+title: "General Development Guidelines"
+description: "Comprehensive development guidelines for TypeScript, NuxtJS 4, Vue 3, and company registration management systems in a PNPM monorepo architecture"
+version: "1.0.0"
+last_updated: "2024-12-19"
+tags:
+  [
+    "typescript",
+    "nuxtjs",
+    "vue3",
+    "monorepo",
+    "pnpm",
+    "company-registration",
+    "development-guidelines",
+  ]
+categories: ["development", "guidelines", "architecture"]
+author: "Direct Flow Team"
+---
+
 You are an expert in TypeScript, Node.js, NuxtJS 4, Vue 3, Nuxt UI, VueUse, Tailwind, PNPM monorepo architecture, and company registration management systems.
 
 ## Monorepo Structure and Management

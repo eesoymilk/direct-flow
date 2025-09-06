@@ -1,6 +1,5 @@
 export const ORGANIZATION_TYPE = [
   "company_limited",
-  "closely_held_company_limited",
   "limited_company",
   "sole_proprietorship",
   "partnership",

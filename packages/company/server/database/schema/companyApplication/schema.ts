@@ -28,14 +28,16 @@ export const companyApplications = pgTable("company_applications", {
   candidateNames: varchar("candidate_names").array().notNull(), // 候選名稱
   chosenName: varchar("chosen_name"), // 選定名稱
   organizationType: organizationTypeEnum("organization_type").notNull(), // 組織類型
-  isCloselyHeld: boolean("is_closely_held"), // 閉鎖型股份有限公司
+  isCloselyHeld: boolean("is_closely_held"), // 閉鎖型 - 股份有限公司
+  hasParValueFreeShares: boolean("has_par_value_free_shares"), // 無票面金額股份 - 股份有限公司
   businessItemsDescription: varchar("business_items_description").notNull(), // 營業項目描述
-  address: varchar("address").notNull(), // 地址
-  capitalAmount: integer("capital_amount"), // 資本額
-  authorizedShares: integer("authorized_shares"), // 實收資本額股數
+  capitalAmount: integer("capital_amount"), // 資本總額
+  parValue: integer("par_value"), // 票面金額
+  totalShares: integer("total_shares"), // 股份總數
   ordinaryShares: integer("ordinary_shares"), // 普通股
   preferredShares: integer("preferred_shares"), // 特別股
-  hasParValueFreeShares: boolean("has_par_value_free_shares"), // 無票面金額股份
+  authorizedShares: integer("authorized_shares"), // 實收資本額
+  address: varchar("address").notNull(), // 地址
   responsiblePersonId: uuid("responsible_person_id").references(
     () => people.id,
     { onDelete: "cascade" }

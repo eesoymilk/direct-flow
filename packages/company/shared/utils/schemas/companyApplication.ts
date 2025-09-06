@@ -2,6 +2,7 @@ import * as z from "zod";
 import { getFileField, responseBaseSchema } from "./helpers";
 import { personResponseSchema, shareholderResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
+import { ORGANIZATION_TYPE } from "../constants";
 
 export const companyApplicationFormSchema = z.object({
   candidateNames: z
@@ -20,25 +21,21 @@ export const companyApplicationFormSchema = z.object({
       }
     ),
   organizationType: z.enum(
-    [
-      "company_limited",
-      "closely_held_company_limited",
-      "limited_company",
-      "sole_proprietorship",
-      "partnership",
-    ],
+    ORGANIZATION_TYPE,
     {
       message: "請選擇有效的組織類型",
     }
   ),
   isCloselyHeld: z.boolean().optional(),
+  hasParValueFreeShares: z.boolean().optional(),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
-  address: z.string().min(1, "公司地址為必填"),
   capitalAmount: z.number().positive("資本額必須大於0").nullish(),
+  parValue: z.number().positive("票面金額必須大於0").nullish(),
+  totalShares: z.number().positive("股份總數必須大於0").nullish(),
   authorizedShares: z.number().positive("實收資本額股數必須大於0").nullish(),
   ordinaryShares: z.number().min(0, "普通股數不能為負數").nullish(),
   preferredShares: z.number().min(0, "特別股數不能為負數").nullish(),
-  hasParValueFreeShares: z.boolean().optional(),
+  address: z.string().min(1, "公司地址為必填"),
   isDirectorSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsDirector: z.boolean(),
@@ -77,6 +74,7 @@ export const requiredDocumentsSchema = z.object({
 export const companyApplicationResponseSchema = z.object({
   ...companyApplicationFormSchema.omit({
     isCloselyHeld: true,
+    hasParValueFreeShares: true,
     isContactPersonSameAsDirector: true,
     isContactPersonSameAsResponsiblePerson: true,
     isDirectorSameAsResponsiblePerson: true,

@@ -3,8 +3,8 @@
     class="fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ease-in-out"
     :class="[
       isScrolled
-        ? 'py-3 bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200/50'
-        : 'bg-transparent',
+        ? 'py-3 bg-white/90 shadow-lg border-b border-gray-200/50'
+        : 'bg-white/20',
       isHeaderVisible ? 'translate-y-0' : '-translate-y-full',
     ]"
   >
@@ -13,19 +13,13 @@
       <NuxtLink to="/" class="flex items-center gap-3 group flex-shrink-0">
         <Icon
           name="i-lucide-briefcase-business"
-          class="size-10 flex-shrink-0 text-primary"
+          class="size-10 flex-shrink-0 text-primary-600"
         />
         <div class="flex flex-col flex-shrink-0">
-          <span
-            class="font-bold text-xl transition-colors duration-300 whitespace-nowrap"
-            :class="isScrolled ? 'text-primary-400' : 'text-primary-800'"
-          >
+          <span class="font-bold text-xl text-gray-900 whitespace-nowrap">
             DIRECT FLOW
           </span>
-          <span
-            class="text-xs transition-colors duration-300 whitespace-nowrap"
-            :class="isScrolled ? 'text-primary-400' : 'text-primary-800'"
-          >
+          <span class="text-xs text-gray-600 whitespace-nowrap">
             {{ firmName }}數位平台
           </span>
         </div>
@@ -44,7 +38,7 @@
           variant="ghost"
           icon="i-lucide-menu"
           size="lg"
-          class="transition-colors cursor-pointer duration-300 text-primary-800 hover:text-primary-600focus:outline-none focus:ring-0"
+          class="text-gray-700 hover:text-primary-600 transition-colors cursor-pointer duration-300 focus:outline-none focus:ring-0"
         />
       </UDropdownMenu>
     </UContainer>

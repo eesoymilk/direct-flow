@@ -30,78 +30,44 @@
             <div class="text-sm text-gray-500 mt-1">{{ item.description }}</div>
 
             <!-- Checkboxes within the radio card -->
-            <div class="mt-3 space-y-2" @click.stop>
-              <div class="flex items-center">
-                <UCheckbox
-                  v-model="applicationStore.form.isCloselyHeld"
-                  label="閉鎖型股份有限公司"
-                  class="text-sm"
-                  @change="handleCloselyHeldChange"
-                  @click.stop
-                />
-              </div>
-
-              <div
-                v-if="applicationStore.form.isCloselyHeld"
-                class="flex items-center ml-6"
-              >
-                <UCheckbox
-                  v-model="applicationStore.form.hasParValueFreeShares"
-                  label="無票面閉鎖型股份有限公司"
-                  class="text-sm"
-                  @click.stop
-                />
-              </div>
+            <div class="pt-2 md:pt-4 space-y-2">
+              <UCheckbox
+                v-model="applicationStore.form.isCloselyHeld"
+                label="閉鎖型股份有限公司"
+                class="text-sm"
+              />
+              <UCheckbox
+                v-model="applicationStore.form.hasParValueFreeShares"
+                label="無票面閉鎖型股份有限公司"
+                class="text-sm"
+              />
             </div>
           </div>
         </template>
       </URadioGroup>
     </UFormField>
 
-    <!-- Capital amount fields -->
-    <UFormField label="資本額" name="capitalAmount">
-      <UInputNumber
-        v-model="applicationStore.form.capitalAmount"
-        :min="0"
-        placeholder="請輸入資本額"
-        class="w-full"
-        :format-options="{
-          style: 'currency',
-          currency: 'TWD',
-          currencyDisplay: 'code',
-          currencySign: 'accounting',
-        }"
-      />
-    </UFormField>
-
-    <!-- Share fields - only show for stock company types -->
-    <div
-      v-if="applicationStore.form.organizationType === 'company_limited'"
-      class="grid grid-cols-3 gap-4"
-    >
-      <UFormField label="普通股" name="ordinaryShares">
+    <div class="grid grid-cols-2 gap-4">
+      <UFormField label="資本總額" name="capitalAmount">
         <UInputNumber
-          v-model="applicationStore.form.ordinaryShares"
+          v-model="applicationStore.form.capitalAmount"
           :min="0"
-          placeholder="請輸入普通股數"
+          placeholder="請輸入資本總額"
           class="w-full"
+          :format-options="{
+            style: 'currency',
+            currency: 'TWD',
+            currencyDisplay: 'code',
+            currencySign: 'accounting',
+          }"
         />
       </UFormField>
 
-      <UFormField label="特別股" name="preferredShares">
+      <UFormField label="股份總數" name="totalShares">
         <UInputNumber
-          v-model="applicationStore.form.preferredShares"
+          v-model="applicationStore.form.totalShares"
           :min="0"
-          placeholder="請輸入特別股數"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="實收資本額股數" name="authorizedShares">
-        <UInputNumber
-          v-model="applicationStore.form.authorizedShares"
-          disabled
-          placeholder="實收資本額股數"
+          placeholder="請輸入股份總數"
           class="w-full"
         />
       </UFormField>
@@ -129,13 +95,4 @@
 import { organizationTypeItems } from "../../helpers";
 
 const applicationStore = useCompanyApplicationStore();
-
-// Handler for closely held checkbox change
-const handleCloselyHeldChange = (payload: Event) => {
-  const value = (payload.target as HTMLInputElement).checked;
-  if (!value) {
-    // If unchecking closely held, also uncheck par value free shares
-    applicationStore.form.hasParValueFreeShares = false;
-  }
-};
 </script>

@@ -24,7 +24,7 @@ export const companies = pgTable("companies", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name").notNull(), // 公司名稱
   foreignName: varchar("foreign_name"), // 外文名稱
-  organizationType: organizationTypeEnum("organization_type").notNull(),
+  organizationType: organizationTypeEnum("organization_type").notNull(), // 組織類型
   businessItemsDescription: varchar("business_items_description"), // 營業項目描述
   businessItems: varchar("business_items").array().notNull(), // 營業項目
   businessIdNumber: varchar("business_id_number"), // 統一編號
