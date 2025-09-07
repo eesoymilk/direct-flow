@@ -22,7 +22,10 @@
     "build:company": "pnpm --filter=@direct-flow/company build",
     "build:base": "pnpm --filter=@direct-flow/base build",
     "dev:company": "pnpm --filter=@direct-flow/company dev",
-    "dev:base": "pnpm --filter=@direct-flow/base dev"
+    "dev:base": "pnpm --filter=@direct-flow/base dev",
+    "db:company:generate": "pnpm --filter=@direct-flow/company db:generate",
+    "db:company:migrate": "pnpm --filter=@direct-flow/company db:migrate",
+    "db:company:seed": "pnpm --filter=@direct-flow/company db:seed"
   },
   "keywords": [],
   "author": "",

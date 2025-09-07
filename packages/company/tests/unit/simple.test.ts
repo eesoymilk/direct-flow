@@ -14,7 +14,7 @@ describe('Simple Tests', () => {
   it('should validate basic form data', () => {
     const validData = {
       candidateNames: ['測試公司'],
-      organizationType: 'company_limited',
+      organizationType: 'corporation', // Updated to new organization type
       businessItemsDescription: '軟體開發',
       address: '台北市',
       isDirectorSameAsResponsiblePerson: false,

@@ -4,8 +4,8 @@ export const organizationTypeItems = ref([
   {
     label: "股份有限公司",
     description: "適合大型企業和需要募集資本的公司",
-    value: "company_limited",
-    id: "company_limited",
+    value: "corporation",
+    id: "corporation",
   },
   {
     label: "有限公司",

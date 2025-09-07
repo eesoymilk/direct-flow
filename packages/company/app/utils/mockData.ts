@@ -1,8 +1,4 @@
 import { fakerZH_TW as faker } from "@faker-js/faker";
-import type { z } from "zod";
-import { CalendarDate } from "@internationalized/date";
-import { dateToCalendarDate } from "./dateHelpers";
-// import { shallowRef } from "vue"; // Removed unused import
 
 // Helper function to generate a random Taiwanese ID number (since Faker doesn't have this)
 const generateTaiwaneseIdNumber = (): string => {
@@ -14,53 +10,27 @@ const generateTaiwaneseIdNumber = (): string => {
 };
 
 // Generate mock person data for contact/responsible/representative (includes email, tel/cel required)
-export const generateMockPerson = (): z.output<typeof personSchema> => ({
+export const generateMockPerson = (): PersonSchema => ({
   name: faker.person.fullName(),
   idNumber: generateTaiwaneseIdNumber(),
   address: faker.location.streetAddress(true), // Full address with city, state, zip
   telephone: faker.phone.number(),
   cellphone: faker.phone.number(),
   email: faker.internet.email(),
-  dateOfBirth: undefined, // Not required for contact/responsible/representative persons
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
 });
 
 // Generate mock shareholder data including shares (dateOfBirth required, contact info not displayed)
-export const generateMockShareholder = (): z.output<
-  typeof shareholderSchema
-> => {
+export const generateMockShareholder = (): ShareholderSchema => {
   const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
   return {
     name: faker.person.fullName(),
     idNumber: generateTaiwaneseIdNumber(),
     address: faker.location.streetAddress(true),
-    telephone: "", // Not displayed in form
-    cellphone: "", // Not displayed in form
-    email: "", // Not displayed in form
-    dateOfBirth: dateToCalendarDate(birthDate), // SSR-safe CalendarDate creation
-    // Removed shares field - now handled by share holdings system
+    dateOfBirth: birthDate,
     isReadonly: false,
-  };
-};
-
-// Generate mock document data
-export const generateMockDocument = (): z.output<typeof documentSchema> => {
-  const documentTypes = [
-    { type: "bank_book_front", description: "公司存摺正面" },
-    { type: "bank_book_inside", description: "公司存摺內頁" },
-    { type: "bank_book_stamp", description: "公司存摺戳章頁" },
-    { type: "business_license", description: "營業執照" },
-    { type: "tax_registration", description: "稅籍登記" },
-  ];
-
-  const selectedType = faker.helpers.arrayElement(documentTypes);
-
-  return {
-    documentType: selectedType.type,
-    documentDescription: selectedType.description,
-    file: undefined as any, // TODO: Generate mock file when needed
   };
 };
 
@@ -116,8 +86,8 @@ export const generateMockBusinessDescription = (): string => {
   ];
 
   const selectedItems = faker.helpers.arrayElements(businessItems, {
-    min: 1,
-    max: 3,
+    min: 3,
+    max: 6,
   });
   return selectedItems.join("、");
 };
@@ -126,32 +96,26 @@ export const generateMockBusinessDescription = (): string => {
 export const generateOrgTypeTestData = () => {
   const form = createInitialForm();
 
-  // Randomly choose between company_limited and closely_held_company_limited
-  const isCloselyHeld = faker.datatype.boolean();
-
   // Generate basic form data with only stock company types
-  const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
+  const mockFormData: CompanyApplicationFormSchema = {
     candidateNames: generateMockCompanyNames(),
-    organizationType: "corporation", // Updated to new organization type
-    isCloselyHeld: isCloselyHeld,
+    organizationType: "corporation",
+    isCloselyHeld: faker.datatype.boolean(),
+    hasParValueFreeShares: faker.datatype.boolean(),
     businessItemsDescription: generateMockBusinessDescription(),
+    capitalAmount: faker.number.int({ min: 500000, max: 100000000 }),
+    parValue: faker.number.int({ min: 10, max: 1000 }),
+    paidInCapital: faker.number.int({ min: 500000, max: 100000000 }),
+    totalShares: faker.number.int({ min: 1000, max: 1000000 }),
     address: faker.location.streetAddress(true),
-    isDirectorSameAsResponsiblePerson: faker.datatype.boolean(),
+    isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsDirector: false,
-    capitalAmount: faker.number.int({ min: 500000, max: 100000000 }), // Higher amounts for stock companies
-    // Removed ordinaryShares and preferredShares - now calculated from share holdings
-    // hasParValueFreeShares only makes sense for closely held companies
-    hasParValueFreeShares: isCloselyHeld ? faker.datatype.boolean() : false,
+    isContactPersonSameAsRepresentative: false,
   };
-
-  // Calculate authorizedShares as sum (will be overridden by computed property)
-  mockFormData.authorizedShares =
-    0; // Will be calculated from share holdings
 
   // Generate person data
   form.responsiblePerson = generateMockPerson();
-  form.director = mockFormData.isDirectorSameAsResponsiblePerson
+  form.representative = mockFormData.isRepresentativeSameAsResponsiblePerson
     ? form.responsiblePerson
     : generateMockPerson();
   form.contactPerson = mockFormData.isContactPersonSameAsResponsiblePerson
@@ -167,7 +131,7 @@ export const generateOrgTypeTestData = () => {
   return {
     ...mockFormData,
     responsiblePerson: form.responsiblePerson,
-    director: form.director,
+    representative: form.representative,
     contactPerson: form.contactPerson,
     shareholders: form.shareholders,
   };
@@ -178,7 +142,7 @@ export const generateMockFormData = () => {
   const form = createInitialForm();
 
   // Generate basic form data
-  const mockFormData: Partial<z.output<typeof companyApplicationFormSchema>> = {
+  const mockFormData: Partial<CompanyApplicationFormSchema> = {
     candidateNames: generateMockCompanyNames(),
     organizationType: faker.helpers.arrayElement([
       "corporation",
@@ -187,20 +151,21 @@ export const generateMockFormData = () => {
       "partnership",
     ]),
     isCloselyHeld: faker.datatype.boolean(),
+    hasParValueFreeShares: faker.datatype.boolean(),
     businessItemsDescription: generateMockBusinessDescription(),
     address: faker.location.streetAddress(true), // Full address with city, state, zip
-    isDirectorSameAsResponsiblePerson: faker.datatype.boolean(),
+    isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsDirector: false, // For simplicity
+    isContactPersonSameAsRepresentative: false, // For simplicity
     capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
-    authorizedShares: faker.number.int({ min: 1000, max: 1000000 }),
-    // Removed ordinaryShares and preferredShares - now calculated from share holdings
-    hasParValueFreeShares: faker.datatype.boolean(),
+    parValue: faker.number.int({ min: 10, max: 1000 }),
+    paidInCapital: faker.number.int({ min: 100000, max: 50000000 }),
+    totalShares: faker.number.int({ min: 1000, max: 1000000 }),
   };
 
   // Generate person data
   form.responsiblePerson = generateMockPerson();
-  form.director = mockFormData.isDirectorSameAsResponsiblePerson
+  form.representative = mockFormData.isRepresentativeSameAsResponsiblePerson
     ? form.responsiblePerson
     : generateMockPerson();
   form.contactPerson = mockFormData.isContactPersonSameAsResponsiblePerson
@@ -216,18 +181,21 @@ export const generateMockFormData = () => {
     } else {
       // For non-stock companies, create person without shares
       const person = generateMockPerson();
-      return { ...person, shares: undefined, isReadonly: false };
+      const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
+      return { ...person, dateOfBirth: birthDate, isReadonly: false };
     }
   });
 
   return {
     ...mockFormData,
     responsiblePerson: form.responsiblePerson,
-    director: form.director,
+    representative: form.representative,
     contactPerson: form.contactPerson,
     shareholders: form.shareholders,
     capitalAmount: mockFormData.capitalAmount,
-    authorizedShares: mockFormData.authorizedShares,
+    parValue: mockFormData.parValue,
+    paidInCapital: mockFormData.paidInCapital,
+    totalShares: mockFormData.totalShares,
     // ordinaryShares and preferredShares will be calculated from share holdings
     hasParValueFreeShares: mockFormData.hasParValueFreeShares,
     isCloselyHeld: mockFormData.isCloselyHeld,

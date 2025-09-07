@@ -4,366 +4,149 @@
  */
 
 import {
-  shareTypes,
-  applicationShareHoldings,
-  companyApplications,
-  applicationShareholders,
+  shareholders,
+  shareholderShares,
 } from '../database/schema/index';
-import { eq, and, sum, desc } from 'drizzle-orm';
-import { SHARE_TYPES, SHARE_TYPE_NAMES } from '../../shared/utils/constants';
+import { eq } from 'drizzle-orm';
+import { SHARE_TYPES } from '../../shared/utils/constants';
+import type { DrizzleClient } from '../utils/drizzle';
 
 export class ShareService {
   constructor(private db: DrizzleClient) {}
 
-  // Share Types Management
-  async getShareTypes() {
-    return await this.db.query.shareTypes.findMany({
-      orderBy: [shareTypes.id],
-    });
-  }
-
-  async initializeShareTypes() {
-    const existingTypes = await this.getShareTypes();
-    
-    if (existingTypes.length === 0) {
-      const shareTypeData = SHARE_TYPES.map((code) => ({
-        code,
-        name: SHARE_TYPE_NAMES[code],
-        isPreferred: code !== 'ordinary',
-      }));
-
-      await this.db.insert(shareTypes).values(shareTypeData);
-      return shareTypeData;
-    }
-
-    return existingTypes;
-  }
+  // Share types are now static enums - no need for database methods
+  // Frontend can import SHARE_TYPES and SHARE_TYPE_NAMES directly from constants
 
   // Share Holdings CRUD
   async createShareHolding(data: {
-    applicationId: string;
-    shareholderId: string;
-    shareTypeCode: string;
+    shareholderId: number;
+    shareType: string;
     quantity: number;
     pricePerShare: number;
   }) {
-    // Get share type ID
-    const shareType = await this.db.query.shareTypes.findFirst({
-      where: eq(shareTypes.code, data.shareTypeCode),
-    });
-
-    if (!shareType) {
-      throw new Error(`Invalid share type: ${data.shareTypeCode}`);
-    }
-
-    // Calculate total amount
-    const totalAmount = (data.quantity * data.pricePerShare).toFixed(2);
-
-    const [holding] = await this.db
-      .insert(applicationShareHoldings)
+    const totalPrice = (data.quantity * data.pricePerShare).toFixed(2);
+    
+    const [newHolding] = await this.db
+      .insert(shareholderShares)
       .values({
-        applicationId: data.applicationId,
         shareholderId: data.shareholderId,
-        shareTypeId: shareType.id,
+        shareType: data.shareType as any,
         quantity: data.quantity,
-        pricePerShare: data.pricePerShare.toFixed(2),
-        totalAmount,
+        pricePerShare: data.pricePerShare.toString(),
+        totalPrice: totalPrice,
       })
       .returning();
 
-    // Update application totals
-    await this.updateApplicationShareTotals(data.applicationId);
-
-    return this.getShareHoldingWithDetails(holding.id);
+    return newHolding;
   }
 
-  async updateShareHolding(
-    id: string, 
-    updates: Partial<{
-      quantity: number;
-      pricePerShare: number;
-      shareTypeCode: string;
-    }>
-  ) {
-    const existing = await this.db.query.applicationShareHoldings.findFirst({
-      where: eq(applicationShareHoldings.id, id),
-    });
-
-    if (!existing) {
-      throw new Error('Share holding not found');
-    }
-
+  async updateShareHolding(id: number, data: {
+    quantity?: number;
+    pricePerShare?: number;
+  }) {
     const updateData: any = {};
-
-    // Handle share type change
-    if (updates.shareTypeCode) {
-      const shareType = await this.db.query.shareTypes.findFirst({
-        where: eq(shareTypes.code, updates.shareTypeCode),
+    
+    if (data.quantity !== undefined) updateData.quantity = data.quantity;
+    if (data.pricePerShare !== undefined) updateData.pricePerShare = data.pricePerShare.toString();
+    
+    // Calculate new total price if both values are provided or if we need to update
+    if (data.quantity !== undefined && data.pricePerShare !== undefined) {
+      updateData.totalPrice = (data.quantity * data.pricePerShare).toFixed(2);
+    } else if (data.quantity !== undefined || data.pricePerShare !== undefined) {
+      // Need to fetch current values to calculate new total
+      const current = await this.db.query.shareholderShares.findFirst({
+        where: eq(shareholderShares.id, id)
       });
-      if (!shareType) {
-        throw new Error(`Invalid share type: ${updates.shareTypeCode}`);
+      
+      if (current) {
+        const quantity = data.quantity ?? current.quantity;
+        const pricePerShare = data.pricePerShare ?? parseFloat(current.pricePerShare || '0');
+        updateData.totalPrice = (quantity * pricePerShare).toFixed(2);
       }
-      updateData.shareTypeId = shareType.id;
-    }
-
-    // Handle quantity/price updates
-    if (updates.quantity !== undefined) {
-      updateData.quantity = updates.quantity;
-    }
-    if (updates.pricePerShare !== undefined) {
-      updateData.pricePerShare = updates.pricePerShare.toFixed(2);
-    }
-
-    // Recalculate total if quantity or price changed
-    if (updates.quantity !== undefined || updates.pricePerShare !== undefined) {
-      const quantity = updates.quantity ?? existing.quantity;
-      const pricePerShare = updates.pricePerShare ?? parseFloat(existing.pricePerShare || '0');
-      updateData.totalAmount = (quantity * pricePerShare).toFixed(2);
     }
 
     const [updated] = await this.db
-      .update(applicationShareHoldings)
+      .update(shareholderShares)
       .set(updateData)
-      .where(eq(applicationShareHoldings.id, id))
+      .where(eq(shareholderShares.id, id))
       .returning();
 
-    // Update application totals
-    await this.updateApplicationShareTotals(existing.applicationId);
-
-    return this.getShareHoldingWithDetails(updated.id);
+    return updated;
   }
 
-  async deleteShareHolding(id: string) {
-    const existing = await this.db.query.applicationShareHoldings.findFirst({
-      where: eq(applicationShareHoldings.id, id),
-    });
-
-    if (!existing) {
-      throw new Error('Share holding not found');
-    }
-
+  async deleteShareHolding(id: number) {
     await this.db
-      .delete(applicationShareHoldings)
-      .where(eq(applicationShareHoldings.id, id));
-
-    // Update application totals
-    await this.updateApplicationShareTotals(existing.applicationId);
-
-    return { success: true };
-  }
-
-  async getShareHoldingWithDetails(id: string) {
-    return await this.db.query.applicationShareHoldings.findFirst({
-      where: eq(applicationShareHoldings.id, id),
-      with: {
-        shareType: true,
-        shareholder: {
-          with: {
-            person: true,
-          },
-        },
-      },
-    });
-  }
-
-  async getShareholderHoldings(shareholderId: string) {
-    return await this.db.query.applicationShareHoldings.findMany({
-      where: eq(applicationShareHoldings.shareholderId, shareholderId),
-      with: {
-        shareType: true,
-      },
-      orderBy: [applicationShareHoldings.createdAt],
-    });
-  }
-
-  async getApplicationShareHoldings(applicationId: string) {
-    return await this.db.query.applicationShareHoldings.findMany({
-      where: eq(applicationShareHoldings.applicationId, applicationId),
-      with: {
-        shareType: true,
-        shareholder: {
-          with: {
-            person: true,
-          },
-        },
-      },
-      orderBy: [applicationShareHoldings.createdAt],
-    });
-  }
-
-  // Application Share Totals
-  async calculateApplicationShareTotals(applicationId: string) {
-    const holdings = await this.getApplicationShareHoldings(applicationId);
-
-    let ordinaryTotal = 0;
-    let preferredTotal = 0;
-
-    for (const holding of holdings) {
-      const amount = parseFloat(holding.totalAmount || '0');
-      if (holding.shareType?.isPreferred) {
-        preferredTotal += amount;
-      } else {
-        ordinaryTotal += amount;
-      }
-    }
-
-    return {
-      ordinarySharesAmount: ordinaryTotal,
-      preferredSharesAmount: preferredTotal,
-      totalAmount: ordinaryTotal + preferredTotal,
-    };
-  }
-
-  async updateApplicationShareTotals(applicationId: string) {
-    const totals = await this.calculateApplicationShareTotals(applicationId);
-
-    await this.db
-      .update(companyApplications)
-      .set({
-        ordinarySharesAmount: totals.ordinarySharesAmount,
-        preferredSharesAmount: totals.preferredSharesAmount,
-      })
-      .where(eq(companyApplications.id, applicationId));
-
-    return totals;
-  }
-
-  // Validation and Business Rules
-  async validateApplicationShares(applicationId: string) {
-    const shareholders = await this.db.query.applicationShareholders.findMany({
-      where: eq(applicationShareholders.applicationId, applicationId),
-      with: { person: true },
-    });
-
-    const holdings = await this.getApplicationShareHoldings(applicationId);
-
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    // Basic validation
-    if (shareholders.length === 0) {
-      errors.push('至少需要一位股東');
-    }
-
-    if (holdings.length === 0) {
-      errors.push('至少需要一筆持股記錄');
-    }
-
-    // Check for shareholders without holdings
-    const shareholdersWithoutHoldings = shareholders.filter(
-      shareholder => !holdings.some(holding => holding.shareholderId === shareholder.id)
-    );
-
-    if (shareholdersWithoutHoldings.length > 0) {
-      errors.push(`${shareholdersWithoutHoldings.length} 位股東尚未設定持股`);
-    }
-
-    // Business rule validations
-    const totals = await this.calculateApplicationShareTotals(applicationId);
+      .delete(shareholderShares)
+      .where(eq(shareholderShares.id, id));
     
-    if (totals.totalAmount === 0) {
-      errors.push('總投資金額不能為零');
-    }
+    return true;
+  }
 
-    // Check for duplicate share types per shareholder
-    const shareholderHoldings = new Map<string, Set<string>>();
+  // Get share holdings for a specific shareholder
+  async getShareHoldingsByShareholder(shareholderId: number) {
+    return await this.db.query.shareholderShares.findMany({
+      where: eq(shareholderShares.shareholderId, shareholderId),
+      orderBy: [shareholderShares.createdAt],
+    });
+  }
+
+  // Get all share holdings for a company
+  async getShareHoldingsByCompany(companyId: string) {
+    return await this.db.query.shareholderShares.findMany({
+      with: {
+        shareholder: {
+          with: {
+            person: true,
+          },
+        },
+      },
+      where: eq(shareholders.companyId, companyId),
+    });
+  }
+
+  // Calculate total shares by type for a company
+  async calculateSharesByType(companyId: string) {
+    const holdings = await this.getShareHoldingsByCompany(companyId);
+    
+    const sharesByType: Record<string, number> = {};
     for (const holding of holdings) {
-      if (!shareholderHoldings.has(holding.shareholderId)) {
-        shareholderHoldings.set(holding.shareholderId, new Set());
+      const shareType = holding.shareType;
+      sharesByType[shareType] = (sharesByType[shareType] || 0) + holding.quantity;
+    }
+    
+    return sharesByType;
+  }
+
+  // Validate share holdings
+  async validateShareHoldings(holdings: Array<{
+    shareType: string;
+    quantity: number;
+    pricePerShare: number;
+  }>) {
+    const errors: string[] = [];
+
+    for (const holding of holdings) {
+      if (holding.quantity <= 0) {
+        errors.push(`股份數量必須大於 0`);
       }
-      const shareTypes = shareholderHoldings.get(holding.shareholderId)!;
-      if (shareTypes.has(holding.shareType!.code)) {
-        errors.push('同一股東不能持有重複的股票類型');
-        break;
+      
+      if (holding.pricePerShare <= 0) {
+        errors.push(`每股價格必須大於 0`);
       }
-      shareTypes.add(holding.shareType!.code);
+      
+      if (!SHARE_TYPES.includes(holding.shareType as any)) {
+        errors.push(`無效的股份類型: ${holding.shareType}`);
+      }
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings,
-      totals,
     };
-  }
-
-  // Analytics and Reporting
-  async getShareTypeBreakdown(applicationId: string) {
-    const holdings = await this.getApplicationShareHoldings(applicationId);
-
-    const breakdown = new Map<string, {
-      shareType: string;
-      typeName: string;
-      totalQuantity: number;
-      totalAmount: number;
-      shareholderCount: number;
-      avgPricePerShare: number;
-    }>();
-
-    holdings.forEach(holding => {
-      const key = holding.shareType!.code;
-      const existing = breakdown.get(key) || {
-        shareType: key,
-        typeName: holding.shareType!.name,
-        totalQuantity: 0,
-        totalAmount: 0,
-        shareholderCount: 0,
-        avgPricePerShare: 0,
-      };
-
-      existing.totalQuantity += holding.quantity;
-      existing.totalAmount += parseFloat(holding.totalAmount || '0');
-      
-      breakdown.set(key, existing);
-    });
-
-    // Calculate unique shareholder count and average price per type
-    for (const [key, data] of breakdown) {
-      const typeHoldings = holdings.filter(h => h.shareType!.code === key);
-      const uniqueShareholders = new Set(typeHoldings.map(h => h.shareholderId));
-      data.shareholderCount = uniqueShareholders.size;
-      data.avgPricePerShare = data.totalQuantity > 0 
-        ? data.totalAmount / data.totalQuantity 
-        : 0;
-    }
-
-    return Array.from(breakdown.values());
-  }
-
-  async getShareholderSummaries(applicationId: string) {
-    const shareholders = await this.db.query.applicationShareholders.findMany({
-      where: eq(applicationShareholders.applicationId, applicationId),
-      with: { person: true },
-    });
-
-    const holdings = await this.getApplicationShareHoldings(applicationId);
-    const appTotals = await this.calculateApplicationShareTotals(applicationId);
-
-    return shareholders.map(shareholder => {
-      const shareholderHoldings = holdings.filter(
-        holding => holding.shareholderId === shareholder.id
-      );
-
-      const totalInvestment = shareholderHoldings.reduce(
-        (sum, holding) => sum + parseFloat(holding.totalAmount || '0'), 0
-      );
-
-      const ownershipPercentage = appTotals.totalAmount > 0 
-        ? (totalInvestment / appTotals.totalAmount) * 100 
-        : 0;
-
-      return {
-        shareholder,
-        holdings: shareholderHoldings,
-        totalInvestment,
-        ownershipPercentage,
-        holdingTypes: shareholderHoldings.map(h => h.shareType!.name),
-      };
-    });
   }
 }
 
-// Utility function to create service instance
-export const createShareService = (db: DrizzleClient) => {
+// Factory function for creating ShareService instances
+export function createShareService(db: DrizzleClient): ShareService {
   return new ShareService(db);
-};
+}

@@ -19,7 +19,7 @@ describe('Company Application Store', () => {
     const store = useCompanyApplicationStore()
     
     expect(store.form.candidateNames).toEqual([])
-    expect(store.form.organizationType).toBe('company_limited')
+    expect(store.form.organizationType).toBe('corporation') // Updated to new organization type
     expect(store.form.businessItemsDescription).toBe('')
     expect(store.form.address).toBe('')
   })
@@ -27,7 +27,7 @@ describe('Company Application Store', () => {
   it('should compute isStockCompany correctly', () => {
     const store = useCompanyApplicationStore()
     
-    expect(store.isStockCompany).toBe(true) // Default is company_limited
+    expect(store.isStockCompany).toBe(true) // Default is corporation
     
     store.form.organizationType = 'limited_company'
     expect(store.isStockCompany).toBe(false)
@@ -53,6 +53,6 @@ describe('Company Application Store', () => {
     store.resetForm()
     
     expect(store.form.candidateNames).toEqual([])
-    expect(store.form.organizationType).toBe('company_limited') // Default value
+    expect(store.form.organizationType).toBe('corporation') // Updated default value
   })
 })

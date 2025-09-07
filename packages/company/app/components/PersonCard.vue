@@ -77,7 +77,7 @@
       </div>
 
       <!-- Email Field -->
-      <div class="space-y-2">
+      <div v-if="person.email" class="space-y-2">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-mail" class="w-4 h-4 text-gray-400" />
           <label
@@ -88,13 +88,13 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="text-sm text-gray-700 break-all font-medium">
-            {{ person.email || "未提供" }}
+            {{ person.email }}
           </p>
         </div>
       </div>
 
       <!-- Telephone Field -->
-      <div class="space-y-2">
+      <div v-if="person.telephone" class="space-y-2">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-phone" class="w-4 h-4 text-gray-400" />
           <label
@@ -105,13 +105,13 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="font-mono text-sm text-gray-800 font-medium">
-            {{ person.telephone || "未提供" }}
+            {{ person.telephone }}
           </p>
         </div>
       </div>
 
       <!-- Cellphone Field -->
-      <div class="space-y-2">
+      <div v-if="person.cellphone" class="space-y-2">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-smartphone" class="w-4 h-4 text-gray-400" />
           <label
@@ -122,7 +122,7 @@
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p class="font-mono text-sm text-gray-800 font-medium">
-            {{ person.cellphone || "未提供" }}
+            {{ person.cellphone }}
           </p>
         </div>
       </div>
@@ -141,7 +141,7 @@
           <p class="text-sm text-gray-700 font-medium">
             {{
               person.dateOfBirth
-                ? `${person.dateOfBirth.year}/${person.dateOfBirth.month}/${person.dateOfBirth.day}`
+                ? `${person.dateOfBirth.getFullYear()}/${person.dateOfBirth.getMonth() + 1}/${person.dateOfBirth.getDate()}`
                 : "未提供"
             }}
           </p>
@@ -152,9 +152,6 @@
 </template>
 
 <script setup lang="ts">
-import type { CalendarDate } from "@internationalized/date";
-import type { ShallowRef } from "vue";
-
 interface Person {
   name: string;
   idNumber: string;
@@ -162,7 +159,7 @@ interface Person {
   email?: string;
   telephone?: string;
   cellphone?: string;
-  dateOfBirth?: CalendarDate;
+  dateOfBirth?: Date;
   isReadonly?: boolean;
   shares?: number;
 }

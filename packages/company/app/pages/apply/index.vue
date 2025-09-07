@@ -38,7 +38,7 @@
     -->
     <UForm
       ref="registrationForm"
-      :state="applicationStore.form"
+      :state="formState"
       :schema="companyApplicationFormSchema"
       @error="handleFormError"
       @submit="handleFormSubmit"
@@ -114,6 +114,8 @@ const stepperItems: StepperItem[] = [
 const stepper = useTemplateRef("stepper");
 
 const applicationStore = useCompanyApplicationStore();
+const { formState } = storeToRefs(applicationStore);
+
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
 const generateFakeData = () => {
@@ -178,4 +180,8 @@ const handleFormSubmit = (event: FormSubmitEvent<any>) => {
   // Navigate to confirmation page on successful validation
   navigateTo("/apply/confirm");
 };
+
+onMounted(() => {
+  applicationStore.resetForm();
+});
 </script>

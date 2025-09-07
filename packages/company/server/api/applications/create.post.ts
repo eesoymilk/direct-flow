@@ -1,7 +1,7 @@
 const bodySchema = companyApplicationFormSchema.extend({
   responsiblePerson: responsiblePersonSchema,
   contactPerson: contactPersonSchema,
-  director: directorSchema,
+  director: representativeSchema,
   shareholders: shareholderSchema.array(),
 });
 

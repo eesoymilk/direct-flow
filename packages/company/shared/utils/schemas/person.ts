@@ -1,20 +1,37 @@
 import * as z from "zod";
-import { getContactPersonSchema, getShareholderPersonSchema } from "./helpers";
+import { getBasePersonSchema, getShareholderPersonSchema } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
 
-export const personSchema = getContactPersonSchema("人員");
+export const personSchema = getBasePersonSchema("人員")
 
-export const responsiblePersonSchema = getContactPersonSchema("負責人");
+export const responsiblePersonSchema = getBasePersonSchema("負責人").refine(
+  ({ telephone, cellphone }) => telephone || cellphone,
+  {
+    message: "負責人必須提供電話或手機其中一項",
+    path: ["telephone", "cellphone"],
+  }
+);
 
-export const directorSchema = getContactPersonSchema("董事");
+export const representativeSchema = getBasePersonSchema("代表人").refine(
+  ({ telephone, cellphone }) => telephone || cellphone,
+  {
+    message: "代表人必須提供電話或手機其中一項",
+    path: ["telephone", "cellphone"],
+  }
+);
 
-export const contactPersonSchema = getContactPersonSchema("聯絡人");
+export const contactPersonSchema = getBasePersonSchema("聯絡人").refine(
+  ({ telephone, cellphone }) => telephone || cellphone,
+  {
+    message: "聯絡人必須提供電話或手機其中一項",
+    path: ["telephone", "cellphone"],
+  }
+);
 
 export const shareholderSchema = getShareholderPersonSchema("股東").extend({
-  // Remove shares field - now handled by share holdings system
   isReadonly: z.boolean().optional(), // Track if this shareholder is auto-populated
   referenceType: z
-    .enum(["responsiblePerson", "director", "contactPerson"])
+    .enum(["responsiblePerson", "representative", "contactPerson"])
     .optional(), // Reference to which person this shareholder represents
 });
 
@@ -51,10 +68,8 @@ export const shareholderArraySchema = z
     }
   );
 
-// Fix for schemas with .refine() that don't have .shape property
-const basePersonSchema = getContactPersonSchema("人員");
 export const personResponseSchema = z.object({
-  ...basePersonSchema.shape,
+  ...personSchema.shape,
   ...responseBaseSchema.shape,
 });
 

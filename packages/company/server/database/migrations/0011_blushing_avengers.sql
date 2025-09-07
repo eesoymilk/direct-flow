@@ -1,1 +1,0 @@
-ALTER TABLE "application_shareholders" ADD COLUMN "shares" integer;

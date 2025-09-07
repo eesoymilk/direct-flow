@@ -44,7 +44,7 @@
           </div>
           <div class="flex items-center gap-3 md:gap-4">
             <UChip
-              v-for="(name, index) in form.candidateNames"
+              v-for="(name, index) in formState.candidateNames"
               :key="index"
               :text="index + 1"
               position="top-left"
@@ -67,38 +67,30 @@
           <InfoDisplay
             label="組織類型"
             icon="i-lucide-building"
-            :value="organizationTypeLabel"
+            :value="getOrganizationTypeLabel(formState.organizationType)"
           />
 
           <!-- Address -->
           <InfoDisplay
             label="公司地址"
             icon="i-lucide-map-pin"
-            :value="form.address"
+            :value="formState.address"
           />
 
           <!-- Capital Amount -->
           <InfoDisplay
-            v-if="form.capitalAmount"
+            v-if="formState.capitalAmount"
             class="md:col-span-2"
             label="資本額"
             icon="i-lucide-banknote"
-            :value="form.capitalAmount"
+            :value="formState.capitalAmount"
             variant="highlighted"
             :formatter="(val) => `NT$ ${val?.toLocaleString()}`"
           />
         </div>
 
         <!-- Share information for stock companies -->
-        <div
-          v-if="
-            applicationStore.isStockCompany &&
-            (form.authorizedShares ||
-              form.ordinaryShares ||
-              form.preferredShares ||
-              form.hasParValueFreeShares)
-          "
-        >
+        <div v-if="applicationStore.isStockCompany">
           <div class="flex items-center gap-2 mb-4">
             <UIcon name="i-lucide-pie-chart" class="w-4 h-4 text-gray-500" />
             <label class="text-sm font-semibold text-gray-700 tracking-wide"
@@ -111,35 +103,36 @@
             class="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             <ShareCard
-              v-if="form.authorizedShares && form.authorizedShares > 0"
-              label="實收資本額股數"
+              v-if="formState.paidInCapital && formState.paidInCapital > 0"
+              label="實收資本總額"
               icon="i-lucide-calculator"
-              :shares="form.authorizedShares"
+              :shares="formState.paidInCapital"
               color="blue"
+              suffix="元"
             />
 
-            <ShareCard
-              v-if="form.ordinaryShares"
+            <!-- <ShareCard
+              v-if="formState.ordinarySharesAmount"
               label="普通股"
               icon="i-lucide-trending-up"
-              :shares="form.ordinaryShares"
+              :shares="formState.ordinarySharesAmount"
               color="green"
             />
 
             <ShareCard
-              v-if="form.preferredShares"
+              v-if="formState.preferredShares"
               label="特別股"
               icon="i-lucide-star"
-              :shares="form.preferredShares"
+              :shares="formState.preferredShares"
               color="purple"
-            />
+            /> -->
           </div>
 
           <UAlert
             v-if="
-              form.hasParValueFreeShares &&
-              form.organizationType === 'company_limited' &&
-              form.isCloselyHeld
+              formState.hasParValueFreeShares &&
+              formState.organizationType === 'corporation' &&
+              formState.isCloselyHeld
             "
             icon="i-lucide-info"
             color="primary"
@@ -154,7 +147,7 @@
         <InfoDisplay
           label="營業項目描述"
           icon="i-lucide-briefcase"
-          :value="form.businessItemsDescription"
+          :value="formState.businessItemsDescription"
           full-width
         />
       </div>
@@ -164,7 +157,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Responsible Person Information -->
       <PersonCard
-        :person="form.responsiblePerson"
+        :person="formState.responsiblePerson as PersonSchema"
         title="負責人"
         subtitle="責任代表人"
         icon="i-lucide-user-check"
@@ -172,10 +165,10 @@
 
       <!-- Director Information -->
       <PersonCard
-        v-if="!form.isDirectorSameAsResponsiblePerson"
-        :person="form.director"
-        title="董事"
-        subtitle="公司董事"
+        v-if="!formState.isRepresentativeSameAsResponsiblePerson"
+        :person="formState.representative as PersonSchema"
+        title="代表人"
+        subtitle="公司代表人"
         icon="i-lucide-briefcase"
       />
       <UAlert
@@ -190,10 +183,10 @@
       <!-- Contact Person Information -->
       <PersonCard
         v-if="
-          !form.isContactPersonSameAsResponsiblePerson &&
-          !form.isContactPersonSameAsDirector
+          !formState.isContactPersonSameAsResponsiblePerson &&
+          !formState.isContactPersonSameAsRepresentative
         "
-        :person="form.contactPerson"
+        :person="formState.contactPerson as PersonSchema"
         title="聯絡人"
         subtitle="主要聯絡窗口"
         icon="i-lucide-phone"
@@ -210,7 +203,7 @@
 
     <!-- Shareholders Information -->
     <UCard
-      v-if="form.shareholders && form.shareholders.length > 0"
+      v-if="formState.shareholders && formState.shareholders.length > 0"
       class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300"
     >
       <template #header>
@@ -220,12 +213,12 @@
             <div>
               <h3 class="text-xl font-bold text-gray-900">股東資料</h3>
               <p class="text-sm text-gray-500">
-                共 {{ form.shareholders.length }} 位股東
+                共 {{ formState.shareholders.length }} 位股東
               </p>
             </div>
           </div>
           <UBadge
-            :label="`${form.shareholders.length} 人`"
+            :label="`${formState.shareholders.length} 人`"
             variant="subtle"
             size="lg"
           />
@@ -234,7 +227,7 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <PersonCard
-          v-for="(shareholder, index) in form.shareholders"
+          v-for="(shareholder, index) in formState.shareholders"
           :key="index"
           :person="shareholder"
           :title="`股東 ${index + 1}`"
@@ -290,15 +283,15 @@ definePageMeta({
 
 const toast = useToast();
 const applicationStore = useCompanyApplicationStore();
-const form = applicationStore.form;
+const { formState } = storeToRefs(applicationStore);
 const isSubmitting = ref(false);
 
 // Get organization type label
 const organizationTypeLabel = computed(() => {
-  if (!applicationStore.form.organizationType) return "未選擇";
+  if (!formState.value.organizationType) return "未選擇";
 
   const labels = {
-    company_limited: applicationStore.form.isCloselyHeld
+    company_limited: formState.value.isCloselyHeld
       ? "閉鎖型股份有限公司"
       : "股份有限公司",
     closely_held_company_limited: "閉鎖型股份有限公司",
@@ -307,8 +300,8 @@ const organizationTypeLabel = computed(() => {
     partnership: "合夥企業",
   };
   return (
-    labels[applicationStore.form.organizationType as keyof typeof labels] ||
-    applicationStore.form.organizationType
+    labels[formState.value.organizationType as keyof typeof labels] ||
+    formState.value.organizationType
   );
 });
 
@@ -322,13 +315,7 @@ const submitApplication = async () => {
   isSubmitting.value = true;
 
   try {
-    const submitData = structuredClone(toRaw(form));
-    if (
-      submitData.organizationType === "company_limited" &&
-      submitData.isCloselyHeld
-    ) {
-      submitData.organizationType = "closely_held_company_limited";
-    }
+    const submitData = structuredClone(toRaw(formState.value));
 
     const { application } = await $fetch("/api/applications/create", {
       method: "POST",

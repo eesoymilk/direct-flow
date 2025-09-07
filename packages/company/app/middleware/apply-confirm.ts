@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(() => {
   const applicationStore = useCompanyApplicationStore();
   
   // Validate the entire form using the schema
-  const validation = companyApplicationFormSchema.safeParse(applicationStore.form);
+  const validation = companyApplicationFormSchema.safeParse(applicationStore.formState);
   
   if (!validation.success) {
     const toast = useToast();

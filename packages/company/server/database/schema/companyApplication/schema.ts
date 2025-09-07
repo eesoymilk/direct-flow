@@ -36,7 +36,7 @@ export const companyApplications = pgTable("company_applications", {
   totalShares: integer("total_shares"), // 股份總數 (can be filled freely)
   ordinarySharesAmount: integer("ordinary_shares_amount"), // 普通股股款總額 (calculated)
   preferredSharesAmount: integer("preferred_shares_amount"), // 特別股股款總額 (calculated)
-  authorizedShares: integer("authorized_shares"), // 實收資本額
+  paidInCapital: integer("paid_in_capital"), // 實收資本總額
   address: varchar("address").notNull(), // 地址
   responsiblePersonId: uuid("responsible_person_id").references(
     () => people.id,

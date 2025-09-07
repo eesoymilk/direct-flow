@@ -1,5 +1,5 @@
-import * as z from "zod";
 import { CalendarDate } from "@internationalized/date";
+import * as z from "zod";
 
 export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 export const MIN_DIMENSIONS = { width: 200, height: 200 };
@@ -79,7 +79,7 @@ export const documentSchema = z.object({
 
 // Schema for contact person, representative, and responsible person
 // Requires: name, id, address, (tel OR cel), email
-export const getContactPersonSchema = (name: string) =>
+export const getBasePersonSchema = (name: string) =>
   z
     .object(
       {
@@ -95,16 +95,13 @@ export const getContactPersonSchema = (name: string) =>
           .string()
           .email({ message: "請輸入有效的電子郵件" })
           .min(1, { message: `${name}電子郵件不能為空` }),
-        dateOfBirth: z.instanceof(CalendarDate).optional(),
+        // TODO: Add dateOfBirth validation
+        dateOfBirth: z.date().optional(),
       },
       {
         message: `${name}資料不能為空`,
       }
     )
-    .refine((data) => data.telephone || data.cellphone, {
-      message: `${name}必須提供電話或手機其中一項`,
-      path: ["telephone", "cellphone"], // This will show the error on telephone and cellphone fields
-    });
 
 // Schema for shareholders
 // Requires: name, id, address, dateOfBirth
@@ -120,9 +117,8 @@ export const getShareholderPersonSchema = (name: string) =>
       telephone: z.string().optional(),
       cellphone: z.string().optional(),
       email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
-      dateOfBirth: z.instanceof(CalendarDate, {
-        message: `${name}出生日期不能為空`,
-      }),
+      // TODO: Add dateOfBirth validation
+      dateOfBirth: z.date(),
     },
     {
       message: `${name}資料不能為空`,

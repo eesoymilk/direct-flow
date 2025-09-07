@@ -69,33 +69,3 @@ export type ShareholderWithDetails = Shareholder & {
 export type CompanyWithShareholders = Company & {
   shareholders: ShareholderWithDetails[];
 };
-
-// User role types (since clients don't need to login)
-export type UserRole = "client" | "staff";
-
-// Form-specific types that match Zod schemas
-export type PersonForm = {
-  name: string;
-  idNumber: string;
-  address: string;
-  telephone?: string;
-  cellphone?: string;
-  email?: string;
-  dateOfBirth?: CalendarDate;
-};
-
-export type CompanyApplicationForm = {
-  candidateNames: string[];
-  organizationType: OrganizationType;
-  isCloselyHeld?: boolean;
-  businessItemsDescription: string;
-  address: string;
-  capitalAmount?: number;
-  authorizedShares?: number;
-  ordinaryShares?: number;
-  preferredShares?: number;
-  hasParValueFreeShares?: boolean;
-  isDirectorSameAsResponsiblePerson: boolean;
-  isContactPersonSameAsResponsiblePerson: boolean;
-  isContactPersonSameAsDirector: boolean;
-};

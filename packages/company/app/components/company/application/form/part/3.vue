@@ -24,14 +24,14 @@
 
     <!-- Shareholders array validation wrapper -->
     <UForm
-      :state="{ shareholders: applicationStore.form.shareholders }"
+      :state="{ shareholders: formState.shareholders }"
       :schema="z.object({ shareholders: shareholderArraySchema })"
       attach
     >
       <UFormField name="shareholders">
         <div class="space-y-6">
           <UForm
-            v-for="(shareholder, index) in applicationStore.form.shareholders"
+            v-for="(shareholder, index) in formState.shareholders"
             :key="index"
             :state="shareholder"
             :schema="shareholderSchema"
@@ -50,9 +50,7 @@
                 class="absolute top-2 right-2 flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full"
               >
                 <UIcon name="i-lucide-link" class="w-3 h-3" />
-                {{
-                  getReferenceTypeLabel(shareholder.referenceType)
-                }}（僅可編輯持股）
+                {{ getPersonLabel(shareholder.referenceType) }}（僅可編輯持股）
               </div>
               <div class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="姓名" name="name" class="w-full">
@@ -89,28 +87,13 @@
                 </UFormField>
 
                 <UFormField label="出生日期" name="dateOfBirth">
-                  <UCalendar
-                    v-model="shareholder.dateOfBirth"
-                    :disabled="shareholder.isReadonly"
-                    class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
+                  <DatePicker
+                    :value="shareholder.dateOfBirth"
+                    @select-date="(date) => (shareholder.dateOfBirth = date)"
                   />
                 </UFormField>
 
-                <!-- Shares field - only show for stock companies -->
-                <UFormField
-                  v-if="applicationStore.isStockCompany"
-                  label="持股數"
-                  name="shares"
-                  class="w-full"
-                >
-                  <UInputNumber
-                    v-model="shareholder.shares"
-                    :min="0"
-                    placeholder="請輸入持股數"
-                    class="w-full"
-                  />
-                </UFormField>
+                <!-- TODO:Shares field - only show for stock companies -->
               </div>
 
               <UButton
@@ -125,13 +108,13 @@
                 size="sm"
                 color="error"
                 class="rounded-full absolute -top-3 -right-3 cursor-pointer"
-                :disabled="applicationStore.form.shareholders.length === 1"
+                :disabled="formState.shareholders.length === 1"
                 @click="applicationStore.removeShareholder(index)"
               />
             </UCard>
 
             <USeparator
-              v-if="index !== applicationStore.form.shareholders.length - 1"
+              v-if="index !== formState.shareholders.length - 1"
               class="my-6"
             />
           </UForm>
@@ -144,45 +127,35 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
 import * as z from "zod";
-import { CalendarDate } from "@internationalized/date";
 
 const applicationStore = useCompanyApplicationStore();
-
-// Helper function to get reference type label
-const getReferenceTypeLabel = (referenceType: string) => {
-  const labels = {
-    responsiblePerson: "負責人",
-    director: "董事",
-    contactPerson: "聯絡人",
-  };
-  return labels[referenceType as keyof typeof labels] || referenceType;
-};
+const { formState } = storeToRefs(applicationStore);
 
 // Generate dropdown menu items for adding persons
 const exsitingPeopleMenuItems = computed(() => {
   const items: DropdownMenuItem[] = [];
 
   items.push({
-    label: `加入負責人 (${applicationStore.form.responsiblePerson.name})`,
+    label: `加入負責人 (${formState.value.responsiblePerson.name})`,
     icon: "i-lucide-user",
     onSelect: () =>
       applicationStore.addPersonAsShareholder("responsiblePerson"),
   });
 
-  if (!applicationStore.form.isDirectorSameAsResponsiblePerson) {
+  if (!formState.value.isRepresentativeSameAsResponsiblePerson) {
     items.push({
-      label: `加入董事 (${applicationStore.form.director.name})`,
+      label: `加入代表人 (${formState.value.representative.name})`,
       icon: "i-lucide-briefcase",
-      onSelect: () => applicationStore.addPersonAsShareholder("director"),
+      onSelect: () => applicationStore.addPersonAsShareholder("representative"),
     });
   }
 
   if (
-    !applicationStore.form.isContactPersonSameAsResponsiblePerson &&
-    !applicationStore.form.isContactPersonSameAsDirector
+    !formState.value.isContactPersonSameAsResponsiblePerson &&
+    !formState.value.isContactPersonSameAsRepresentative
   ) {
     items.push({
-      label: `加入聯絡人 (${applicationStore.form.contactPerson.name})`,
+      label: `加入聯絡人 (${formState.value.contactPerson.name})`,
       icon: "i-lucide-phone",
       onSelect: () => applicationStore.addPersonAsShareholder("contactPerson"),
     });

@@ -1,4 +1,4 @@
-export const ORGANIZATION_TYPE = [
+export const ORGANIZATION_TYPES = [
   "corporation", // 股份有限公司
   "limited_company", // 有限公司
   "sole_proprietorship",
@@ -54,7 +54,7 @@ export const SHARE_TYPE_NAMES = {
   preferred_e: "戊種特別股",
 } as const;
 
-export type OrganizationType = (typeof ORGANIZATION_TYPE)[number];
+export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
 export type ApplicationStatus = (typeof COMPANY_APPLICATION_STATUS)[number];
 export type ReviewRoundStatus = (typeof REVIEW_ROUND_STATUS)[number];
 export type ReviewIssueType = (typeof REVIEW_ISSUE_TYPE)[number];

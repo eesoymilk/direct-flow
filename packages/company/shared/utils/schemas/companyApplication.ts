@@ -3,7 +3,7 @@ import { getFileField, responseBaseSchema } from "./helpers";
 import { personResponseSchema, shareholderResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
 import { shareHoldingResponseSchema } from "./shareHolding";
-import { ORGANIZATION_TYPE, COMPANY_APPLICATION_STATUS } from "../constants";
+import { ORGANIZATION_TYPES, COMPANY_APPLICATION_STATUS } from "../constants";
 
 export const companyApplicationFormSchema = z.object({
   candidateNames: z
@@ -22,7 +22,7 @@ export const companyApplicationFormSchema = z.object({
       }
     ),
   organizationType: z.enum(
-    ORGANIZATION_TYPE,
+    ORGANIZATION_TYPES,
     {
       message: "請選擇有效的組織類型",
     }
@@ -33,13 +33,13 @@ export const companyApplicationFormSchema = z.object({
   capitalAmount: z.number().positive("資本總額必須大於0").nullish(), // Can be filled freely
   parValue: z.number().positive("票面金額必須大於0").nullish(),
   totalShares: z.number().positive("股份總數必須大於0").nullish(), // Can be filled freely
-  authorizedShares: z.number().positive("實收資本額股數必須大於0").nullish(),
+  paidInCapital: z.number().positive("實收資本額股數必須大於0").nullish(),
   // Remove individual share counts - these are now calculated from share holdings
   // ordinarySharesAmount and preferredSharesAmount are calculated server-side
   address: z.string().min(1, "公司地址為必填"),
-  isDirectorSameAsResponsiblePerson: z.boolean(),
+  isRepresentativeSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
-  isContactPersonSameAsDirector: z.boolean(),
+  isContactPersonSameAsRepresentative: z.boolean(),
 });
 
 export const requiredDocumentsSchema = z.object({
@@ -76,9 +76,9 @@ export const companyApplicationResponseSchema = z.object({
   ...companyApplicationFormSchema.omit({
     isCloselyHeld: true,
     hasParValueFreeShares: true,
-    isContactPersonSameAsDirector: true,
+    isContactPersonSameAsRepresentative: true,
     isContactPersonSameAsResponsiblePerson: true,
-    isDirectorSameAsResponsiblePerson: true,
+    isRepresentativeSameAsResponsiblePerson: true,
   }).shape,
   ...responseBaseSchema.shape,
   status: z.enum(COMPANY_APPLICATION_STATUS),

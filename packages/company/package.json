@@ -21,7 +21,8 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate --config=drizzle-dev.config.ts",
-    "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts"
+    "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts",
+    "db:seed": "drizzle-kit seed --config=drizzle-dev.config.ts"
   },
   "dependencies": {
     "@internationalized/date": "^3.9.0",
@@ -30,7 +31,7 @@
     "@nuxt/fonts": "^0.11.1",
     "@nuxt/icon": "^1.11.0",
     "@nuxt/image": "^1.10.0",
-    "@nuxt/ui": "^3.3.0",
+    "@nuxt/ui": "^3.3.3",
     "@pinia/nuxt": "^0.11.0",
     "@vueuse/nuxt": "13.6.0",
     "clsx": "^2.1.1",
@@ -42,8 +43,6 @@
     "pg": "^8.16.0",
     "pinia": "^3.0.2",
     "tailwind-merge": "^3.3.1",
-    "ui:3.2": "link:@nuxt/ui:3.2",
-    "ui:latest": "link:@nuxt/ui:latest",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "zod": "^3.24.2"

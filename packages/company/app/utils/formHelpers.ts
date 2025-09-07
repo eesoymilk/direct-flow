@@ -1,8 +1,6 @@
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type * as z from "zod";
-import { CalendarDate } from "@internationalized/date";
-// import { shallowRef } from "vue"; // Removed unused import
 
-// Helper functions to create initial values for contact/responsible/representative persons
 export const createEmptyPerson = (): PersonSchema => ({
   name: "",
   idNumber: "",
@@ -10,7 +8,7 @@ export const createEmptyPerson = (): PersonSchema => ({
   telephone: "",
   cellphone: "",
   email: "",
-  dateOfBirth: undefined, // Will be set to CalendarDate when needed in client-side
+  dateOfBirth: new Date(),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -25,8 +23,7 @@ export const createEmptyShareholder = (): z.output<
   telephone: "",
   cellphone: "",
   email: "",
-  dateOfBirth: undefined, // Will be set to CalendarDate when needed in client-side
-  // Removed shares field - now handled by share holdings system
+  dateOfBirth: new Date(),
   isReadonly: false,
   referenceType: undefined,
 });
@@ -41,11 +38,11 @@ export const createInitialForm = () => ({
   authorizedShares: undefined,
   // Removed ordinaryShares and preferredShares - now calculated from share holdings
   hasParValueFreeShares: false,
-  isDirectorSameAsResponsiblePerson: false,
+  isRepresentativeSameAsResponsiblePerson: false,
   isContactPersonSameAsResponsiblePerson: false,
-  isContactPersonSameAsDirector: false,
+  isContactPersonSameAsRepresentative: false,
   responsiblePerson: createEmptyPerson(),
-  director: createEmptyPerson(),
+  representative: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
   shareholders: [createEmptyShareholder()],
   // TODO: Add documents when file storage is ready
