@@ -2,8 +2,8 @@
   <UPopover
     arrow
     :open="isPanelOpen"
-    @update:open="isPanelOpen = $event"
     class="fixed bottom-4 right-4 z-50"
+    @update:open="isPanelOpen = $event"
   >
     <UButton
       color="neutral"

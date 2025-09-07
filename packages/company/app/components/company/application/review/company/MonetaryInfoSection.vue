@@ -20,7 +20,7 @@
       v-bind="getFieldStatusProps('authorizedShares')"
     >
       <div class="flex items-center gap-2 mb-3">
-        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+        <div class="w-2 h-2 bg-blue-500 rounded-full"/>
         <p class="text-xl font-bold text-blue-700">
           {{ companyMonetaryInfo.authorizedShares?.toLocaleString() || "N/A" }}
           股
@@ -46,7 +46,7 @@
       v-bind="getFieldStatusProps('ordinaryShares')"
     >
       <div class="flex items-center gap-2 mb-3">
-        <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+        <div class="w-2 h-2 bg-emerald-500 rounded-full"/>
         <p class="text-xl font-bold text-emerald-700">
           {{ companyMonetaryInfo.ordinaryShares?.toLocaleString() || "N/A" }}
           股
@@ -72,7 +72,7 @@
       v-bind="getFieldStatusProps('preferredShares')"
     >
       <div class="flex items-center gap-2 mb-3">
-        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+        <div class="w-2 h-2 bg-purple-500 rounded-full"/>
         <p class="text-xl font-bold text-purple-700">
           {{ companyMonetaryInfo.preferredShares?.toLocaleString() || "0" }}
           股

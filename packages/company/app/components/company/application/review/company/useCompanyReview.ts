@@ -30,8 +30,8 @@ export const useCompanyReview = () => {
     }
     return {
       authorizedShares: application.value.authorizedShares,
-      ordinaryShares: application.value.ordinaryShares,
-      preferredShares: application.value.preferredShares,
+      ordinarySharesAmount: application.value.ordinarySharesAmount,
+      preferredSharesAmount: application.value.preferredSharesAmount,
     };
   });
 

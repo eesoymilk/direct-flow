@@ -6,9 +6,9 @@
         ref="issueFormRef"
         :state="issueFormState"
         :schema="reviewIssueSchema.omit({ fieldPath: true })"
+        class="md:space-y-4 space-y-2"
         @submit="handleSubmit"
         @error="handleError"
-        class="md:space-y-4 space-y-2"
       >
         <UFormField label="問題類型" name="issueType">
           <URadioGroup

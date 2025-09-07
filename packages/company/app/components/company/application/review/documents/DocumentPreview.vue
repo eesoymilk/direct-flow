@@ -84,7 +84,7 @@
         class="hidden"
         accept="image/jpeg,image/jpg,image/png,application/pdf"
         @change="handleFileSelect"
-      />
+      >
     </div>
 
     <!-- Document Preview (for uploaded documents) -->

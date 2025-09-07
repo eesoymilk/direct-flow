@@ -3,7 +3,7 @@
     <!-- Modern Separator -->
     <div
       class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"
-    ></div>
+    />
 
     <UContainer class="py-8">
       <div class="flex flex-col md:flex-row justify-between items-center gap-6">

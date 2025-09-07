@@ -152,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { CalendarDate } from "@internationalized/date";
+import type { CalendarDate } from "@internationalized/date";
 import type { ShallowRef } from "vue";
 
 interface Person {

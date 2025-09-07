@@ -8,9 +8,9 @@
     <!-- Animated rings -->
     <div
       class="absolute inset-0 rounded-full border-4 border-green-200 animate-ping opacity-75"
-    ></div>
+    />
     <div
       class="absolute inset-2 rounded-full border-2 border-green-300 animate-pulse opacity-60"
-    ></div>
+    />
   </div>
 </template>

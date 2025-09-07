@@ -8,7 +8,7 @@
       <p>目前沒有發現任何問題</p>
     </div>
 
-    <div class="space-y-4" v-else>
+    <div v-else class="space-y-4">
       <div
         v-for="(sectionIssues, sectionKey) in issuesBySection"
         :key="sectionKey"

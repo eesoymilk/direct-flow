@@ -38,10 +38,10 @@
               </label>
               <UTextarea
                 v-model="businessItemsInput"
-                @input="updateBusinessItems"
                 placeholder="例如：F102050, F401010, ZZ99999..."
                 :rows="3"
                 class="w-full"
+                @input="updateBusinessItems"
               />
               <p class="text-xs text-gray-500 mt-1">
                 參考營業項目描述設定對應的標準營業項目編碼
@@ -66,8 +66,8 @@
                     item
                   }}</span>
                   <button
-                    @click="removeBusinessItem(index)"
                     class="text-red-500 hover:text-red-700 ml-1"
+                    @click="removeBusinessItem(index)"
                   >
                     <UIcon name="i-heroicons-x-mark" class="size-4" />
                   </button>
@@ -81,11 +81,11 @@
                 class="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer"
               >
                 <input
-                  type="checkbox"
                   v-model="ignoreBusinessItems"
-                  @change="handleIgnoreBusinessItems"
+                  type="checkbox"
                   class="text-yellow-600 focus:ring-yellow-500"
-                />
+                  @change="handleIgnoreBusinessItems"
+                >
                 <div>
                   <span class="text-sm font-medium text-yellow-800"
                     >稍後處理</span

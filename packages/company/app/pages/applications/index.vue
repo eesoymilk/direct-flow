@@ -25,7 +25,7 @@
         class="w-8 h-8 text-red-500 mx-auto mb-4"
       />
       <p class="text-red-600">載入失敗: {{ error.message }}</p>
-      <UButton @click="handleRefresh" class="mt-4"> 重新載入 </UButton>
+      <UButton class="mt-4" @click="handleRefresh"> 重新載入 </UButton>
     </div>
 
     <!-- Applications List -->
@@ -74,8 +74,8 @@
           :data="data.applications"
           :columns="columns"
           :loading="pending"
-          @select="(row) => viewApplication(row.original.id)"
           empty="目前沒有任何申請案件"
+          @select="(row) => viewApplication(row.original.id)"
         />
 
         <!-- Pagination -->

@@ -43,7 +43,7 @@
     />
 
     <!-- Shareholders Documents -->
-    <div class="space-y-3" v-if="shareholders.length > 0">
+    <div v-if="shareholders.length > 0" class="space-y-3">
       <h5 class="font-medium text-gray-800 flex items-center gap-2">
         <UIcon name="i-heroicons-users" class="w-4 h-4 text-orange-600" />
         股東身分證

@@ -8,12 +8,12 @@
           <p class="text-sm text-gray-600 mt-1">查看所有審查輪次的歷史記錄</p>
         </div>
         <UButton
-          @click="refreshHistory"
           :loading="isLoading"
           size="sm"
           color="neutral"
           variant="outline"
           icon="i-heroicons-arrow-path"
+          @click="refreshHistory"
         >
           重新載入
         </UButton>
@@ -165,7 +165,6 @@
         <!-- Expand/Collapse Details -->
         <div class="mt-3 pt-3 border-t border-gray-200">
           <UButton
-            @click="toggleDetails(round.id)"
             size="xs"
             color="neutral"
             variant="ghost"
@@ -174,6 +173,7 @@
                 ? 'i-heroicons-chevron-up'
                 : 'i-heroicons-chevron-down'
             "
+            @click="toggleDetails(round.id)"
           >
             {{ expandedRounds.has(round.id) ? "收起詳情" : "查看詳情" }}
           </UButton>

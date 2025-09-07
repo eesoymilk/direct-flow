@@ -1,6 +1,5 @@
 import { COMPANY_DOCUMENT_FIELDS } from "../constants";
-import type { CompanyDocumentField } from "../types";
-import type { FieldStatus, SectionStatus } from "../types";
+import type { CompanyDocumentField, FieldStatus, SectionStatus  } from "../types";
 import { generateFieldStatus } from "../utils";
 import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 
