@@ -11,7 +11,7 @@ export const directorSchema = getContactPersonSchema("董事");
 export const contactPersonSchema = getContactPersonSchema("聯絡人");
 
 export const shareholderSchema = getShareholderPersonSchema("股東").extend({
-  shares: z.number().min(0, "持股數不能為負數").optional(),
+  // Remove shares field - now handled by share holdings system
   isReadonly: z.boolean().optional(), // Track if this shareholder is auto-populated
   referenceType: z
     .enum(["responsiblePerson", "director", "contactPerson"])
@@ -51,18 +51,20 @@ export const shareholderArraySchema = z
     }
   );
 
+// Fix for schemas with .refine() that don't have .shape property
+const basePersonSchema = getContactPersonSchema("人員");
 export const personResponseSchema = z.object({
-  ...personSchema.shape,
+  ...basePersonSchema.shape,
   ...responseBaseSchema.shape,
 });
 
 export const shareholderResponseSchema = responseBaseSchema
   .omit({ id: true })
   .extend({
-    id: z.number().int(),
+    id: z.string().uuid(), // Changed to UUID to match new schema
     applicationId: z.string().uuid(),
-    shares: z.number().min(0, "持股數不能為負數").optional(),
     person: personResponseSchema,
+    // Share holdings are now in separate shareHoldings relationship
   });
 
 // Note that this is general type for all 3 person schemas

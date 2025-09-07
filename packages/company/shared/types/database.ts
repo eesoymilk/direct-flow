@@ -1,7 +1,7 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
-import { CalendarDate } from "@internationalized/date";
+import type { CalendarDate } from "@internationalized/date";
 import type { ShallowRef } from "vue";
-import {
+import type {
   companies,
   people,
   documents,

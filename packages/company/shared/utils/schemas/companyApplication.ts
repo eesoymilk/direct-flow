@@ -2,7 +2,8 @@ import * as z from "zod";
 import { getFileField, responseBaseSchema } from "./helpers";
 import { personResponseSchema, shareholderResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
-import { ORGANIZATION_TYPE } from "../constants";
+import { shareHoldingResponseSchema } from "./shareHolding";
+import { ORGANIZATION_TYPE, COMPANY_APPLICATION_STATUS } from "../constants";
 
 export const companyApplicationFormSchema = z.object({
   candidateNames: z
@@ -29,12 +30,12 @@ export const companyApplicationFormSchema = z.object({
   isCloselyHeld: z.boolean().optional(),
   hasParValueFreeShares: z.boolean().optional(),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
-  capitalAmount: z.number().positive("資本額必須大於0").nullish(),
+  capitalAmount: z.number().positive("資本總額必須大於0").nullish(), // Can be filled freely
   parValue: z.number().positive("票面金額必須大於0").nullish(),
-  totalShares: z.number().positive("股份總數必須大於0").nullish(),
+  totalShares: z.number().positive("股份總數必須大於0").nullish(), // Can be filled freely
   authorizedShares: z.number().positive("實收資本額股數必須大於0").nullish(),
-  ordinaryShares: z.number().min(0, "普通股數不能為負數").nullish(),
-  preferredShares: z.number().min(0, "特別股數不能為負數").nullish(),
+  // Remove individual share counts - these are now calculated from share holdings
+  // ordinarySharesAmount and preferredSharesAmount are calculated server-side
   address: z.string().min(1, "公司地址為必填"),
   isDirectorSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
@@ -83,10 +84,14 @@ export const companyApplicationResponseSchema = z.object({
   status: z.enum(COMPANY_APPLICATION_STATUS),
   isCloselyHeld: z.boolean().nullish(),
   hasParValueFreeShares: z.boolean().nullish(),
+  // Add calculated share amounts for corporations
+  ordinarySharesAmount: z.number().nullish(), // Calculated from share holdings
+  preferredSharesAmount: z.number().nullish(), // Calculated from share holdings
   responsiblePerson: personResponseSchema,
   representative: personResponseSchema,
   contactPerson: personResponseSchema,
   shareholders: shareholderResponseSchema.array(),
+  shareHoldings: shareHoldingResponseSchema.array(), // All share holdings for the application
   reviewRounds: reviewRoundResponseSchema.array(),
 });
 
