@@ -13,13 +13,13 @@ import { companies } from "../company/schema";
 // People table
 export const people = pgTable("people", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name").notNull(),
-  idNumber: varchar("id_number").notNull().unique(),
-  address: varchar("address"),
-  telephone: varchar("telephone"),
-  cellphone: varchar("cellphone"),
-  email: varchar("email"),
-  dateOfBirth: date("date_of_birth"),
+  name: varchar("name").notNull(), // 姓名 (always required)
+  idNumber: varchar("id_number").notNull().unique(), // 身份證字號 (always required)
+  address: varchar("address"), // 戶籍地址 (always required)
+  telephone: varchar("telephone"), // 電話 (optional, can choose phone OR cellphone)
+  cellphone: varchar("cellphone"), // 手機 (optional, can choose phone OR cellphone) 
+  email: varchar("email"), // 電子郵件 (required for responsible/contact/representative persons)
+  dateOfBirth: date("date_of_birth"), // 出生日期 (required for shareholders only)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

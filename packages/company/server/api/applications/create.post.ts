@@ -57,7 +57,7 @@ export default eventHandler(async (event) => {
         representativeId: directorResult.id,
       });
 
-      let shareholderData: { person: Person; shares?: number }[] = [];
+      const shareholderData: { person: Person }[] = [];
       if (shareholders) {
         for (const shareholder of shareholders) {
           let shareholderResult: Person;
@@ -74,7 +74,7 @@ export default eventHandler(async (event) => {
 
           shareholderData.push({
             person: shareholderResult,
-            shares: shareholder.shares,
+            // Removed shares field - now handled by share holdings system
           });
         }
       }

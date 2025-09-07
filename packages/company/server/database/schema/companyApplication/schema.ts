@@ -31,11 +31,11 @@ export const companyApplications = pgTable("company_applications", {
   isCloselyHeld: boolean("is_closely_held"), // 閉鎖型 - 股份有限公司
   hasParValueFreeShares: boolean("has_par_value_free_shares"), // 無票面金額股份 - 股份有限公司
   businessItemsDescription: varchar("business_items_description").notNull(), // 營業項目描述
-  capitalAmount: integer("capital_amount"), // 資本總額
+  capitalAmount: integer("capital_amount"), // 資本總額 (can be filled freely)
   parValue: integer("par_value"), // 票面金額
-  totalShares: integer("total_shares"), // 股份總數
-  ordinaryShares: integer("ordinary_shares"), // 普通股
-  preferredShares: integer("preferred_shares"), // 特別股
+  totalShares: integer("total_shares"), // 股份總數 (can be filled freely)
+  ordinarySharesAmount: integer("ordinary_shares_amount"), // 普通股股款總額 (calculated)
+  preferredSharesAmount: integer("preferred_shares_amount"), // 特別股股款總額 (calculated)
   authorizedShares: integer("authorized_shares"), // 實收資本額
   address: varchar("address").notNull(), // 地址
   responsiblePersonId: uuid("responsible_person_id").references(
@@ -67,14 +67,14 @@ export const applicationDocuments = pgTable("application_documents", {
 
 // Shareholders junction table
 export const applicationShareholders = pgTable("application_shareholders", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(), // Changed to UUID for consistency
   applicationId: uuid("application_id")
     .notNull()
     .references(() => companyApplications.id, { onDelete: "cascade" }),
   personId: uuid("person_id")
     .notNull()
     .references(() => people.id, { onDelete: "cascade" }),
-  shares: integer("shares"), // 持股數
+  // Removed shares field - now handled by applicationShareHoldings
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -99,6 +99,7 @@ export const companyApplicationsRelations = relations(
     }),
     companyDocuments: many(applicationDocuments),
     shareholders: many(applicationShareholders),
+    // shareHoldings relation will be handled after share schema is properly imported
     reviewRounds: many(reviewRounds),
   })
 );
@@ -128,5 +129,6 @@ export const applicationShareholdersRelations = relations(
       fields: [applicationShareholders.personId],
       references: [people.id],
     }),
+    // shareHoldings relation commented out to fix circular dependency
   })
 );

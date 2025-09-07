@@ -23,16 +23,16 @@ export const createCompanyApplication = async (
 export const createApplicationShareholderRelationships = async (
   db: DrizzleClient | DrizzleTransaction,
   applicationId: string,
-  shareholderData: { person: { id: string }, shares?: number }[]
+  shareholderData: { person: { id: string } }[] // Removed shares field
 ) => {
   if (shareholderData.length === 0) {
     return;
   }
 
-  const shareholderRelationships = shareholderData.map(({ person, shares }) => ({
+  const shareholderRelationships = shareholderData.map(({ person }) => ({
     applicationId,
     personId: person.id,
-    shares,
+    // Removed shares field - now handled by share holdings system
   }));
 
   await db.insert(applicationShareholders).values(shareholderRelationships);
@@ -91,6 +91,16 @@ export const fetchCompanyApplicationById = async (
       shareholders: {
         with: {
           person: true,
+        },
+      },
+      shareHoldings: {
+        with: {
+          shareholder: {
+            with: {
+              person: true,
+            },
+          },
+          shareType: true,
         },
       },
       reviewRounds: {
