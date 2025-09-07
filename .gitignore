@@ -127,3 +127,6 @@ dist
 .pnp.*
 
 .vercel
+
+# Prompt files
+.prompts/
