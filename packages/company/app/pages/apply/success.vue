@@ -151,8 +151,8 @@
         color="primary"
         size="xl"
         icon="i-lucide-home"
-        @click="navigateTo('/')"
         class="min-w-[200px] shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+        @click="navigateTo('/')"
       />
       <UButton
         label="提交新申請"
@@ -160,8 +160,8 @@
         variant="outline"
         size="xl"
         icon="i-lucide-plus-circle"
-        @click="navigateTo('/apply')"
         class="min-w-[200px] shadow-md hover:shadow-lg transition-shadow"
+        @click="navigateTo('/apply')"
       />
     </div>
   </UContainer>

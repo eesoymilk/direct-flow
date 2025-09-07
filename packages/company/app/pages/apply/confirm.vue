@@ -263,8 +263,8 @@
         color="neutral"
         variant="outline"
         size="xl"
-        @click="goBack"
         class="min-w-[200px] shadow-md hover:shadow-lg transition-shadow"
+        @click="goBack"
       >
         <UIcon name="i-lucide-arrow-left" class="w-5 h-5 mr-2" />
         返回修改
@@ -276,8 +276,8 @@
         :disabled="isSubmitting"
         :loading="isSubmitting"
         :label="!isSubmitting ? '確認提交申請' : '提交中...'"
-        @click="submitApplication"
         class="min-w-[200px] shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+        @click="submitApplication"
       />
     </div>
   </UContainer>
