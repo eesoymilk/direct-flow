@@ -1,6 +1,6 @@
-import * as z from "zod";
+import type * as z from "zod";
 import { CalendarDate } from "@internationalized/date";
-import { shallowRef } from "vue";
+// import { shallowRef } from "vue"; // Removed unused import
 
 // Helper functions to create initial values for contact/responsible/representative persons
 export const createEmptyPerson = (): PersonSchema => ({
@@ -10,7 +10,7 @@ export const createEmptyPerson = (): PersonSchema => ({
   telephone: "",
   cellphone: "",
   email: "",
-  dateOfBirth: undefined,
+  dateOfBirth: undefined, // Will be set to CalendarDate when needed in client-side
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -25,22 +25,21 @@ export const createEmptyShareholder = (): z.output<
   telephone: "",
   cellphone: "",
   email: "",
-  dateOfBirth: new CalendarDate(2000, 1, 1), // Default CalendarDate
-  shares: undefined,
+  dateOfBirth: undefined, // Will be set to CalendarDate when needed in client-side
+  // Removed shares field - now handled by share holdings system
   isReadonly: false,
   referenceType: undefined,
 });
 
 export const createInitialForm = () => ({
   candidateNames: [],
-  organizationType: "company_limited" as const,
+  organizationType: "corporation" as const, // Updated to new organization type
   isCloselyHeld: false,
   businessItemsDescription: "",
   address: "",
   capitalAmount: undefined,
   authorizedShares: undefined,
-  ordinaryShares: undefined,
-  preferredShares: undefined,
+  // Removed ordinaryShares and preferredShares - now calculated from share holdings
   hasParValueFreeShares: false,
   isDirectorSameAsResponsiblePerson: false,
   isContactPersonSameAsResponsiblePerson: false,

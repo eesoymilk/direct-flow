@@ -1,16 +1,18 @@
-import * as z from "zod";
+import type * as z from "zod";
 import { CalendarDate } from "@internationalized/date";
-import { shallowRef } from "vue";
+// import { shallowRef } from "vue"; // Removed unused import
 import { createInitialForm, createEmptyShareholder } from "~/utils/formHelpers";
 import {
   generateMockFormData,
   generateOrgTypeTestData,
 } from "~/utils/mockData";
+import { getDefaultBirthDate } from "~/utils/dateHelpers";
 
 export const useCompanyApplicationStore = defineStore(
   "companyApplication",
   () => {
     const toast = useToast();
+    const { hydrateFormDates, validateFormDates } = useFormHydration();
     const form = ref<
       Partial<z.output<typeof companyApplicationFormSchema>> & {
         responsiblePerson: z.output<typeof responsiblePersonSchema>;
@@ -29,11 +31,16 @@ export const useCompanyApplicationStore = defineStore(
     });
 
     const isStockCompany = computed(
-      () => form.value.organizationType === "company_limited"
+      () => form.value.organizationType === "corporation"
     );
 
     const addShareholder = () => {
-      form.value.shareholders.push(createEmptyShareholder());
+      const newShareholder = createEmptyShareholder();
+      // Ensure date is properly set on client side
+      if (import.meta.client && !newShareholder.dateOfBirth) {
+        newShareholder.dateOfBirth = getDefaultBirthDate();
+      }
+      form.value.shareholders.push(newShareholder);
     };
 
     const addPersonAsShareholder = (
@@ -129,7 +136,7 @@ export const useCompanyApplicationStore = defineStore(
     watch(
       () => form.value.organizationType,
       (newVal) => {
-        if (newVal === "company_limited") {
+        if (newVal === "corporation") {
           form.value.isCloselyHeld = false;
           form.value.hasParValueFreeShares = false;
         }
@@ -137,14 +144,14 @@ export const useCompanyApplicationStore = defineStore(
       { immediate: true }
     );
 
-    watch(
-      [() => form.value.ordinaryShares, () => form.value.preferredShares],
-      ([ordinaryShares, preferredShares]) => {
-        form.value.authorizedShares =
-          (ordinaryShares || 0) + (preferredShares || 0);
-      },
-      { immediate: true }
-    );
+    // Removed watch for ordinaryShares and preferredShares as they're now calculated from share holdings
+
+    // Hydrate form dates on client side after store initialization
+    if (import.meta.client) {
+      nextTick(() => {
+        hydrateFormDates(form.value);
+      });
+    }
 
     return {
       form,
