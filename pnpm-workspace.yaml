@@ -1,17 +1,13 @@
 packages:
   - packages/*
 
-injectWorkspacePackages: true
+linkWorkspacePackages: true
 
 onlyBuiltDependencies:
-  - '@direct-flow/base'
-  - '@parcel/watcher'
-  - '@tailwindcss/oxide'
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
   - better-sqlite3
   - esbuild
   - sharp
   - unrs-resolver
   - vue-demi
-
-syncInjectedDepsAfterScripts:
-  - build
