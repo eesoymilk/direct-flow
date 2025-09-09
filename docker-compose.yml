@@ -11,7 +11,20 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - company_pgdata:/var/lib/postgresql/data
+    networks: [cpa_net]
+
+  audit-db:
+    image: postgres:17
+    container_name: audit_pg
+    environment:
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: auditpass
+      POSTGRES_DB: audit
+    ports:
+      - "5433:5432"
+    volumes:
+      - audit_pgdata:/var/lib/postgresql/data
     networks: [cpa_net]
 
 
@@ -36,7 +49,8 @@ services:
     networks: [cpa_net]
 
 volumes:
-  pgdata:
+  company_pgdata:
+  audit_pgdata:
 
 networks:
   cpa_net:

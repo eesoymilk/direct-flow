@@ -4,6 +4,7 @@ packages:
 injectWorkspacePackages: true
 
 onlyBuiltDependencies:
+  - '@direct-flow/base'
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
   - better-sqlite3
