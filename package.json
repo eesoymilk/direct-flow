@@ -21,11 +21,13 @@
     "build": "pnpm -r build",
     "build:company": "pnpm --filter=@direct-flow/company build",
     "build:base": "pnpm --filter=@direct-flow/base build",
+    "dev:audit": "pnpm --filter=@direct-flow/audit dev",
     "dev:company": "pnpm --filter=@direct-flow/company dev",
     "dev:base": "pnpm --filter=@direct-flow/base dev",
+    "db:audit:generate": "pnpm --filter=@direct-flow/audit db:generate",
+    "db:audit:migrate": "pnpm --filter=@direct-flow/audit db:migrate",
     "db:company:generate": "pnpm --filter=@direct-flow/company db:generate",
-    "db:company:migrate": "pnpm --filter=@direct-flow/company db:migrate",
-    "db:company:seed": "pnpm --filter=@direct-flow/company db:seed"
+    "db:company:migrate": "pnpm --filter=@direct-flow/company db:migrate"
   },
   "keywords": [],
   "author": "",
