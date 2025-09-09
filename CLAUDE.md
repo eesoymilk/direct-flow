@@ -30,27 +30,27 @@ This is a TypeScript-first, Nuxt 4-based monorepo using PNPM workspaces with a s
 pnpm install
 
 # Run commands in specific workspace
-pnpm --filter @direct-flow/company run [script]
+pnpm --filter=@direct-flow/company run [script]
 ```
 
 ### Development
 
 ```bash
 # Start development server (company app) - primary development focus
-pnpm --filter @direct-flow/company run dev
+pnpm --filter=@direct-flow/company run dev
 
 # Start base layer development (when needed)
-pnpm --filter @direct-flow/base run dev
+pnpm --filter=@direct-flow/base run dev
 ```
 
 ### Build and Production
 
 ```bash
 # Build for production
-pnpm --filter @direct-flow/company run build
+pnpm --filter=@direct-flow/company run build
 
 # Preview production build
-pnpm --filter @direct-flow/company run preview
+pnpm --filter=@direct-flow/company run preview
 
 # Build with proper dependencies between packages
 pnpm run build
@@ -60,23 +60,23 @@ pnpm run build
 
 ```bash
 # Generate database migrations
-pnpm --filter @direct-flow/company run db:generate
+pnpm --filter=@direct-flow/company run db:generate
 
 # Run database migrations
-pnpm --filter @direct-flow/company run db:migrate
+pnpm --filter=@direct-flow/company run db:migrate
 ```
 
 ### Code Quality
 
 ```bash
 # Run ESLint
-pnpm --filter @direct-flow/company run lint
+pnpm --filter=@direct-flow/company run lint
 
 # Fix ESLint issues
-pnpm --filter @direct-flow/company run lint:fix
+pnpm --filter=@direct-flow/company run lint:fix
 
 # Format with Prettier
-pnpm --filter @direct-flow/company run format
+pnpm --filter=@direct-flow/company run format
 ```
 
 ## Technology Stack and Architecture

@@ -1,4 +1,3 @@
-import { CalendarDate } from "@internationalized/date";
 import * as z from "zod";
 
 export const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -80,32 +79,6 @@ export const documentSchema = z.object({
 // Schema for contact person, representative, and responsible person
 // Requires: name, id, address, (tel OR cel), email
 export const getBasePersonSchema = (name: string) =>
-  z
-    .object(
-      {
-        name: z.string().min(1, { message: `${name}姓名不能為空` }),
-        idNumber: idNumberSchema,
-        address: z
-          .string()
-          .min(1, { message: `${name}戶籍地址不能為空` })
-          .max(255, { message: `${name}戶籍地址最多255個字` }),
-        telephone: z.string().optional(),
-        cellphone: z.string().optional(),
-        email: z
-          .string()
-          .email({ message: "請輸入有效的電子郵件" })
-          .min(1, { message: `${name}電子郵件不能為空` }),
-        // TODO: Add dateOfBirth validation
-        dateOfBirth: z.date().optional(),
-      },
-      {
-        message: `${name}資料不能為空`,
-      }
-    )
-
-// Schema for shareholders
-// Requires: name, id, address, dateOfBirth
-export const getShareholderPersonSchema = (name: string) =>
   z.object(
     {
       name: z.string().min(1, { message: `${name}姓名不能為空` }),
@@ -116,13 +89,23 @@ export const getShareholderPersonSchema = (name: string) =>
         .max(255, { message: `${name}戶籍地址最多255個字` }),
       telephone: z.string().optional(),
       cellphone: z.string().optional(),
-      email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
+      email: z
+        .string()
+        .email({ message: "請輸入有效的電子郵件" })
+        .min(1, { message: `${name}電子郵件不能為空` }),
       // TODO: Add dateOfBirth validation
-      dateOfBirth: z.date(),
+      dateOfBirth: z.date().optional(),
     },
     {
       message: `${name}資料不能為空`,
     }
   );
+
+export const getShareSchema = (name: string) =>
+  z.object({
+    quantity: z.number().min(0, { message: `${name}股數不能為負數` }),
+    pricePerShare: z.number().min(0, { message: `${name}每股價格不能為負數` }),
+    totalPrice: z.number().min(0, { message: `${name}股款總額不能為負數` }),
+  });
 
 export * from "./response";

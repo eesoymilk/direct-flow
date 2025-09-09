@@ -93,16 +93,6 @@ export const fetchCompanyApplicationById = async (
           person: true,
         },
       },
-      shareHoldings: {
-        with: {
-          shareholder: {
-            with: {
-              person: true,
-            },
-          },
-          shareType: true,
-        },
-      },
       reviewRounds: {
         orderBy: [desc(reviewRounds.roundNo)],
         with: {

@@ -19,8 +19,8 @@
       class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-indigo-400/5 to-blue-400/5 rounded-full blur-3xl animate-pulse delay-500"
     />
 
-    <AppHeader :navigation-items="items" />
-    <main class="flex-1 pt-20 relative z-10">
+    <AppHeader class="z-10" :navigation-items="items" />
+    <main class="flex-1 pt-20 relative">
       <slot />
     </main>
     <AppFooter class="z-10" />

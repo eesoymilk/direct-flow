@@ -2,7 +2,6 @@ import * as z from "zod";
 import { getFileField, responseBaseSchema } from "./helpers";
 import { personResponseSchema, shareholderResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
-import { shareHoldingResponseSchema } from "./shareHolding";
 import { ORGANIZATION_TYPES, COMPANY_APPLICATION_STATUS } from "../constants";
 
 export const companyApplicationFormSchema = z.object({
@@ -21,12 +20,9 @@ export const companyApplicationFormSchema = z.object({
         message: "公司名稱不能重複",
       }
     ),
-  organizationType: z.enum(
-    ORGANIZATION_TYPES,
-    {
-      message: "請選擇有效的組織類型",
-    }
-  ),
+  organizationType: z.enum(ORGANIZATION_TYPES, {
+    message: "請選擇有效的組織類型",
+  }),
   isCloselyHeld: z.boolean().optional(),
   hasParValueFreeShares: z.boolean().optional(),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
@@ -34,7 +30,6 @@ export const companyApplicationFormSchema = z.object({
   parValue: z.number().positive("票面金額必須大於0").nullish(),
   totalShares: z.number().positive("股份總數必須大於0").nullish(), // Can be filled freely
   paidInCapital: z.number().positive("實收資本額股數必須大於0").nullish(),
-  // Remove individual share counts - these are now calculated from share holdings
   // ordinarySharesAmount and preferredSharesAmount are calculated server-side
   address: z.string().min(1, "公司地址為必填"),
   isRepresentativeSameAsResponsiblePerson: z.boolean(),
@@ -74,24 +69,19 @@ export const requiredDocumentsSchema = z.object({
 
 export const companyApplicationResponseSchema = z.object({
   ...companyApplicationFormSchema.omit({
-    isCloselyHeld: true,
-    hasParValueFreeShares: true,
     isContactPersonSameAsRepresentative: true,
     isContactPersonSameAsResponsiblePerson: true,
     isRepresentativeSameAsResponsiblePerson: true,
   }).shape,
   ...responseBaseSchema.shape,
   status: z.enum(COMPANY_APPLICATION_STATUS),
-  isCloselyHeld: z.boolean().nullish(),
-  hasParValueFreeShares: z.boolean().nullish(),
-  // Add calculated share amounts for corporations
-  ordinarySharesAmount: z.number().nullish(), // Calculated from share holdings
-  preferredSharesAmount: z.number().nullish(), // Calculated from share holdings
+  // Calculated share amounts for corporations
+  ordinarySharesAmount: z.number().nullish(),
+  preferredSharesAmount: z.number().nullish(),
   responsiblePerson: personResponseSchema,
   representative: personResponseSchema,
   contactPerson: personResponseSchema,
   shareholders: shareholderResponseSchema.array(),
-  shareHoldings: shareHoldingResponseSchema.array(), // All share holdings for the application
   reviewRounds: reviewRoundResponseSchema.array(),
 });
 

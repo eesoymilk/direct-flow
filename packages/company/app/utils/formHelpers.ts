@@ -5,27 +5,39 @@ export const createEmptyPerson = (): PersonSchema => ({
   name: "",
   idNumber: "",
   address: "",
-  telephone: "",
-  cellphone: "",
   email: "",
-  dateOfBirth: new Date(),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
 });
 
-export const createEmptyShareholder = (): z.output<
-  typeof shareholderSchema
-> => ({
+const createEmptyShares = (): Record<
+  ShareType,
+  { quantity: number; pricePerShare: number; totalPrice: number }
+> => {
+  return SHARE_TYPES.reduce(
+    (acc, shareType) => {
+      acc[shareType] = {
+        quantity: 0,
+        pricePerShare: 0,
+        totalPrice: 0,
+      };
+      return acc;
+    },
+    {} as Record<
+      ShareType,
+      { quantity: number; pricePerShare: number; totalPrice: number }
+    >
+  );
+};
+
+export const createEmptyShareholder = (): ShareholderSchema => ({
   name: "",
   idNumber: "",
   address: "",
-  telephone: "",
-  cellphone: "",
-  email: "",
   dateOfBirth: new Date(),
   isReadonly: false,
-  referenceType: undefined,
+  shares: createEmptyShares(),
 });
 
 export const createInitialForm = () => ({

@@ -25,9 +25,9 @@ export default eventHandler(async (event) => {
       contactPerson,
       director,
       shareholders,
-      isDirectorSameAsResponsiblePerson,
+      isRepresentativeSameAsResponsiblePerson,
       isContactPersonSameAsResponsiblePerson,
-      isContactPersonSameAsDirector,
+      isContactPersonSameAsRepresentative,
       ...data
     } = body.data;
 
@@ -35,7 +35,7 @@ export default eventHandler(async (event) => {
       const responsiblePersonResult = await createPerson(tx, responsiblePerson);
 
       let directorResult: Person;
-      if (isDirectorSameAsResponsiblePerson) {
+      if (isRepresentativeSameAsResponsiblePerson) {
         directorResult = responsiblePersonResult;
       } else {
         directorResult = await createPerson(tx, director);
@@ -44,7 +44,7 @@ export default eventHandler(async (event) => {
       let contactPersonResult: Person;
       if (isContactPersonSameAsResponsiblePerson) {
         contactPersonResult = responsiblePersonResult;
-      } else if (isContactPersonSameAsDirector) {
+      } else if (isContactPersonSameAsRepresentative) {
         contactPersonResult = directorResult;
       } else {
         contactPersonResult = await createPerson(tx, contactPerson);
@@ -64,7 +64,7 @@ export default eventHandler(async (event) => {
 
           if (shareholder.referenceType === "responsiblePerson") {
             shareholderResult = responsiblePersonResult;
-          } else if (shareholder.referenceType === "director") {
+          } else if (shareholder.referenceType === "representative") {
             shareholderResult = directorResult;
           } else if (shareholder.referenceType === "contactPerson") {
             shareholderResult = contactPersonResult;

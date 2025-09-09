@@ -1,11 +1,28 @@
 <template>
-  <div class="space-y-6">
-    <!-- Share Calculation Summary -->
-    <UCard class="bg-primary/5 border-primary/20">
-      <template #header>
-        <h3 class="text-lg font-medium text-primary">股份統計</h3>
-      </template>
+  <UCard
+    v-if="isStockCompany"
+    class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300"
+  >
+    <template #header>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <UIcon name="i-lucide-calculator" class="w-6 h-6 text-blue-600" />
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">股份總計</h3>
+            <p class="text-sm text-gray-500">所有股東持股統計</p>
+          </div>
+        </div>
+        <UBadge
+          :label="`${totalShares.quantity.toLocaleString()} 股`"
+          variant="subtle"
+          size="lg"
+          color="info"
+        />
+      </div>
+    </template>
 
+    <div class="space-y-6">
+      <!-- Share Type Summary -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Ordinary Shares Summary -->
         <UCard variant="subtle" class="bg-green-50 border-green-200">
@@ -78,7 +95,7 @@
       <UCard variant="subtle" class="bg-gray-50 border-gray-200">
         <template #header>
           <div class="flex items-center gap-2">
-            <UIcon name="i-lucide-calculator" class="w-4 h-4 text-gray-600" />
+            <UIcon name="i-lucide-trending-up" class="w-4 h-4 text-gray-600" />
             <h4 class="text-md font-medium text-gray-800">總計</h4>
           </div>
         </template>
@@ -99,93 +116,80 @@
           <div class="text-center">
             <div class="text-sm text-gray-600 mb-1">股東人數</div>
             <div class="text-xl font-bold text-gray-800">
-              {{ formState.shareholders.length }} 人
+              {{ shareholders.length }} 人
             </div>
           </div>
         </div>
       </UCard>
-    </UCard>
 
-    <!-- Shareholder Breakdown -->
-    <UCard>
-      <template #header>
-        <h3 class="text-lg font-medium">股東持股明細</h3>
-      </template>
-
+      <!-- Individual Shareholder Summary -->
       <div class="space-y-4">
-        <div
-          v-for="(shareholder, index) in formState.shareholders"
-          :key="index"
-          class="border rounded-lg p-4 bg-gray-50"
-        >
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="font-medium text-gray-800">{{ shareholder.name }}</h4>
-            <UButton
-              :label="String(index + 1)"
-              size="sm"
-              color="secondary"
-              class="rounded-full"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Ordinary Shares -->
-            <div class="space-y-2">
-              <div class="text-sm font-medium text-green-700">普通股</div>
-              <div class="text-sm text-gray-600">
-                股數：{{
-                  formatNumber(
-                    getShareholderOrdinaryShares(shareholder).quantity
-                  )
-                }}
-                股
-              </div>
-              <div class="text-sm text-gray-600">
-                金額：{{
-                  formatCurrency(
-                    getShareholderOrdinaryShares(shareholder).totalPrice
-                  )
-                }}
-              </div>
+        <h4 class="text-lg font-medium text-gray-800">股東持股明細</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            v-for="(shareholder, index) in shareholders"
+            :key="index"
+            class="border rounded-lg p-4 bg-gray-50"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <h5 class="font-medium text-gray-800">{{ shareholder.name }}</h5>
+              <UBadge
+                :label="String(index + 1)"
+                size="sm"
+                color="secondary"
+                class="rounded-full"
+              />
             </div>
 
-            <!-- Preferred Shares -->
             <div class="space-y-2">
-              <div class="text-sm font-medium text-blue-700">特別股</div>
-              <div class="text-sm text-gray-600">
-                股數：{{
-                  formatNumber(
-                    getShareholderPreferredShares(shareholder).quantity
-                  )
-                }}
-                股
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">普通股：</span>
+                <span class="font-medium">
+                  {{
+                    formatNumber(
+                      getShareholderOrdinaryShares(shareholder).quantity
+                    )
+                  }}
+                  股
+                </span>
               </div>
-              <div class="text-sm text-gray-600">
-                金額：{{
-                  formatCurrency(
-                    getShareholderPreferredShares(shareholder).totalPrice
-                  )
-                }}
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">特別股：</span>
+                <span class="font-medium">
+                  {{
+                    formatNumber(
+                      getShareholderPreferredShares(shareholder).quantity
+                    )
+                  }}
+                  股
+                </span>
+              </div>
+              <USeparator class="my-2" />
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-700"
+                  >該股東總計：</span
+                >
+                <span class="font-bold text-gray-800">
+                  {{ formatCurrency(getShareholderTotal(shareholder)) }}
+                </span>
               </div>
             </div>
-          </div>
-
-          <USeparator class="my-3" />
-
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-medium text-gray-700">該股東總計：</span>
-            <span class="font-bold text-gray-800">
-              {{ formatCurrency(getShareholderTotal(shareholder)) }}
-            </span>
           </div>
         </div>
       </div>
-    </UCard>
-  </div>
+    </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
+interface Props {
+  shareholders: ShareholderSchema[];
+  isStockCompany: boolean;
+}
+
+const props = defineProps<Props>();
+
 const applicationStore = useCompanyApplicationStore();
-const { formState, ordinarySharesTotal, preferredSharesTotal, totalShares } =
+const { ordinarySharesTotal, preferredSharesTotal, totalShares } =
   storeToRefs(applicationStore);
 </script>

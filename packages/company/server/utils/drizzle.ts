@@ -1,5 +1,4 @@
 import { Pool } from "pg";
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../database";
 

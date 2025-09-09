@@ -22,6 +22,32 @@ export const generateMockPerson = (): PersonSchema => ({
   // idCardBack: undefined as any,
 });
 
+// Generate mock share holdings for a given set of share types
+export const generateMockShares = () =>
+  SHARE_TYPES.reduce(
+    (shareHoldings, shareType) => {
+      const quantity = faker.number.int({ min: 1, max: 1000 });
+      const pricePerShare = faker.number.float({
+        min: 1,
+        max: 1000,
+        fractionDigits: 2,
+      });
+      const totalPrice = quantity * pricePerShare;
+
+      shareHoldings[shareType] = {
+        quantity,
+        pricePerShare,
+        totalPrice,
+      };
+
+      return shareHoldings;
+    },
+    {} as Record<
+      ShareType,
+      { quantity: number; pricePerShare: number; totalPrice: number }
+    >
+  );
+
 // Generate mock shareholder data including shares (dateOfBirth required, contact info not displayed)
 export const generateMockShareholder = (): ShareholderSchema => {
   const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
@@ -31,6 +57,7 @@ export const generateMockShareholder = (): ShareholderSchema => {
     address: faker.location.streetAddress(true),
     dateOfBirth: birthDate,
     isReadonly: false,
+    shares: generateMockShares(),
   };
 };
 
@@ -92,25 +119,37 @@ export const generateMockBusinessDescription = (): string => {
   return selectedItems.join("、");
 };
 
-// Generate mock form data specifically for organization type testing
-export const generateOrgTypeTestData = () => {
+// Generate complete mock form data
+export const generateMockFormData = ({
+  organizationType: _organizationType,
+}: {
+  organizationType?: OrganizationType;
+}) => {
   const form = createInitialForm();
 
-  // Generate basic form data with only stock company types
+  const organizationType =
+    _organizationType || faker.helpers.arrayElement(ORGANIZATION_TYPES);
+
+  const isStockCompany = organizationType === "corporation";
+
   const mockFormData: CompanyApplicationFormSchema = {
     candidateNames: generateMockCompanyNames(),
-    organizationType: "corporation",
-    isCloselyHeld: faker.datatype.boolean(),
-    hasParValueFreeShares: faker.datatype.boolean(),
+    organizationType,
     businessItemsDescription: generateMockBusinessDescription(),
-    capitalAmount: faker.number.int({ min: 500000, max: 100000000 }),
-    parValue: faker.number.int({ min: 10, max: 1000 }),
-    paidInCapital: faker.number.int({ min: 500000, max: 100000000 }),
-    totalShares: faker.number.int({ min: 1000, max: 1000000 }),
-    address: faker.location.streetAddress(true),
+    address: faker.location.streetAddress(true), // Full address with city, state, zip
     isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsRepresentative: false,
+    isContactPersonSameAsRepresentative: false, // For simplicity
+    ...(isStockCompany
+      ? {
+          capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
+          paidInCapital: faker.number.int({ min: 100000, max: 50000000 }),
+          isCloselyHeld: faker.datatype.boolean(),
+          hasParValueFreeShares: faker.datatype.boolean(),
+          parValue: faker.number.int({ min: 10, max: 1000 }),
+          totalShares: faker.number.int({ min: 1000, max: 1000000 }),
+        }
+      : {}),
   };
 
   // Generate person data
@@ -122,9 +161,12 @@ export const generateOrgTypeTestData = () => {
     ? form.responsiblePerson
     : generateMockPerson();
 
-  // Generate shareholders (3-7 shareholders for stock companies)
   const shareholderCount = faker.number.int({ min: 3, max: 7 });
-  form.shareholders = Array.from({ length: shareholderCount }, () =>
+  const shareTypeCount = isStockCompany
+    ? faker.number.int({ min: 1, max: 6 })
+    : 1;
+
+  form.shareholders = Array.from({ length: shareholderCount }, (_, index) =>
     generateMockShareholder()
   );
 
@@ -134,70 +176,6 @@ export const generateOrgTypeTestData = () => {
     representative: form.representative,
     contactPerson: form.contactPerson,
     shareholders: form.shareholders,
-  };
-};
-
-// Generate complete mock form data
-export const generateMockFormData = () => {
-  const form = createInitialForm();
-
-  // Generate basic form data
-  const mockFormData: Partial<CompanyApplicationFormSchema> = {
-    candidateNames: generateMockCompanyNames(),
-    organizationType: faker.helpers.arrayElement([
-      "corporation",
-      "limited_company",
-      "sole_proprietorship",
-      "partnership",
-    ]),
-    isCloselyHeld: faker.datatype.boolean(),
-    hasParValueFreeShares: faker.datatype.boolean(),
-    businessItemsDescription: generateMockBusinessDescription(),
-    address: faker.location.streetAddress(true), // Full address with city, state, zip
-    isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsRepresentative: false, // For simplicity
-    capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
-    parValue: faker.number.int({ min: 10, max: 1000 }),
-    paidInCapital: faker.number.int({ min: 100000, max: 50000000 }),
-    totalShares: faker.number.int({ min: 1000, max: 1000000 }),
-  };
-
-  // Generate person data
-  form.responsiblePerson = generateMockPerson();
-  form.representative = mockFormData.isRepresentativeSameAsResponsiblePerson
-    ? form.responsiblePerson
-    : generateMockPerson();
-  form.contactPerson = mockFormData.isContactPersonSameAsResponsiblePerson
-    ? form.responsiblePerson
-    : generateMockPerson();
-
-  // Generate shareholders (2-5 shareholders)
-  const shareholderCount = faker.number.int({ min: 2, max: 5 });
-  form.shareholders = Array.from({ length: shareholderCount }, () => {
-    // Only add shares for stock companies
-    if (mockFormData.organizationType === "corporation") {
-      return generateMockShareholder();
-    } else {
-      // For non-stock companies, create person without shares
-      const person = generateMockPerson();
-      const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
-      return { ...person, dateOfBirth: birthDate, isReadonly: false };
-    }
-  });
-
-  return {
-    ...mockFormData,
-    responsiblePerson: form.responsiblePerson,
-    representative: form.representative,
-    contactPerson: form.contactPerson,
-    shareholders: form.shareholders,
-    capitalAmount: mockFormData.capitalAmount,
-    parValue: mockFormData.parValue,
-    paidInCapital: mockFormData.paidInCapital,
-    totalShares: mockFormData.totalShares,
-    // ordinaryShares and preferredShares will be calculated from share holdings
-    hasParValueFreeShares: mockFormData.hasParValueFreeShares,
-    isCloselyHeld: mockFormData.isCloselyHeld,
+    shareTypeCount,
   };
 };

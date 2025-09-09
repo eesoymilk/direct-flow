@@ -7,7 +7,24 @@
         label="新增股東"
         variant="soft"
         class="rounded-full"
-        @click="applicationStore.addShareholder"
+        @click="addShareholder"
+      />
+      <UButton
+        v-if="canAddShareType"
+        icon="i-lucide-plus"
+        label="新增特別股"
+        variant="soft"
+        class="rounded-full"
+        @click="addShareType"
+      />
+      <UButton
+        v-if="canRemoveShareType"
+        icon="i-lucide-minus"
+        label="刪除特別股"
+        variant="outline"
+        color="error"
+        class="rounded-full"
+        @click="removeShareType"
       />
       <UDropdownMenu
         :items="exsitingPeopleMenuItems"
@@ -93,7 +110,115 @@
                   />
                 </UFormField>
 
-                <!-- TODO:Shares field - only show for stock companies -->
+                <USeparator
+                  v-if="isStockCompany && shareholder.shares"
+                  class="col-span-full"
+                />
+
+                <!-- Stock company shares -->
+                <div class="col-span-full space-y-4">
+                  <h4 class="text-md font-medium text-text">持股資料</h4>
+                  <UForm
+                    v-if="isStockCompany && shareholder.shares"
+                    v-for="[shareType, share] in Object.entries(
+                      shareholder.shares
+                    ).slice(0, shareCount)"
+                    :key="shareType"
+                    :state="share"
+                    :schema="getShareSchema(shareType as ShareType)"
+                  >
+                    <UCard
+                      class="bg-primary/5 rounded-lg border border-primary/20"
+                    >
+                      <template #header>
+                        <h5 class="text-sm font-medium text-primary">
+                          {{ getShareTypeLabel(shareType as ShareType) }}
+                        </h5>
+                      </template>
+
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <UFormField label="股數">
+                          <UInputNumber
+                            v-model="share.quantity"
+                            :min="0"
+                            placeholder="請輸入股數"
+                            class="w-full"
+                            :format-options="{
+                              style: 'decimal',
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }"
+                            @update:model-value="
+                              updateQuantity(
+                                shareholder,
+                                shareType as ShareType,
+                                $event
+                              )
+                            "
+                          />
+                        </UFormField>
+
+                        <UFormField label="每股金額">
+                          <UInputNumber
+                            v-model="share.pricePerShare"
+                            :min="0"
+                            :step="0.01"
+                            placeholder="請輸入每股金額"
+                            class="w-full"
+                            :format-options="{
+                              style: 'currency',
+                              currency: 'TWD',
+                              currencyDisplay: 'code',
+                              currencySign: 'accounting',
+                            }"
+                            @update:model-value="
+                              updatePricePerShare(
+                                shareholder,
+                                shareType as ShareType,
+                                $event
+                              )
+                            "
+                          />
+                        </UFormField>
+
+                        <UFormField label="總金額">
+                          <UInputNumber
+                            v-model="share.totalPrice"
+                            :min="0"
+                            :step="0.01"
+                            disabled
+                            placeholder="自動計算"
+                            class="w-full opacity-60"
+                            :format-options="{
+                              style: 'currency',
+                              currency: 'TWD',
+                              currencyDisplay: 'code',
+                              currencySign: 'accounting',
+                            }"
+                          />
+                        </UFormField>
+                      </div>
+                    </UCard>
+                  </UForm>
+                </div>
+                <!-- <CompanyApplicationSharesField
+                  v-if="isStockCompany && shareholder.shares"
+                  :share-types="shareTypes"
+                  :share-value="shareholder.shares"
+                  @update:quantity="
+                    (shareType, quantity) =>
+                      (shareholder.shares[shareType].quantity = quantity)
+                  "
+                  @update:pricePerShare="
+                    (shareType, pricePerShare) =>
+                      (shareholder.shares?.[shareType].pricePerShare =
+                        pricePerShare)
+                  "
+                  @update:totalPrice="
+                    (shareType, totalPrice) =>
+                      (shareholder.shares[shareType].totalPrice = totalPrice)
+                  "
+                /> -->
               </div>
 
               <UButton
@@ -109,7 +234,7 @@
                 color="error"
                 class="rounded-full absolute -top-3 -right-3 cursor-pointer"
                 :disabled="formState.shareholders.length === 1"
-                @click="applicationStore.removeShareholder(index)"
+                @click="removeShareholder(index)"
               />
             </UCard>
 
@@ -129,7 +254,44 @@ import type { DropdownMenuItem } from "@nuxt/ui";
 import * as z from "zod";
 
 const applicationStore = useCompanyApplicationStore();
-const { formState } = storeToRefs(applicationStore);
+const { formState, shareTypes, isStockCompany, shareCount } =
+  storeToRefs(applicationStore);
+const {
+  addShareholder,
+  addShareType,
+  removeShareType,
+  removeShareholder,
+  addPersonAsShareholder,
+} = applicationStore;
+
+const canAddShareType = computed(
+  () => shareTypes.value.length < SHARE_TYPES.length
+);
+
+const canRemoveShareType = computed(() => shareTypes.value.length > 1);
+
+// Function to update total price (computed property for each shareholder share type)
+const updateQuantity = (
+  shareholder: ShareholderSchema,
+  shareType: ShareType,
+  quantity: number
+) => {
+  if (shareholder.shares && shareholder.shares[shareType]) {
+    shareholder.shares[shareType].totalPrice =
+      quantity * shareholder.shares[shareType].pricePerShare;
+  }
+};
+
+const updatePricePerShare = (
+  shareholder: ShareholderSchema,
+  shareType: ShareType,
+  pricePerShare: number
+) => {
+  if (shareholder.shares && shareholder.shares[shareType]) {
+    shareholder.shares[shareType].totalPrice =
+      shareholder.shares[shareType].quantity * pricePerShare;
+  }
+};
 
 // Generate dropdown menu items for adding persons
 const exsitingPeopleMenuItems = computed(() => {
@@ -138,15 +300,14 @@ const exsitingPeopleMenuItems = computed(() => {
   items.push({
     label: `加入負責人 (${formState.value.responsiblePerson.name})`,
     icon: "i-lucide-user",
-    onSelect: () =>
-      applicationStore.addPersonAsShareholder("responsiblePerson"),
+    onSelect: () => addPersonAsShareholder("responsiblePerson"),
   });
 
   if (!formState.value.isRepresentativeSameAsResponsiblePerson) {
     items.push({
       label: `加入代表人 (${formState.value.representative.name})`,
       icon: "i-lucide-briefcase",
-      onSelect: () => applicationStore.addPersonAsShareholder("representative"),
+      onSelect: () => addPersonAsShareholder("representative"),
     });
   }
 
@@ -157,7 +318,7 @@ const exsitingPeopleMenuItems = computed(() => {
     items.push({
       label: `加入聯絡人 (${formState.value.contactPerson.name})`,
       icon: "i-lucide-phone",
-      onSelect: () => applicationStore.addPersonAsShareholder("contactPerson"),
+      onSelect: () => addPersonAsShareholder("contactPerson"),
     });
   }
 

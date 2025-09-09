@@ -1,6 +1,6 @@
 <template>
   <header
-    class="fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300 ease-in-out"
+    class="fixed top-0 left-0 right-0 py-3 transition-all duration-300 ease-in-out"
     :class="[
       isScrolled
         ? 'py-3 bg-white/90 shadow-lg border-b border-gray-200/50'

@@ -8,26 +8,24 @@
     <!-- Development helper: Generate fake data button -->
     <div v-if="isDev" class="flex gap-2 justify-center">
       <UButton
-        color="neutral"
         variant="outline"
         leading-icon="i-lucide-wand-2"
-        @click="generateFakeData"
+        @click="() => handleGenerateMockData('corporation')"
       >
-        生成測試資料
+        生成股份有限公司測試資料
       </UButton>
       <UButton
-        color="primary"
         variant="outline"
         leading-icon="i-lucide-building-2"
-        @click="generateOrgTypeTestData"
+        @click="() => handleGenerateMockData()"
       >
-        測試組織類型
+        生成隨機測試資料
       </UButton>
       <UButton
         color="neutral"
         variant="outline"
         leading-icon="i-lucide-rotate-ccw"
-        @click="resetForm"
+        @click="handleResetForm"
       >
         重置表單
       </UButton>
@@ -57,6 +55,9 @@
         </template>
         <template #form-part-3>
           <CompanyApplicationFormPart3 />
+        </template>
+        <template v-if="isStockCompany" #form-part-4>
+          <CompanyApplicationFormPart4 />
         </template>
       </UStepper>
       <div class="flex gap-2 justify-between mt-4">
@@ -90,62 +91,68 @@
 <script setup lang="ts">
 import type { StepperItem, FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
 
-const stepperItems: StepperItem[] = [
-  {
-    slot: "form-part-1",
-    title: "公司基本資料",
-    description: "請填寫公司基本資料",
-    icon: "i-lucide-house",
-  },
-  {
-    slot: "form-part-2",
-    title: "相關負責人資料",
-    description: "請填寫負責人、董事與聯絡人資料",
-    icon: "i-lucide-user",
-  },
-  {
-    slot: "form-part-3",
-    title: "董事與股東資料",
-    description: "請填寫董事與股東資料",
-    icon: "i-lucide-users",
-  },
-];
+const toast = useToast();
 
 const stepper = useTemplateRef("stepper");
 
 const applicationStore = useCompanyApplicationStore();
-const { formState } = storeToRefs(applicationStore);
+const { formState, isStockCompany } = storeToRefs(applicationStore);
+const { resetForm, populateWithMockData } = applicationStore;
+
+const stepperItems = computed((): StepperItem[] => {
+  const basicItems = [
+    {
+      slot: "form-part-1",
+      title: "公司基本資料",
+      description: "請填寫公司基本資料",
+      icon: "i-lucide-house",
+    },
+    {
+      slot: "form-part-2",
+      title: "相關負責人資料",
+      description: "請填寫負責人、董事與聯絡人資料",
+      icon: "i-lucide-user",
+    },
+    {
+      slot: "form-part-3",
+      title: "董事與股東資料",
+      description: "請填寫董事與股東資料",
+      icon: "i-lucide-users",
+    },
+  ];
+
+  if (isStockCompany.value) {
+    basicItems.push({
+      slot: "form-part-4",
+      title: "股份資料",
+      description: "請填寫股份資料",
+      icon: "i-lucide-share",
+    });
+  }
+
+  return basicItems;
+});
 
 const isDev = computed(() => process.env.NODE_ENV === "development");
 
-const generateFakeData = () => {
-  applicationStore.populateWithMockData();
-  // Show success notification
-  const toast = useToast();
-  toast.add({
-    title: "測試資料已生成",
-    description: "表單已填入測試資料，您可以開始測試了",
-    color: "success",
-    icon: "i-lucide-check-circle",
-  });
-};
+const handleGenerateMockData = (organizationType?: OrganizationType) => {
+  populateWithMockData({ organizationType });
 
-const generateOrgTypeTestData = () => {
-  applicationStore.populateWithOrgTypeTestData();
-  // Show success notification
-  const toast = useToast();
+  const description = organizationType
+    ? `表單已填入${getOrganizationTypeLabel(organizationType)}測試資料，可測試閉鎖型功能`
+    : "表單已填入隨機組織類型測試資料，可測試閉鎖型功能";
+
   toast.add({
     title: "組織類型測試資料已生成",
-    description: "表單已填入股份有限公司測試資料，可測試閉鎖型功能",
+    description,
     color: "primary",
     icon: "i-lucide-building-2",
   });
 };
 
-const resetForm = () => {
-  applicationStore.resetForm();
+const handleResetForm = () => {
+  resetForm();
   // Show success notification
-  const toast = useToast();
   toast.add({
     title: "表單已重置",
     description: "所有資料已清空",
@@ -163,7 +170,6 @@ const handleFormError = (event: FormErrorEvent) => {
     .join("、");
 
   // Show error notification
-  const toast = useToast();
   toast.add({
     title: "表單驗證失敗",
     description: toastDescription,
@@ -180,8 +186,4 @@ const handleFormSubmit = (event: FormSubmitEvent<any>) => {
   // Navigate to confirmation page on successful validation
   navigateTo("/apply/confirm");
 };
-
-onMounted(() => {
-  applicationStore.resetForm();
-});
 </script>

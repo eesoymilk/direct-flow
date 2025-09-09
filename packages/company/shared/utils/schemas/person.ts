@@ -1,8 +1,9 @@
 import * as z from "zod";
-import { getBasePersonSchema, getShareholderPersonSchema } from "./helpers";
+import { getBasePersonSchema, getShareSchema, idNumberSchema } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
+import { PERSON_TYPES } from "~/components/company/application/review/constants";
 
-export const personSchema = getBasePersonSchema("人員")
+export const personSchema = getBasePersonSchema("人員");
 
 export const responsiblePersonSchema = getBasePersonSchema("負責人").refine(
   ({ telephone, cellphone }) => telephone || cellphone,
@@ -28,12 +29,35 @@ export const contactPersonSchema = getBasePersonSchema("聯絡人").refine(
   }
 );
 
-export const shareholderSchema = getShareholderPersonSchema("股東").extend({
-  isReadonly: z.boolean().optional(), // Track if this shareholder is auto-populated
-  referenceType: z
-    .enum(["responsiblePerson", "representative", "contactPerson"])
-    .optional(), // Reference to which person this shareholder represents
-});
+export const shareholderSchema = z.object(
+  {
+    name: z.string().min(1, { message: "股東姓名不能為空" }),
+    idNumber: idNumberSchema,
+    address: z
+      .string()
+      .min(1, { message: "股東戶籍地址不能為空" })
+      .max(255, { message: "股東戶籍地址最多255個字" }),
+    telephone: z.string().optional(),
+    cellphone: z.string().optional(),
+    email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
+    // TODO: Add dateOfBirth validation
+    dateOfBirth: z.date(),
+    isReadonly: z.boolean().optional(),
+    referenceType: z.enum(PERSON_TYPES).optional(),
+    // While shares are optional, they are required to be present to make the form validation simpler
+    shares: z.object({
+      ordinary: getShareSchema("普通股"),
+      preferred_a: getShareSchema("甲種特別股"),
+      preferred_b: getShareSchema("乙種特別股"),
+      preferred_c: getShareSchema("丙種特別股"),
+      preferred_d: getShareSchema("丁種特別股"),
+      preferred_e: getShareSchema("戊種特別股"),
+    }),
+  },
+  {
+    message: "股東資料不能為空",
+  }
+);
 
 export const shareholderArraySchema = z
   .array(shareholderSchema)
