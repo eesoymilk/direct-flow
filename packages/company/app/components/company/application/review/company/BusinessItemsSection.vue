@@ -85,7 +85,7 @@
                   type="checkbox"
                   class="text-yellow-600 focus:ring-yellow-500"
                   @change="handleIgnoreBusinessItems"
-                >
+                />
                 <div>
                   <span class="text-sm font-medium text-yellow-800"
                     >稍後處理</span

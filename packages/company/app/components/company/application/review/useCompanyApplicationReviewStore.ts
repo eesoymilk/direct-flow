@@ -7,6 +7,7 @@ import {
   getShareholderDocumentFieldInfos,
 } from "./utils";
 import type { ReviewSections, SectionKey, SectionState } from "./types";
+import type { ReviewRound } from "~/shared/types/database";
 import { PERSON_TYPES } from "./constants";
 
 export const useCompanyApplicationReviewStore = defineStore(
@@ -242,7 +243,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       }
 
       try {
-        const response = await $fetch(
+        const response = await $fetch<{ data: ReviewRound[] }>(
           `/api/applications/${application.value.id as "[id]"}/review-rounds`
         );
         return response.data;

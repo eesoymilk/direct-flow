@@ -13,7 +13,10 @@
     </div>
 
     <!-- Review Actions Section -->
-    <CompanyApplicationReviewActions v-if="loggedIn" :application="application" />
+    <CompanyApplicationReviewActions
+      v-if="loggedIn"
+      :application="application"
+    />
     <div v-else class="flex justify-end">
       <UButton
         label="提交複查"

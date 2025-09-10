@@ -140,7 +140,7 @@
         v-bind="getFieldStatusProps('capitalAmount')"
       >
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-2 h-2 bg-amber-500 rounded-full"/>
+          <div class="w-2 h-2 bg-amber-500 rounded-full" />
           <h5 class="text-sm font-semibold text-amber-800">資本額詳情</h5>
         </div>
         <p class="text-xl font-bold text-amber-700">

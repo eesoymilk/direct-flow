@@ -39,6 +39,27 @@ export const companies = pgTable("companies", {
   ordinaryShares: integer("ordinary_shares"), // 普通股
   preferredShares: integer("preferred_shares"), // 特別股
   hasParValueFreeShares: boolean("has_par_value_free_shares"), // 無票面金額股份
+
+  // Shared fields for corporation and limited company
+  isForeignInvestment: boolean("is_foreign_investment").default(false), // 僑外投資事業
+  isChineseInvestment: boolean("is_chinese_investment").default(false), // 陸資
+
+  // Corporation-specific fields
+  isPublicOffering: boolean("is_public_offering").default(false), // 公開發行
+  closelyHeldShareholderCount: integer("closely_held_shareholder_count"), // 閉鎖性股份有限公司股東人數
+  hasMultipleVotingRightsPreferredShares: boolean(
+    "has_multiple_voting_rights_preferred_shares"
+  ).default(false), // 複數表決權特別股
+  hasVetoRightsPreferredShares: boolean(
+    "has_veto_rights_preferred_shares"
+  ).default(false), // 對於特定事項具否決權特別股
+  hasPreferredSharesBoardRights: boolean(
+    "has_preferred_shares_board_rights"
+  ).default(false), // 特別股股東被選為董事、監察人之禁止或限制或當選一定名額之權利
+
+  // Limited company-specific fields
+  isSoleProprietorshipLLC: boolean("is_sole_proprietorship_llc").default(false), // 一人公司
+
   responsiblePersonId: uuid("responsible_person_id")
     .notNull()
     .references(() => people.id, { onDelete: "restrict" }), // 負責人ID
@@ -63,7 +84,6 @@ export const companyDocuments = pgTable("company_documents", {
     .references(() => documents.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
-
 
 export const companiesRelations = relations(companies, ({ one, many }) => ({
   responsiblePerson: one(people, {
@@ -100,4 +120,3 @@ export const companyDocumentsRelations = relations(
     }),
   })
 );
-

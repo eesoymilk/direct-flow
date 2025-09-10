@@ -1,7 +1,7 @@
 import type { DropdownMenuItem } from "@nuxt/ui";
 import type { SectionStatus } from "~/composables/useReviewSectionStatus";
 import { useShareholderReview } from "./useShareholderReview";
-import type { FieldStatus, SectionConfig, ShareholderField  } from "../types";
+import type { FieldStatus, SectionConfig, ShareholderField } from "../types";
 import { generateFieldStatus } from "../utils";
 import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 import { SHAREHOLDER_FIELDS } from "../constants";

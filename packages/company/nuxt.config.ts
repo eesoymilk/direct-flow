@@ -5,6 +5,4 @@ export default defineNuxtConfig({
   imports: {
     dirs: ["~/shared/**"],
   },
-
-  modules: ["@pinia/nuxt"],
 });

@@ -29,7 +29,6 @@ export const useCompanyReview = () => {
       throw new Error("Application not found");
     }
     return {
-      authorizedShares: application.value.authorizedShares,
       ordinarySharesAmount: application.value.ordinarySharesAmount,
       preferredSharesAmount: application.value.preferredSharesAmount,
     };

@@ -4,7 +4,8 @@ import { personResponseSchema, shareholderResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
 import { ORGANIZATION_TYPES, COMPANY_APPLICATION_STATUS } from "../constants";
 
-export const companyApplicationFormSchema = z.object({
+// Base schema without refinements for use in response schema
+export const companyApplicationBaseSchema = z.object({
   candidateNames: z
     .array(z.string().min(1, "公司名稱為必填"))
     .min(1, "請提供至少一個公司名稱")
@@ -26,16 +27,76 @@ export const companyApplicationFormSchema = z.object({
   isCloselyHeld: z.boolean().optional(),
   hasParValueFreeShares: z.boolean().optional(),
   businessItemsDescription: z.string().min(1, "營業項目描述為必填"),
-  capitalAmount: z.number().positive("資本總額必須大於0").nullish(), // Can be filled freely
+  capitalAmount: z.number().positive("資本總額必須大於0").nullish(),
   parValue: z.number().positive("票面金額必須大於0").nullish(),
-  totalShares: z.number().positive("股份總數必須大於0").nullish(), // Can be filled freely
+  totalShares: z.number().positive("股份總數必須大於0").nullish(),
   paidInCapital: z.number().positive("實收資本額股數必須大於0").nullish(),
-  // ordinarySharesAmount and preferredSharesAmount are calculated server-side
   address: z.string().min(1, "公司地址為必填"),
   isRepresentativeSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsRepresentative: z.boolean(),
+
+  // Shared fields for corporation and limited company
+  isForeignInvestment: z.boolean().optional(),
+  isChineseInvestment: z.boolean().optional(),
+
+  // Corporation-specific fields
+  isPublicOffering: z.boolean().optional(),
+  closelyHeldShareholderCount: z.number().int().positive().optional(),
+  hasMultipleVotingRightsPreferredShares: z.boolean().optional(),
+  hasVetoRightsPreferredShares: z.boolean().optional(),
+  hasPreferredSharesBoardRights: z.boolean().optional(),
+
+  // Limited company-specific fields
+  isSoleProprietorshipLLC: z.boolean().optional(),
 });
+
+export const companyApplicationFormSchema = companyApplicationBaseSchema
+  .refine(
+    (data) => {
+      // Conditional validation for closelyHeldShareholderCount
+      if (data.organizationType === "corporation" && data.isCloselyHeld) {
+        return (
+          data.closelyHeldShareholderCount != null &&
+          data.closelyHeldShareholderCount > 0
+        );
+      }
+      return true;
+    },
+    {
+      message: "閉鎖性股份有限公司必須填寫股東人數",
+      path: ["closelyHeldShareholderCount"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Conditional validation for parValue when hasParValueFreeShares is false
+      if (
+        data.organizationType === "corporation" &&
+        data.hasParValueFreeShares === false
+      ) {
+        return data.parValue != null && data.parValue > 0;
+      }
+      return true;
+    },
+    {
+      message: "票面金額為必填（除非選擇無票面金額）",
+      path: ["parValue"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Limited company should only have capitalAmount, not parValue or totalShares
+      if (data.organizationType === "limited_company") {
+        return data.parValue == null && data.totalShares == null;
+      }
+      return true;
+    },
+    {
+      message: "有限公司不需要票面金額和股份總數",
+      path: ["organizationType"],
+    }
+  );
 
 export const requiredDocumentsSchema = z.object({
   // 1. 公司存摺相關資料
@@ -68,7 +129,7 @@ export const requiredDocumentsSchema = z.object({
 });
 
 export const companyApplicationResponseSchema = z.object({
-  ...companyApplicationFormSchema.omit({
+  ...companyApplicationBaseSchema.omit({
     isContactPersonSameAsRepresentative: true,
     isContactPersonSameAsResponsiblePerson: true,
     isRepresentativeSameAsResponsiblePerson: true,

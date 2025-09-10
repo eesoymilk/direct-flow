@@ -132,6 +132,9 @@ export const generateMockFormData = ({
 
   const isStockCompany = organizationType === "corporation";
 
+  const isCloselyHeld = isStockCompany ? faker.datatype.boolean() : false;
+  const hasParValueFree = isStockCompany ? faker.datatype.boolean() : false;
+
   const mockFormData: CompanyApplicationFormSchema = {
     candidateNames: generateMockCompanyNames(),
     organizationType,
@@ -140,14 +143,82 @@ export const generateMockFormData = ({
     isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsRepresentative: false, // For simplicity
-    ...(isStockCompany
+
+    // Shared fields for corporation and limited company
+    ...(organizationType === "corporation" ||
+    organizationType === "limited_company"
+      ? {
+          isForeignInvestment: faker.datatype.boolean(),
+          isChineseInvestment: faker.datatype.boolean(),
+        }
+      : {
+          isForeignInvestment: false,
+          isChineseInvestment: false,
+        }),
+
+    // Corporation-specific fields
+    ...(organizationType === "corporation"
+      ? (() => {
+          const capitalAmount = faker.number.int({ min: 100000, max: 50000000 });
+          const paidInCapital = faker.number.int({ 
+            min: Math.min(100000, capitalAmount), 
+            max: capitalAmount 
+          });
+          return {
+            capitalAmount,
+            paidInCapital,
+            isCloselyHeld,
+            hasParValueFreeShares: hasParValueFree,
+            parValue: hasParValueFree
+              ? undefined
+              : faker.number.int({ min: 10, max: 1000 }),
+            totalShares: faker.number.int({ min: 1000, max: 1000000 }),
+            isPublicOffering: faker.datatype.boolean(),
+            closelyHeldShareholderCount: isCloselyHeld
+              ? faker.number.int({ min: 1, max: 50 })
+              : undefined,
+            hasMultipleVotingRightsPreferredShares: faker.datatype.boolean(),
+            hasVetoRightsPreferredShares: faker.datatype.boolean(),
+            hasPreferredSharesBoardRights: faker.datatype.boolean(),
+            isSoleProprietorshipLLC: false,
+          };
+        })()
+      : {}),
+
+    // Limited company-specific fields
+    ...(organizationType === "limited_company"
       ? {
           capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
-          paidInCapital: faker.number.int({ min: 100000, max: 50000000 }),
-          isCloselyHeld: faker.datatype.boolean(),
-          hasParValueFreeShares: faker.datatype.boolean(),
-          parValue: faker.number.int({ min: 10, max: 1000 }),
-          totalShares: faker.number.int({ min: 1000, max: 1000000 }),
+          paidInCapital: undefined,
+          isCloselyHeld: false,
+          hasParValueFreeShares: false,
+          parValue: undefined,
+          totalShares: undefined,
+          isPublicOffering: false,
+          closelyHeldShareholderCount: undefined,
+          hasMultipleVotingRightsPreferredShares: false,
+          hasVetoRightsPreferredShares: false,
+          hasPreferredSharesBoardRights: false,
+          isSoleProprietorshipLLC: faker.datatype.boolean(),
+        }
+      : {}),
+
+    // Other organization types
+    ...(organizationType !== "corporation" &&
+    organizationType !== "limited_company"
+      ? {
+          capitalAmount: faker.number.int({ min: 100000, max: 50000000 }),
+          paidInCapital: undefined,
+          isCloselyHeld: false,
+          hasParValueFreeShares: false,
+          parValue: undefined,
+          totalShares: undefined,
+          isPublicOffering: false,
+          closelyHeldShareholderCount: undefined,
+          hasMultipleVotingRightsPreferredShares: false,
+          hasVetoRightsPreferredShares: false,
+          hasPreferredSharesBoardRights: false,
+          isSoleProprietorshipLLC: false,
         }
       : {}),
   };

@@ -3,8 +3,8 @@ export default defineNuxtRouteMiddleware((to) => {
   const route = useRoute();
 
   // Allow access if user just submitted (from store) OR if valid query params exist
-  const hasValidAccess = 
-    applicationStore.submissionState.justSubmitted || 
+  const hasValidAccess =
+    applicationStore.submissionState.justSubmitted ||
     (route.query.id && route.query.submitted);
 
   if (!hasValidAccess) {

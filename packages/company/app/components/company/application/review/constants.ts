@@ -29,7 +29,6 @@ export const COMPANY_BUSINESS_ITEMS_FIELDS = [
 ] as const;
 
 export const COMPANY_MONETARY_INFO_FIELDS = [
-  "authorizedShares",
   "ordinaryShares",
   "preferredShares",
 ] as const;

@@ -241,15 +241,65 @@ export const useCompanyApplicationStore = defineStore(
       shareCount.value = shareTypeCount;
     };
 
+    // Watch organization type changes and clear irrelevant fields
     watch(
       () => formState.value.organizationType,
-      (newVal) => {
-        if (newVal === "corporation") {
+      (newType, oldType) => {
+        if (newType !== oldType && oldType) {
+          // Clear organization-specific fields when type changes
+          if (newType !== "corporation") {
+            // Clear corporation-specific fields
+            formState.value.isPublicOffering = false;
+            formState.value.closelyHeldShareholderCount = undefined;
+            formState.value.hasMultipleVotingRightsPreferredShares = false;
+            formState.value.hasVetoRightsPreferredShares = false;
+            formState.value.hasPreferredSharesBoardRights = false;
+            formState.value.isCloselyHeld = false;
+            formState.value.hasParValueFreeShares = false;
+            formState.value.parValue = undefined;
+            formState.value.totalShares = undefined;
+          }
+
+          if (newType !== "limited_company") {
+            // Clear limited company-specific fields
+            formState.value.isSoleProprietorshipLLC = false;
+          }
+
+          // Clear shared fields if neither corporation nor limited company
+          if (newType !== "corporation" && newType !== "limited_company") {
+            formState.value.isForeignInvestment = false;
+            formState.value.isChineseInvestment = false;
+          }
+        }
+
+        // Initialize corporation-specific fields to defaults only if switching from non-corporation
+        if (newType === "corporation" && oldType && oldType !== "corporation") {
           formState.value.isCloselyHeld = false;
           formState.value.hasParValueFreeShares = false;
         }
       },
       { immediate: true }
+    );
+
+    // Watch closely held status and clear shareholder count when not applicable
+    watch(
+      () => formState.value.isCloselyHeld,
+      (isCloselyHeld) => {
+        if (!isCloselyHeld) {
+          formState.value.closelyHeldShareholderCount = undefined;
+        }
+      },
+      { immediate: true }
+    );
+
+    // Watch par value free shares and clear parValue when applicable
+    watch(
+      () => formState.value.hasParValueFreeShares,
+      (hasParValueFree) => {
+        if (hasParValueFree) {
+          formState.value.parValue = undefined;
+        }
+      }
     );
 
     return {

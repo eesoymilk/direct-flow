@@ -25,7 +25,6 @@ type CompanyBasicInfoField =
   | {
       fieldPath:
         | "capitalAmount"
-        | "authorizedShares"
         | "ordinaryShares"
         | "preferredShares";
       value: number;

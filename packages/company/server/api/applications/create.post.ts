@@ -1,4 +1,4 @@
-const bodySchema = companyApplicationFormSchema.extend({
+const bodySchema = companyApplicationBaseSchema.extend({
   responsiblePerson: responsiblePersonSchema,
   contactPerson: contactPersonSchema,
   director: representativeSchema,

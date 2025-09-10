@@ -38,6 +38,27 @@ export const companyApplications = pgTable("company_applications", {
   preferredSharesAmount: integer("preferred_shares_amount"), // 特別股股款總額 (calculated)
   paidInCapital: integer("paid_in_capital"), // 實收資本總額
   address: varchar("address").notNull(), // 地址
+
+  // Shared fields for corporation and limited company
+  isForeignInvestment: boolean("is_foreign_investment").default(false), // 僑外投資事業
+  isChineseInvestment: boolean("is_chinese_investment").default(false), // 陸資
+
+  // Corporation-specific fields
+  isPublicOffering: boolean("is_public_offering").default(false), // 公開發行
+  closelyHeldShareholderCount: integer("closely_held_shareholder_count"), // 閉鎖性股份有限公司股東人數
+  hasMultipleVotingRightsPreferredShares: boolean(
+    "has_multiple_voting_rights_preferred_shares"
+  ).default(false), // 複數表決權特別股
+  hasVetoRightsPreferredShares: boolean(
+    "has_veto_rights_preferred_shares"
+  ).default(false), // 對於特定事項具否決權特別股
+  hasPreferredSharesBoardRights: boolean(
+    "has_preferred_shares_board_rights"
+  ).default(false), // 特別股股東被選為董事、監察人之禁止或限制或當選一定名額之權利
+
+  // Limited company-specific fields
+  isSoleProprietorshipLLC: boolean("is_sole_proprietorship_llc").default(false), // 一人公司
+
   responsiblePersonId: uuid("responsible_person_id").references(
     () => people.id,
     { onDelete: "cascade" }

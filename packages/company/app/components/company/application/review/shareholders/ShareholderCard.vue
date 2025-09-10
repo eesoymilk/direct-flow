@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldStatus, ShareholderField  } from "../types";
+import type { FieldStatus, ShareholderField } from "../types";
 
 interface Props {
   shareholder: ShareholderResponse;
