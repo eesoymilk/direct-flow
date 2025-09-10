@@ -94,7 +94,7 @@ describe("Share Management System Integration", () => {
         (sum, holding) => sum + holding.quantity,
         0
       );
-      
+
       // Verify total shares is calculated correctly
       expect(totalShares).toBeGreaterThan(0);
     });

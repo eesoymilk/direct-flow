@@ -1,15 +1,14 @@
 import { people } from "../../database";
-import type { CalendarDate } from "@internationalized/date";
 
-// Helper to convert CalendarDate to database string format
-const convertDateOfBirth = (dateOfBirth?: CalendarDate) => {
+// Helper to convert Date to database string format
+const convertDateOfBirth = (dateOfBirth?: Date) => {
   if (!dateOfBirth) return null;
-  return `${dateOfBirth.year}-${String(dateOfBirth.month).padStart(2, "0")}-${String(dateOfBirth.day).padStart(2, "0")}`;
+  return dateOfBirth.toISOString().split('T')[0];
 };
 
 export const createPerson = async (
   db: DrizzleClient | DrizzleTransaction,
-  personData: any // Using any to handle the CalendarDate conversion
+  personData: PersonSchema // Using PersonSchema for type safety
 ) => {
   // Convert CalendarDate to string for database storage
   const dbPersonData = {
@@ -18,5 +17,8 @@ export const createPerson = async (
   };
 
   const [result] = await db.insert(people).values(dbPersonData).returning();
+  if (!result) {
+    throw new Error('Failed to create person');
+  }
   return result;
 };

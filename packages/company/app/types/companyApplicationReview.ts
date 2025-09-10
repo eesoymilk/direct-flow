@@ -23,10 +23,7 @@ type CompanyBasicInfoField =
       value: string;
     }
   | {
-      fieldPath:
-        | "capitalAmount"
-        | "ordinaryShares"
-        | "preferredShares";
+      fieldPath: "capitalAmount" | "ordinaryShares" | "preferredShares";
       value: number;
     };
 

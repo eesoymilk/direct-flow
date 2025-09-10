@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { companyApplicationFormSchema, companyApplicationBaseSchema } from "../../shared/utils/schemas/companyApplication";
+import {
+  companyApplicationFormSchema,
+  companyApplicationBaseSchema,
+} from "../../shared/utils/schemas/companyApplication";
 import type { CompanyApplicationFormSchema } from "../../shared/utils/schemas/companyApplication";
 
 describe("Organization Type Form Validation", () => {
@@ -210,7 +213,8 @@ describe("Organization Type Form Validation", () => {
         isChineseInvestment: true,
       };
 
-      const corporationResult = companyApplicationFormSchema.safeParse(corporationData);
+      const corporationResult =
+        companyApplicationFormSchema.safeParse(corporationData);
       expect(corporationResult.success).toBe(true);
 
       // Test limited company
@@ -222,7 +226,8 @@ describe("Organization Type Form Validation", () => {
         isSoleProprietorshipLLC: false,
       };
 
-      const limitedResult = companyApplicationFormSchema.safeParse(limitedCompanyData);
+      const limitedResult =
+        companyApplicationFormSchema.safeParse(limitedCompanyData);
       expect(limitedResult.success).toBe(true);
     });
   });
@@ -244,7 +249,9 @@ describe("Organization Type Form Validation", () => {
         isSoleProprietorshipLLC: false,
       };
 
-      const result = companyApplicationFormSchema.safeParse(soleProprietorshipData);
+      const result = companyApplicationFormSchema.safeParse(
+        soleProprietorshipData
+      );
       expect(result.success).toBe(true);
     });
 
@@ -334,10 +341,13 @@ describe("Organization Type Form Validation", () => {
       const result = companyApplicationFormSchema.safeParse(testData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues.some(issue => 
-          issue.path.includes("closelyHeldShareholderCount") && 
-          issue.message.includes("integer")
-        )).toBe(true);
+        expect(
+          result.error.issues.some(
+            (issue) =>
+              issue.path.includes("closelyHeldShareholderCount") &&
+              issue.message.includes("integer")
+          )
+        ).toBe(true);
       }
     });
 
@@ -355,10 +365,14 @@ describe("Organization Type Form Validation", () => {
       const result = companyApplicationFormSchema.safeParse(testData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues.some(issue => 
-          issue.path.includes("closelyHeldShareholderCount") && 
-          (issue.message.includes("positive") || issue.message.includes("greater than 0"))
-        )).toBe(true);
+        expect(
+          result.error.issues.some(
+            (issue) =>
+              issue.path.includes("closelyHeldShareholderCount") &&
+              (issue.message.includes("positive") ||
+                issue.message.includes("greater than 0"))
+          )
+        ).toBe(true);
       }
     });
   });

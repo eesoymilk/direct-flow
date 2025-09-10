@@ -69,7 +69,12 @@ export default eventHandler(async (event) => {
           } else if (shareholder.referenceType === "contactPerson") {
             shareholderResult = contactPersonResult;
           } else {
-            shareholderResult = await createPerson(tx, shareholder);
+            // Ensure email is provided for new shareholders
+            const shareholderPersonData = {
+              ...shareholder,
+              email: shareholder.email || '', // Provide default empty string if email is not provided
+            };
+            shareholderResult = await createPerson(tx, shareholderPersonData);
           }
 
           shareholderData.push({

@@ -17,6 +17,9 @@ export const createCompanyApplication = async (
     .insert(companyApplications)
     .values(applicationData)
     .returning();
+  if (!result) {
+    throw new Error('Failed to create company application');
+  }
   return result;
 };
 

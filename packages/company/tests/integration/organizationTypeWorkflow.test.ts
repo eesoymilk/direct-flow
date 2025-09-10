@@ -78,7 +78,8 @@ describe("Organization Type Workflow Integration", () => {
 
       // Step 2: Fill in basic company information
       store.formState.candidateNames = mockData.candidateNames;
-      store.formState.businessItemsDescription = mockData.businessItemsDescription;
+      store.formState.businessItemsDescription =
+        mockData.businessItemsDescription;
       store.formState.address = mockData.address;
       store.formState.capitalAmount = mockData.capitalAmount;
 
@@ -93,10 +94,14 @@ describe("Organization Type Workflow Integration", () => {
       store.formState.isForeignInvestment = mockData.isForeignInvestment;
       store.formState.isChineseInvestment = mockData.isChineseInvestment;
       store.formState.isPublicOffering = mockData.isPublicOffering;
-      store.formState.closelyHeldShareholderCount = mockData.closelyHeldShareholderCount;
-      store.formState.hasMultipleVotingRightsPreferredShares = mockData.hasMultipleVotingRightsPreferredShares;
-      store.formState.hasVetoRightsPreferredShares = mockData.hasVetoRightsPreferredShares;
-      store.formState.hasPreferredSharesBoardRights = mockData.hasPreferredSharesBoardRights;
+      store.formState.closelyHeldShareholderCount =
+        mockData.closelyHeldShareholderCount;
+      store.formState.hasMultipleVotingRightsPreferredShares =
+        mockData.hasMultipleVotingRightsPreferredShares;
+      store.formState.hasVetoRightsPreferredShares =
+        mockData.hasVetoRightsPreferredShares;
+      store.formState.hasPreferredSharesBoardRights =
+        mockData.hasPreferredSharesBoardRights;
 
       // Step 5: Verify all fields are set correctly
       expect(store.formState.organizationType).toBe("corporation");
@@ -180,7 +185,8 @@ describe("Organization Type Workflow Integration", () => {
 
       // Step 2: Fill in basic company information
       store.formState.candidateNames = mockData.candidateNames;
-      store.formState.businessItemsDescription = mockData.businessItemsDescription;
+      store.formState.businessItemsDescription =
+        mockData.businessItemsDescription;
       store.formState.address = mockData.address;
       store.formState.capitalAmount = mockData.capitalAmount;
 
@@ -189,7 +195,8 @@ describe("Organization Type Workflow Integration", () => {
       store.formState.isChineseInvestment = mockData.isChineseInvestment;
 
       // Step 4: Fill in limited company-specific fields
-      store.formState.isSoleProprietorshipLLC = mockData.isSoleProprietorshipLLC;
+      store.formState.isSoleProprietorshipLLC =
+        mockData.isSoleProprietorshipLLC;
 
       // Step 5: Verify share-related fields are not applicable
       expect(store.formState.parValue).toBeUndefined();
@@ -200,7 +207,9 @@ describe("Organization Type Workflow Integration", () => {
       // Step 6: Verify corporation-specific fields are false/undefined
       expect(store.formState.isPublicOffering).toBe(false);
       expect(store.formState.closelyHeldShareholderCount).toBeUndefined();
-      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(false);
+      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(
+        false
+      );
       expect(store.formState.hasVetoRightsPreferredShares).toBe(false);
       expect(store.formState.hasPreferredSharesBoardRights).toBe(false);
 
@@ -255,7 +264,9 @@ describe("Organization Type Workflow Integration", () => {
       expect(store.formState.isCloselyHeld).toBe(false);
       expect(store.formState.closelyHeldShareholderCount).toBeUndefined();
       expect(store.formState.isPublicOffering).toBe(false);
-      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(false);
+      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(
+        false
+      );
       expect(store.formState.hasVetoRightsPreferredShares).toBe(false);
       expect(store.formState.hasPreferredSharesBoardRights).toBe(false);
 
@@ -264,7 +275,9 @@ describe("Organization Type Workflow Integration", () => {
       expect(store.formState.isChineseInvestment).toBe(false); // Preserved
 
       // Basic fields should be preserved
-      expect(store.formState.candidateNames).toEqual(corporationData.candidateNames);
+      expect(store.formState.candidateNames).toEqual(
+        corporationData.candidateNames
+      );
       expect(store.formState.capitalAmount).toBe(corporationData.capitalAmount);
     });
 
@@ -299,8 +312,12 @@ describe("Organization Type Workflow Integration", () => {
       expect(store.formState.isChineseInvestment).toBe(true); // Preserved
 
       // Basic fields should be preserved
-      expect(store.formState.candidateNames).toEqual(limitedCompanyData.candidateNames);
-      expect(store.formState.capitalAmount).toBe(limitedCompanyData.capitalAmount);
+      expect(store.formState.candidateNames).toEqual(
+        limitedCompanyData.candidateNames
+      );
+      expect(store.formState.capitalAmount).toBe(
+        limitedCompanyData.capitalAmount
+      );
     });
 
     it("should clear shared fields when switching to unsupported organization type", async () => {
@@ -341,9 +358,15 @@ describe("Organization Type Workflow Integration", () => {
 
       // Should have appropriate corporation-specific fields
       expect(typeof store.formState.isPublicOffering).toBe("boolean");
-      expect(typeof store.formState.hasMultipleVotingRightsPreferredShares).toBe("boolean");
-      expect(typeof store.formState.hasVetoRightsPreferredShares).toBe("boolean");
-      expect(typeof store.formState.hasPreferredSharesBoardRights).toBe("boolean");
+      expect(
+        typeof store.formState.hasMultipleVotingRightsPreferredShares
+      ).toBe("boolean");
+      expect(typeof store.formState.hasVetoRightsPreferredShares).toBe(
+        "boolean"
+      );
+      expect(typeof store.formState.hasPreferredSharesBoardRights).toBe(
+        "boolean"
+      );
 
       // Should have shared fields
       expect(typeof store.formState.isForeignInvestment).toBe("boolean");
@@ -374,7 +397,9 @@ describe("Organization Type Workflow Integration", () => {
       // Corporation-specific fields should be false/undefined
       expect(store.formState.isPublicOffering).toBe(false);
       expect(store.formState.closelyHeldShareholderCount).toBeUndefined();
-      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(false);
+      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(
+        false
+      );
       expect(store.formState.hasVetoRightsPreferredShares).toBe(false);
       expect(store.formState.hasPreferredSharesBoardRights).toBe(false);
     });
@@ -434,7 +459,9 @@ describe("Organization Type Workflow Integration", () => {
       expect(store.formState.isChineseInvestment).toBe(false);
       expect(store.formState.isPublicOffering).toBe(false);
       expect(store.formState.closelyHeldShareholderCount).toBeUndefined();
-      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(false);
+      expect(store.formState.hasMultipleVotingRightsPreferredShares).toBe(
+        false
+      );
       expect(store.formState.hasVetoRightsPreferredShares).toBe(false);
       expect(store.formState.hasPreferredSharesBoardRights).toBe(false);
       expect(store.formState.isSoleProprietorshipLLC).toBe(false);

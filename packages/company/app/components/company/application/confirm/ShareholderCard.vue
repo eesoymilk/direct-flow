@@ -79,5 +79,5 @@ interface Props {
 
 defineProps<Props>();
 
-const { shareCount } = storeToRefs(useCompanyApplicationStore());
+// const { shareCount } = storeToRefs(useCompanyApplicationStore());
 </script>

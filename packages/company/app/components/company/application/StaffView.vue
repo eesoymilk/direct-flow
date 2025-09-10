@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 interface Props {
-  application: any; // TODO: Add proper typing
+  application: CompanyApplicationResponse;
 }
 
 defineProps<Props>();

@@ -7,7 +7,15 @@ import {
   getShareholderDocumentFieldInfos,
 } from "./utils";
 import type { ReviewSections, SectionKey, SectionState } from "./types";
-import type { ReviewRound } from "~/shared/types/database";
+// import type { ReviewRound } from "../../../../shared/types/database";
+// Temporary type until proper import is fixed
+type ReviewRound = {
+  id: string;
+  applicationId: string;
+  createdAt: Date;
+  status: string;
+};
+
 import { PERSON_TYPES } from "./constants";
 
 export const useCompanyApplicationReviewStore = defineStore(

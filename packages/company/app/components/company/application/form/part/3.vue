@@ -118,88 +118,89 @@
                 <!-- Stock company shares -->
                 <div class="col-span-full space-y-4">
                   <h4 class="text-md font-medium text-text">持股資料</h4>
-                  <UForm
-                    v-if="isStockCompany && shareholder.shares"
-                    v-for="[shareType, share] in Object.entries(
-                      shareholder.shares
-                    ).slice(0, shareCount)"
-                    :key="shareType"
-                    :state="share"
-                    :schema="getShareSchema(shareType as ShareType)"
-                  >
-                    <UCard
-                      class="bg-primary/5 rounded-lg border border-primary/20"
+                  <template v-if="isStockCompany && shareholder.shares">
+                    <UForm
+                      v-for="[shareType, share] in Object.entries(
+                        shareholder.shares
+                      ).slice(0, shareCount)"
+                      :key="shareType"
+                      :state="share"
+                      :schema="getShareSchema(shareType as ShareType)"
                     >
-                      <template #header>
-                        <h5 class="text-sm font-medium text-primary">
-                          {{ getShareTypeLabel(shareType as ShareType) }}
-                        </h5>
-                      </template>
+                      <UCard
+                        class="bg-primary/5 rounded-lg border border-primary/20"
+                      >
+                        <template #header>
+                          <h5 class="text-sm font-medium text-primary">
+                            {{ getShareTypeLabel(shareType as ShareType) }}
+                          </h5>
+                        </template>
 
-                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <UFormField label="股數">
-                          <UInputNumber
-                            v-model="share.quantity"
-                            :min="0"
-                            placeholder="請輸入股數"
-                            class="w-full"
-                            :format-options="{
-                              style: 'decimal',
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }"
-                            @update:model-value="
-                              updateQuantity(
-                                shareholder,
-                                shareType as ShareType,
-                                $event
-                              )
-                            "
-                          />
-                        </UFormField>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <UFormField label="股數">
+                            <UInputNumber
+                              v-model="share.quantity"
+                              :min="0"
+                              placeholder="請輸入股數"
+                              class="w-full"
+                              :format-options="{
+                                style: 'decimal',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }"
+                              @update:model-value="
+                                updateQuantity(
+                                  shareholder,
+                                  shareType as ShareType,
+                                  $event
+                                )
+                              "
+                            />
+                          </UFormField>
 
-                        <UFormField label="每股金額">
-                          <UInputNumber
-                            v-model="share.pricePerShare"
-                            :min="0"
-                            :step="0.01"
-                            placeholder="請輸入每股金額"
-                            class="w-full"
-                            :format-options="{
-                              style: 'currency',
-                              currency: 'TWD',
-                              currencyDisplay: 'code',
-                              currencySign: 'accounting',
-                            }"
-                            @update:model-value="
-                              updatePricePerShare(
-                                shareholder,
-                                shareType as ShareType,
-                                $event
-                              )
-                            "
-                          />
-                        </UFormField>
+                          <UFormField label="每股金額">
+                            <UInputNumber
+                              v-model="share.pricePerShare"
+                              :min="0"
+                              :step="0.01"
+                              placeholder="請輸入每股金額"
+                              class="w-full"
+                              :format-options="{
+                                style: 'currency',
+                                currency: 'TWD',
+                                currencyDisplay: 'code',
+                                currencySign: 'accounting',
+                              }"
+                              @update:model-value="
+                                updatePricePerShare(
+                                  shareholder,
+                                  shareType as ShareType,
+                                  $event
+                                )
+                              "
+                            />
+                          </UFormField>
 
-                        <UFormField label="總金額">
-                          <UInputNumber
-                            v-model="share.totalPrice"
-                            :min="0"
-                            :step="0.01"
-                            disabled
-                            placeholder="自動計算"
-                            class="w-full opacity-60"
-                            :format-options="{
-                              style: 'currency',
-                              currency: 'TWD',
-                              currencyDisplay: 'code',
-                              currencySign: 'accounting',
-                            }"
-                          />
-                        </UFormField>
-                      </div>
-                    </UCard>
-                  </UForm>
+                          <UFormField label="總金額">
+                            <UInputNumber
+                              v-model="share.totalPrice"
+                              :min="0"
+                              :step="0.01"
+                              disabled
+                              placeholder="自動計算"
+                              class="w-full opacity-60"
+                              :format-options="{
+                                style: 'currency',
+                                currency: 'TWD',
+                                currencyDisplay: 'code',
+                                currencySign: 'accounting',
+                              }"
+                            />
+                          </UFormField>
+                        </div>
+                      </UCard>
+                    </UForm>
+                  </template>
                 </div>
                 <!-- <CompanyApplicationSharesField
                   v-if="isStockCompany && shareholder.shares"

@@ -16,7 +16,7 @@
 
         <UFormField :label="`${getShareTypeLabel(shareType)} 股數`">
           <UInputNumber
-            v-model="shareValue?.[shareType]?.quantity"
+            :model-value="shareValue?.[shareType]?.quantity || 0"
             :min="0"
             placeholder="請輸入股數"
             class="w-full"
@@ -31,7 +31,7 @@
 
         <UFormField :label="`${getShareTypeLabel(shareType)} 每股金額`">
           <UInputNumber
-            v-model="shareValue?.[shareType]?.pricePerShare"
+            :model-value="shareValue?.[shareType]?.pricePerShare || 0"
             :min="0"
             :step="0.01"
             placeholder="請輸入每股金額"
@@ -48,7 +48,7 @@
 
         <UFormField :label="`${getShareTypeLabel(shareType)} 總金額`">
           <UInputNumber
-            v-model="shareValue?.[shareType]?.totalPrice"
+            :model-value="shareValue?.[shareType]?.totalPrice || 0"
             :min="0"
             :step="0.01"
             disabled

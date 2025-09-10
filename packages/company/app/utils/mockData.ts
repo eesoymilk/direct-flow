@@ -159,10 +159,13 @@ export const generateMockFormData = ({
     // Corporation-specific fields
     ...(organizationType === "corporation"
       ? (() => {
-          const capitalAmount = faker.number.int({ min: 100000, max: 50000000 });
-          const paidInCapital = faker.number.int({ 
-            min: Math.min(100000, capitalAmount), 
-            max: capitalAmount 
+          const capitalAmount = faker.number.int({
+            min: 100000,
+            max: 50000000,
+          });
+          const paidInCapital = faker.number.int({
+            min: Math.min(100000, capitalAmount),
+            max: capitalAmount,
           });
           return {
             capitalAmount,

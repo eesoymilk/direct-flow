@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
+// import { mountSuspended } from "@nuxt/test-utils/runtime";
 
 describe("Apply Pages Component Tests", () => {
   it("should mount apply index page", async () => {

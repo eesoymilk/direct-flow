@@ -187,7 +187,7 @@ interface Props {
   isStockCompany: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const applicationStore = useCompanyApplicationStore();
 const { ordinarySharesTotal, preferredSharesTotal, totalShares } =
