@@ -1,5 +1,5 @@
 {
-  "id": "ce60f661-f131-407f-a657-3ebee213e402",
+  "id": "195db578-9b35-40bb-b0ec-ca45342a397d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -111,6 +111,61 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_foreign_investment": {
+          "name": "is_foreign_investment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_chinese_investment": {
+          "name": "is_chinese_investment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_public_offering": {
+          "name": "is_public_offering",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "closely_held_shareholder_count": {
+          "name": "closely_held_shareholder_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "has_multiple_voting_rights_preferred_shares": {
+          "name": "has_multiple_voting_rights_preferred_shares",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "has_veto_rights_preferred_shares": {
+          "name": "has_veto_rights_preferred_shares",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "has_preferred_shares_board_rights": {
+          "name": "has_preferred_shares_board_rights",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_sole_proprietorship_llc": {
+          "name": "is_sole_proprietorship_llc",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "responsible_person_id": {
           "name": "responsible_person_id",
@@ -474,8 +529,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "authorized_shares": {
-          "name": "authorized_shares",
+        "paid_in_capital": {
+          "name": "paid_in_capital",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -485,6 +540,61 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_foreign_investment": {
+          "name": "is_foreign_investment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_chinese_investment": {
+          "name": "is_chinese_investment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_public_offering": {
+          "name": "is_public_offering",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "closely_held_shareholder_count": {
+          "name": "closely_held_shareholder_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "has_multiple_voting_rights_preferred_shares": {
+          "name": "has_multiple_voting_rights_preferred_shares",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "has_veto_rights_preferred_shares": {
+          "name": "has_veto_rights_preferred_shares",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "has_preferred_shares_board_rights": {
+          "name": "has_preferred_shares_board_rights",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "is_sole_proprietorship_llc": {
+          "name": "is_sole_proprietorship_llc",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "responsible_person_id": {
           "name": "responsible_person_id",
