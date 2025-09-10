@@ -19,6 +19,7 @@
     "test:company": "pnpm --filter=@direct-flow/company test:run",
     "test:base": "pnpm --filter=@direct-flow/base test:run",
     "build": "pnpm -r build",
+    "build:audit": "pnpm --filter=@direct-flow/audit build",
     "build:company": "pnpm --filter=@direct-flow/company build",
     "build:base": "pnpm --filter=@direct-flow/base build",
     "dev:audit": "pnpm --filter=@direct-flow/audit dev",

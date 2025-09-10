@@ -18,8 +18,19 @@ This is a TypeScript-first, Nuxt 4-based monorepo using PNPM workspaces with a s
 
 - `packages/base/` - Core Nuxt layer providing shared functionality, components, and configurations
 - `packages/company/` - Main company registration application extending base layer functionality
-- Company app uses Nuxt layers to extend base package functionality through `extends: ["../base"]`
-- Focus development efforts primarily on the company application
+- `packages/audit/` - Audit 財報 system extending base layer functionality
+- Both company and audit apps use Nuxt layers to extend base package functionality through `extends: ["../base"]`
+- Focus development efforts primarily on the company application and audit system
+
+**Current Development Status:**
+- `packages/company/` - **Production Ready** - Full company registration system with review workflow
+- `packages/audit/` - **In Development** - Audit 財報 system for CPA workflow optimization
+  - ✅ Homepage with consistent styling 
+  - ✅ Header/layout structure with navigation
+  - ✅ Priority 1 components moved to base (InfoDisplay, DatePicker, SuccessIcon, Formed/* components)
+  - ✅ Essential utilities moved to base (cn.ts, formatting.ts)
+  - 🔄 Currently working on: Nuxt layer configuration and basic routing
+  - 🔄 Next: "Sandwich builder" interface for modular 財報 construction
 
 ## Common Development Commands
 
@@ -31,52 +42,81 @@ pnpm install
 
 # Run commands in specific workspace
 pnpm --filter=@direct-flow/company run [script]
+pnpm --filter=@direct-flow/audit run [script]
 ```
 
 ### Development
 
 ```bash
 # Start development server (company app) - primary development focus
-pnpm --filter=@direct-flow/company run dev
+pnpm dev:company
+
+# Start development server (audit app) - audit 財報 system
+pnpm dev:audit
 
 # Start base layer development (when needed)
-pnpm --filter=@direct-flow/base run dev
+pnpm dev:base
 ```
 
 ### Build and Production
 
 ```bash
-# Build for production
-pnpm --filter=@direct-flow/company run build
+# Build for production (company app)
+pnpm build:company
 
-# Preview production build
-pnpm --filter=@direct-flow/company run preview
+# Build for production (audit app) 
+# Note: Use full command as shorthand not available yet
+pnpm --filter=@direct-flow/audit build
 
-# Build with proper dependencies between packages
-pnpm run build
+# Preview production build (company)
+pnpm --filter=@direct-flow/company preview
+
+# Preview production build (audit)
+pnpm --filter=@direct-flow/audit preview
+
+# Build all packages with proper dependencies
+pnpm build
 ```
 
 ### Database Operations
 
 ```bash
-# Generate database migrations
-pnpm --filter=@direct-flow/company run db:generate
+# Generate database migrations (company)
+pnpm db:company:generate
 
-# Run database migrations
-pnpm --filter=@direct-flow/company run db:migrate
+# Generate database migrations (audit)
+pnpm db:audit:generate
+
+# Run database migrations (company)
+pnpm db:company:migrate
+
+# Run database migrations (audit)
+pnpm db:audit:migrate
 ```
 
 ### Code Quality
 
 ```bash
-# Run ESLint
-pnpm --filter=@direct-flow/company run lint
+# Run ESLint (company)
+pnpm lint:company
 
-# Fix ESLint issues
-pnpm --filter=@direct-flow/company run lint:fix
+# Run ESLint (audit)
+pnpm --filter=@direct-flow/audit lint
 
-# Format with Prettier
-pnpm --filter=@direct-flow/company run format
+# Fix ESLint issues (company)
+pnpm --filter=@direct-flow/company lint:fix
+
+# Fix ESLint issues (audit)  
+pnpm --filter=@direct-flow/audit lint:fix
+
+# Format with Prettier (company)
+pnpm --filter=@direct-flow/company format
+
+# Format with Prettier (audit)
+pnpm --filter=@direct-flow/audit format
+
+# Run all linting across packages
+pnpm lint
 ```
 
 ## Technology Stack and Architecture
