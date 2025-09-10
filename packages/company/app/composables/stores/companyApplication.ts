@@ -276,13 +276,22 @@ export const useCompanyApplicationStore = defineStore(
   }
 );
 
-function createEmptyShares(): {
-  ordinary: { quantity: number; pricePerShare: number; totalPrice: number };
-  preferred_a: { quantity: number; pricePerShare: number; totalPrice: number };
-  preferred_b: { quantity: number; pricePerShare: number; totalPrice: number };
-  preferred_c: { quantity: number; pricePerShare: number; totalPrice: number };
-  preferred_d: { quantity: number; pricePerShare: number; totalPrice: number };
-  preferred_e: { quantity: number; pricePerShare: number; totalPrice: number };
-} {
-  throw new Error("Function not implemented.");
+function createEmptyShares(): Record<
+  ShareType,
+  { quantity: number; pricePerShare: number; totalPrice: number }
+> {
+  return SHARE_TYPES.reduce(
+    (acc, shareType) => {
+      acc[shareType] = {
+        quantity: 0,
+        pricePerShare: 0,
+        totalPrice: 0,
+      };
+      return acc;
+    },
+    {} as Record<
+      ShareType,
+      { quantity: number; pricePerShare: number; totalPrice: number }
+    >
+  );
 }
