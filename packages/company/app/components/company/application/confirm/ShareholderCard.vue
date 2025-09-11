@@ -56,6 +56,15 @@
               : '未填寫'
           "
         />
+        <InfoDisplay
+          label="出資額"
+          icon="i-lucide-dollar-sign"
+          :value="
+            shareholder.capitalContribution !== undefined && shareholder.capitalContribution !== null
+              ? `NT$ ${shareholder.capitalContribution.toLocaleString()}`
+              : '未填寫'
+          "
+        />
       </div>
 
       <!-- Share Holdings (for stock companies) -->
