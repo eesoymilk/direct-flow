@@ -21,6 +21,12 @@
           color="info"
           variant="subtle"
         />
+        <UBadge
+          v-if="shareholder.capitalContribution !== null"
+          :label="`NT$ ${shareholder.capitalContribution.toLocaleString()}`"
+          color="success"
+          variant="subtle"
+        />
       </div>
       <div class="flex items-center gap-2">
         <UBadge
@@ -150,6 +156,23 @@
                 :has-issue="shareholderStatuses.shares.hasIssue"
                 :field-path="`shareholders[${index}].shares`"
                 @verify="() => $emit('verifyField', 'shares', index)"
+                @add-issue="(issue) => $emit('addFieldIssue', issue)"
+              />
+            </template>
+          </CompanyApplicationReviewUiFieldCard>
+
+          <!-- Capital Contribution -->
+          <CompanyApplicationReviewUiFieldCard
+            label="出資額"
+            :value="shareholder.capitalContribution !== null ? `NT$ ${shareholder.capitalContribution?.toLocaleString()}` : '未填寫'"
+            v-bind="shareholderStatusesProps.capitalContribution"
+          >
+            <template #actions>
+              <CompanyApplicationReviewUiFieldActions
+                :is-verified="shareholderStatuses.capitalContribution.isVerified"
+                :has-issue="shareholderStatuses.capitalContribution.hasIssue"
+                :field-path="`shareholders[${index}].capitalContribution`"
+                @verify="() => $emit('verifyField', 'capitalContribution', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
             </template>
