@@ -25,14 +25,16 @@
     <!-- Person Information Grid -->
     <CompanyApplicationConfirmPersonInfoGrid :form-state="formState" />
 
-    <!-- Shareholders Information -->
+    <!-- Shareholders Information (only for corporation and limited_company) -->
     <CompanyApplicationConfirmShareholdersInfo
+      v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'"
       :shareholders="formState.shareholders"
       :is-stock-company="applicationStore.isStockCompany"
     />
 
-    <!-- Share Summary (for stock companies) -->
+    <!-- Share Summary (only for corporation and limited_company) -->
     <CompanyApplicationConfirmShareSummary
+      v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'"
       :shareholders="formState.shareholders"
       :is-stock-company="applicationStore.isStockCompany"
     />
