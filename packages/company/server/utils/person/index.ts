@@ -3,7 +3,7 @@ import { people } from "../../database";
 // Helper to convert Date to database string format
 const convertDateOfBirth = (dateOfBirth?: Date) => {
   if (!dateOfBirth) return null;
-  return dateOfBirth.toISOString().split('T')[0];
+  return dateOfBirth.toISOString().split("T")[0];
 };
 
 export const createPerson = async (
@@ -18,7 +18,7 @@ export const createPerson = async (
 
   const [result] = await db.insert(people).values(dbPersonData).returning();
   if (!result) {
-    throw new Error('Failed to create person');
+    throw new Error("Failed to create person");
   }
   return result;
 };

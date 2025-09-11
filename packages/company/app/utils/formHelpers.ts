@@ -1,11 +1,20 @@
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type * as z from "zod";
 
+// Create a date 18 years ago to set as default for adult persons
+const createDefaultAdultBirthDate = (): Date => {
+  const today = new Date();
+  const eighteenYearsAgo = new Date(today);
+  eighteenYearsAgo.setFullYear(today.getFullYear() - 18);
+  return eighteenYearsAgo;
+};
+
 export const createEmptyPerson = (): PersonSchema => ({
   name: "",
   idNumber: "",
   address: "",
   email: "",
+  dateOfBirth: createDefaultAdultBirthDate(),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -35,7 +44,7 @@ export const createEmptyShareholder = (): ShareholderSchema => ({
   name: "",
   idNumber: "",
   address: "",
-  dateOfBirth: new Date(),
+  dateOfBirth: createDefaultAdultBirthDate(),
   isReadonly: false,
   shares: createEmptyShares(),
 });

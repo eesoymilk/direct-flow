@@ -72,7 +72,7 @@ export default eventHandler(async (event) => {
             // Ensure email is provided for new shareholders
             const shareholderPersonData = {
               ...shareholder,
-              email: shareholder.email || '', // Provide default empty string if email is not provided
+              email: shareholder.email || "", // Provide default empty string if email is not provided
             };
             shareholderResult = await createPerson(tx, shareholderPersonData);
           }
