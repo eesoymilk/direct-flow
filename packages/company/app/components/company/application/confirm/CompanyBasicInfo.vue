@@ -55,120 +55,147 @@
         full-width
       />
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <InfoDisplay
-          label="組織類型"
-          icon="i-lucide-building"
-          :value="getOrganizationTypeLabel(formState.organizationType)"
-        />
-
-        <UAlert
-          v-if="
-            formState.hasParValueFreeShares &&
-            formState.organizationType === 'corporation'
-          "
-          icon="i-lucide-info"
-          color="primary"
-          variant="soft"
-          title="股份型態"
-          description="採用無票面金額股份"
-        />
-
-        <UAlert
-          v-if="formState.isCloselyHeld"
-          icon="i-lucide-shield"
-          color="secondary"
-          variant="soft"
-          title="公司類型"
-          description="閉鎖型股份有限公司"
-        />
-      </div>
-
-      <!-- Investment and Company Type Flags -->
-      <template v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'">
+      <!-- Organization Type and Basic Configuration -->
+      <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <UAlert
-            v-if="formState.isForeignInvestment"
-            icon="i-lucide-globe"
-            color="purple"
-            variant="soft"
-            title="僑外投資事業"
-            description="已申報為僑外投資事業"
-          />
-
-          <UAlert
-            v-if="formState.isChineseInvestment"
-            icon="i-lucide-flag"
-            color="orange"
-            variant="soft"
-            title="陸資投資"
-            description="涉及大陸地區投資"
-          />
-
-          <UAlert
-            v-if="formState.isPublicOffering && formState.organizationType === 'corporation'"
-            icon="i-lucide-trending-up"
-            color="green"
-            variant="soft"
-            title="公開發行"
-            description="公開發行股份有限公司"
+          <InfoDisplay
+            label="組織類型"
+            icon="i-lucide-building"
+            :value="getOrganizationTypeLabel(formState.organizationType)"
+            variant="highlighted"
+            class="md:col-span-3"
           />
         </div>
-      </template>
 
-      <!-- Corporation-specific Features -->
-      <InfoDisplay
-        v-if="formState.organizationType === 'corporation' && formState.closelyHeldShareholderCount"
-        label="閉鎖型股東人數"
-        icon="i-lucide-users"
-        :value="formState.closelyHeldShareholderCount"
-        :formatter="(val) => `${val} 人`"
-      />
+        <!-- Corporation Basic Configuration -->
+        <template v-if="formState.organizationType === 'corporation'">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <UAlert
+              v-if="formState.isCloselyHeld"
+              icon="i-lucide-shield"
+              color="secondary"
+              variant="soft"
+              title="閉鎖型股份有限公司"
+              description="股東人數限制的股份有限公司"
+            />
 
-      <!-- Corporation Preferred Shares Features -->
-      <template v-if="formState.organizationType === 'corporation'">
-        <div 
-          v-if="formState.hasMultipleVotingRightsPreferredShares || formState.hasVetoRightsPreferredShares || formState.hasPreferredSharesBoardRights" 
-          class="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          <UAlert
-            v-if="formState.hasMultipleVotingRightsPreferredShares"
-            icon="i-lucide-vote"
-            color="blue"
-            variant="soft"
-            title="複數表決權特別股"
-            description="具有複數表決權的特別股"
-          />
+            <UAlert
+              v-if="formState.hasParValueFreeShares"
+              icon="i-lucide-info"
+              color="primary"
+              variant="soft"
+              title="無票面金額股份"
+              description="採用無票面金額股份制度"
+            />
 
-          <UAlert
-            v-if="formState.hasVetoRightsPreferredShares"
-            icon="i-lucide-x-circle"
-            color="red"
-            variant="soft"
-            title="否決權特別股"
-            description="對特定事項具否決權的特別股"
-          />
+            <UAlert
+              v-if="formState.isPublicOffering"
+              icon="i-lucide-trending-up"
+              color="green"
+              variant="soft"
+              title="公開發行"
+              description="公開發行股份有限公司"
+            />
+          </div>
 
-          <UAlert
-            v-if="formState.hasPreferredSharesBoardRights"
-            icon="i-lucide-crown"
-            color="yellow"
-            variant="soft"
-            title="董事選任權特別股"
-            description="特別股股東董事、監察人選任權利"
-          />
-        </div>
-      </template>
+          <!-- Corporation Additional Details -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InfoDisplay
+              v-if="formState.closelyHeldShareholderCount"
+              label="閉鎖型股東人數"
+              icon="i-lucide-users"
+              :value="formState.closelyHeldShareholderCount"
+              :formatter="(val) => `${val} 人`"
+            />
+          </div>
 
-      <!-- Limited Company-specific Features -->
-      <UAlert
-        v-if="formState.organizationType === 'limited_company' && formState.isSoleProprietorshipLLC"
-        icon="i-lucide-user"
-        color="indigo"
-        variant="soft"
-        title="一人有限公司"
-        description="單一股東的有限公司"
-      />
+          <!-- Corporation Investment Flags -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <UAlert
+              v-if="formState.isForeignInvestment"
+              icon="i-lucide-globe"
+              color="purple"
+              variant="soft"
+              title="僑外投資事業"
+              description="已申報為僑外投資事業"
+            />
+
+            <UAlert
+              v-if="formState.isChineseInvestment"
+              icon="i-lucide-flag"
+              color="orange"
+              variant="soft"
+              title="陸資投資"
+              description="涉及大陸地區投資"
+            />
+          </div>
+
+          <!-- Corporation Preferred Shares Features -->
+          <div 
+            v-if="formState.hasMultipleVotingRightsPreferredShares || formState.hasVetoRightsPreferredShares || formState.hasPreferredSharesBoardRights"
+            class="grid grid-cols-1 md:grid-cols-3 gap-6"
+          >
+            <UAlert
+              v-if="formState.hasMultipleVotingRightsPreferredShares"
+              icon="i-lucide-vote"
+              color="blue"
+              variant="soft"
+              title="複數表決權特別股"
+              description="具有複數表決權的特別股"
+            />
+
+            <UAlert
+              v-if="formState.hasVetoRightsPreferredShares"
+              icon="i-lucide-x-circle"
+              color="red"
+              variant="soft"
+              title="否決權特別股"
+              description="對特定事項具否決權的特別股"
+            />
+
+            <UAlert
+              v-if="formState.hasPreferredSharesBoardRights"
+              icon="i-lucide-crown"
+              color="yellow"
+              variant="soft"
+              title="董事選任權特別股"
+              description="特別股股東董事、監察人選任權利"
+            />
+          </div>
+        </template>
+
+        <!-- Limited Company Configuration -->
+        <template v-if="formState.organizationType === 'limited_company'">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <UAlert
+              v-if="formState.isSoleProprietorshipLLC"
+              icon="i-lucide-user"
+              color="indigo"
+              variant="soft"
+              title="一人有限公司"
+              description="單一股東的有限公司"
+            />
+
+            <UAlert
+              v-if="formState.isForeignInvestment"
+              icon="i-lucide-globe"
+              color="purple"
+              variant="soft"
+              title="僑外投資事業"
+              description="已申報為僑外投資事業"
+            />
+
+            <UAlert
+              v-if="formState.isChineseInvestment"
+              icon="i-lucide-flag"
+              color="orange"
+              variant="soft"
+              title="陸資投資"
+              description="涉及大陸地區投資"
+            />
+          </div>
+        </template>
+      </div>
 
       <!-- Company Details Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
