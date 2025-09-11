@@ -85,47 +85,52 @@
       </div>
 
       <!-- Investment and Company Type Flags -->
-      <div v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UAlert
-          v-if="formState.isForeignInvestment"
-          icon="i-lucide-globe"
-          color="purple"
-          variant="soft"
-          title="僑外投資事業"
-          description="已申報為僑外投資事業"
-        />
+      <template v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <UAlert
+            v-if="formState.isForeignInvestment"
+            icon="i-lucide-globe"
+            color="purple"
+            variant="soft"
+            title="僑外投資事業"
+            description="已申報為僑外投資事業"
+          />
 
-        <UAlert
-          v-if="formState.isChineseInvestment"
-          icon="i-lucide-flag"
-          color="orange"
-          variant="soft"
-          title="陸資投資"
-          description="涉及大陸地區投資"
-        />
+          <UAlert
+            v-if="formState.isChineseInvestment"
+            icon="i-lucide-flag"
+            color="orange"
+            variant="soft"
+            title="陸資投資"
+            description="涉及大陸地區投資"
+          />
 
-        <UAlert
-          v-if="formState.isPublicOffering && formState.organizationType === 'corporation'"
-          icon="i-lucide-trending-up"
-          color="green"
-          variant="soft"
-          title="公開發行"
-          description="公開發行股份有限公司"
-        />
-      </div>
-
-      <!-- Corporation-specific Features -->
-      <div v-if="formState.organizationType === 'corporation'" class="space-y-4">
-        <div v-if="formState.closelyHeldShareholderCount" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InfoDisplay
-            label="閉鎖型股東人數"
-            icon="i-lucide-users"
-            :value="formState.closelyHeldShareholderCount"
-            :formatter="(val) => `${val} 人`"
+          <UAlert
+            v-if="formState.isPublicOffering && formState.organizationType === 'corporation'"
+            icon="i-lucide-trending-up"
+            color="green"
+            variant="soft"
+            title="公開發行"
+            description="公開發行股份有限公司"
           />
         </div>
+      </template>
 
-        <div v-if="formState.hasMultipleVotingRightsPreferredShares || formState.hasVetoRightsPreferredShares || formState.hasPreferredSharesBoardRights" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Corporation-specific Features -->
+      <InfoDisplay
+        v-if="formState.organizationType === 'corporation' && formState.closelyHeldShareholderCount"
+        label="閉鎖型股東人數"
+        icon="i-lucide-users"
+        :value="formState.closelyHeldShareholderCount"
+        :formatter="(val) => `${val} 人`"
+      />
+
+      <!-- Corporation Preferred Shares Features -->
+      <template v-if="formState.organizationType === 'corporation'">
+        <div 
+          v-if="formState.hasMultipleVotingRightsPreferredShares || formState.hasVetoRightsPreferredShares || formState.hasPreferredSharesBoardRights" 
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <UAlert
             v-if="formState.hasMultipleVotingRightsPreferredShares"
             icon="i-lucide-vote"
@@ -153,19 +158,17 @@
             description="特別股股東董事、監察人選任權利"
           />
         </div>
-      </div>
+      </template>
 
       <!-- Limited Company-specific Features -->
-      <div v-if="formState.organizationType === 'limited_company'">
-        <UAlert
-          v-if="formState.isSoleProprietorshipLLC"
-          icon="i-lucide-user"
-          color="indigo"
-          variant="soft"
-          title="一人有限公司"
-          description="單一股東的有限公司"
-        />
-      </div>
+      <UAlert
+        v-if="formState.organizationType === 'limited_company' && formState.isSoleProprietorshipLLC"
+        icon="i-lucide-user"
+        color="indigo"
+        variant="soft"
+        title="一人有限公司"
+        description="單一股東的有限公司"
+      />
 
       <!-- Company Details Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -260,15 +263,15 @@ import { getOrganizationTypeLabel } from "~/utils/company/labels";
 
 interface Props {
   formState: CompanyApplicationFormSchema & {
-    chosenName?: string;
-    ordinarySharesAmount?: number;
-    preferredSharesAmount?: number;
-    responsiblePerson: PersonSchema;
-    representative: PersonSchema;
-    contactPerson: PersonSchema;
-    shareholders: ShareholderSchema[];
+    readonly chosenName?: string;
+    readonly ordinarySharesAmount?: number | null;
+    readonly preferredSharesAmount?: number | null;
+    readonly responsiblePerson: PersonSchema;
+    readonly representative: PersonSchema;
+    readonly contactPerson: PersonSchema;
+    readonly shareholders: readonly ShareholderSchema[];
   };
-  isStockCompany: boolean;
+  readonly isStockCompany: boolean;
 }
 
 defineProps<Props>();
