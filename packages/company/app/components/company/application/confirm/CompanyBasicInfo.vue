@@ -44,6 +44,17 @@
         </div>
       </div>
 
+      <!-- Chosen Name -->
+      <InfoDisplay
+        v-if="formState.chosenName"
+        label="選定公司名稱"
+        icon="i-lucide-check-circle"
+        :value="formState.chosenName"
+        variant="highlighted"
+        class="border-2 border-green-200 bg-green-50"
+        full-width
+      />
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <InfoDisplay
           label="組織類型"
@@ -54,8 +65,7 @@
         <UAlert
           v-if="
             formState.hasParValueFreeShares &&
-            formState.organizationType === 'corporation' &&
-            formState.isCloselyHeld
+            formState.organizationType === 'corporation'
           "
           icon="i-lucide-info"
           color="primary"
@@ -71,6 +81,89 @@
           variant="soft"
           title="公司類型"
           description="閉鎖型股份有限公司"
+        />
+      </div>
+
+      <!-- Investment and Company Type Flags -->
+      <div v-if="formState.organizationType === 'corporation' || formState.organizationType === 'limited_company'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <UAlert
+          v-if="formState.isForeignInvestment"
+          icon="i-lucide-globe"
+          color="purple"
+          variant="soft"
+          title="僑外投資事業"
+          description="已申報為僑外投資事業"
+        />
+
+        <UAlert
+          v-if="formState.isChineseInvestment"
+          icon="i-lucide-flag"
+          color="orange"
+          variant="soft"
+          title="陸資投資"
+          description="涉及大陸地區投資"
+        />
+
+        <UAlert
+          v-if="formState.isPublicOffering && formState.organizationType === 'corporation'"
+          icon="i-lucide-trending-up"
+          color="green"
+          variant="soft"
+          title="公開發行"
+          description="公開發行股份有限公司"
+        />
+      </div>
+
+      <!-- Corporation-specific Features -->
+      <div v-if="formState.organizationType === 'corporation'" class="space-y-4">
+        <div v-if="formState.closelyHeldShareholderCount" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoDisplay
+            label="閉鎖型股東人數"
+            icon="i-lucide-users"
+            :value="formState.closelyHeldShareholderCount"
+            :formatter="(val) => `${val} 人`"
+          />
+        </div>
+
+        <div v-if="formState.hasMultipleVotingRightsPreferredShares || formState.hasVetoRightsPreferredShares || formState.hasPreferredSharesBoardRights" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <UAlert
+            v-if="formState.hasMultipleVotingRightsPreferredShares"
+            icon="i-lucide-vote"
+            color="blue"
+            variant="soft"
+            title="複數表決權特別股"
+            description="具有複數表決權的特別股"
+          />
+
+          <UAlert
+            v-if="formState.hasVetoRightsPreferredShares"
+            icon="i-lucide-x-circle"
+            color="red"
+            variant="soft"
+            title="否決權特別股"
+            description="對特定事項具否決權的特別股"
+          />
+
+          <UAlert
+            v-if="formState.hasPreferredSharesBoardRights"
+            icon="i-lucide-crown"
+            color="yellow"
+            variant="soft"
+            title="董事選任權特別股"
+            description="特別股股東董事、監察人選任權利"
+          />
+        </div>
+      </div>
+
+      <!-- Limited Company-specific Features -->
+      <div v-if="formState.organizationType === 'limited_company'">
+        <UAlert
+          v-if="formState.isSoleProprietorshipLLC"
+          icon="i-lucide-user"
+          color="indigo"
+          variant="soft"
+          title="一人有限公司"
+          description="單一股東的有限公司"
         />
       </div>
 
@@ -123,6 +216,26 @@
           variant="highlighted"
           :formatter="(val) => `NT$ ${val?.toLocaleString()}`"
         />
+
+        <!-- Ordinary Shares Amount -->
+        <InfoDisplay
+          v-if="formState.ordinarySharesAmount && isStockCompany"
+          label="普通股股款總額"
+          icon="i-lucide-circle-dollar-sign"
+          :value="formState.ordinarySharesAmount"
+          variant="highlighted"
+          :formatter="(val) => `NT$ ${val?.toLocaleString()}`"
+        />
+
+        <!-- Preferred Shares Amount -->
+        <InfoDisplay
+          v-if="formState.preferredSharesAmount && isStockCompany"
+          label="特別股股款總額"
+          icon="i-lucide-star"
+          :value="formState.preferredSharesAmount"
+          variant="highlighted"
+          :formatter="(val) => `NT$ ${val?.toLocaleString()}`"
+        />
       </div>
 
       <!-- Share information for stock companies -->
@@ -147,6 +260,9 @@ import { getOrganizationTypeLabel } from "~/utils/company/labels";
 
 interface Props {
   formState: CompanyApplicationFormSchema & {
+    chosenName?: string;
+    ordinarySharesAmount?: number;
+    preferredSharesAmount?: number;
     responsiblePerson: PersonSchema;
     representative: PersonSchema;
     contactPerson: PersonSchema;
