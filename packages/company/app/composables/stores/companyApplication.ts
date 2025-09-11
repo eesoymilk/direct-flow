@@ -112,7 +112,9 @@ export const useCompanyApplicationStore = defineStore(
     });
 
     const addShareholder = () => {
-      const newShareholder = createEmptyShareholder();
+      const newShareholder = createEmptyShareholder(
+        formState.value.hasParValueFreeShares
+      );
       formState.value.shareholders.push(newShareholder);
     };
 
@@ -146,9 +148,12 @@ export const useCompanyApplicationStore = defineStore(
         ...sourcePerson,
         address: sourcePerson.address || "",
         dateOfBirth: sourcePerson.dateOfBirth || new Date(),
+        capitalContribution: undefined,
         isReadonly: true,
         referenceType: personType,
-        shares: createEmptyShares(),
+        shares: createEmptyShares(
+          formState.value.hasParValueFreeShares ? 10 : 0
+        ),
       };
 
       formState.value.shareholders.push(newShareholder);
@@ -325,23 +330,3 @@ export const useCompanyApplicationStore = defineStore(
     };
   }
 );
-
-function createEmptyShares(): Record<
-  ShareType,
-  { quantity: number; pricePerShare: number; totalPrice: number }
-> {
-  return SHARE_TYPES.reduce(
-    (acc, shareType) => {
-      acc[shareType] = {
-        quantity: 0,
-        pricePerShare: 0,
-        totalPrice: 0,
-      };
-      return acc;
-    },
-    {} as Record<
-      ShareType,
-      { quantity: number; pricePerShare: number; totalPrice: number }
-    >
-  );
-}

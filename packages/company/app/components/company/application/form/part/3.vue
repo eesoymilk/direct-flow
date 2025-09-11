@@ -81,7 +81,7 @@
                   />
                 </UFormField>
 
-                <UFormField label="身分證字號" name="idNumber">
+                <UFormField label="身分證字號" name="idNumber" required>
                   <UInput
                     v-model="shareholder.idNumber"
                     :readonly="shareholder.isReadonly"
@@ -92,7 +92,7 @@
                   />
                 </UFormField>
 
-                <UFormField label="戶籍地址" name="address">
+                <UFormField label="戶籍地址" name="address" required>
                   <UInput
                     v-model="shareholder.address"
                     :readonly="shareholder.isReadonly"
@@ -103,10 +103,30 @@
                   />
                 </UFormField>
 
-                <UFormField label="出生日期" name="dateOfBirth">
+                <UFormField label="出生日期" name="dateOfBirth" required>
                   <DatePicker
                     :value="shareholder.dateOfBirth"
                     @select-date="(date) => (shareholder.dateOfBirth = date)"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="出資額"
+                  name="capitalContribution"
+                  class="col-span-full"
+                  required
+                >
+                  <UInputNumber
+                    v-model="shareholder.capitalContribution"
+                    :min="0"
+                    placeholder="請輸入出資額"
+                    class="w-full"
+                    :format-options="{
+                      style: 'currency',
+                      currency: 'TWD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 2,
+                    }"
                   />
                 </UFormField>
 
@@ -163,8 +183,16 @@
                               v-model="share.pricePerShare"
                               :min="0"
                               :step="0.01"
-                              placeholder="請輸入每股金額"
+                              :disabled="formState.hasParValueFreeShares"
+                              :placeholder="
+                                formState.hasParValueFreeShares
+                                  ? 'NT$ 10.00 (無票面金額)'
+                                  : '請輸入每股金額'
+                              "
                               class="w-full"
+                              :class="{
+                                'opacity-60': formState.hasParValueFreeShares,
+                              }"
                               :format-options="{
                                 style: 'currency',
                                 currency: 'TWD',
@@ -202,24 +230,6 @@
                     </UForm>
                   </template>
                 </div>
-                <!-- <CompanyApplicationSharesField
-                  v-if="isStockCompany && shareholder.shares"
-                  :share-types="shareTypes"
-                  :share-value="shareholder.shares"
-                  @update:quantity="
-                    (shareType, quantity) =>
-                      (shareholder.shares[shareType].quantity = quantity)
-                  "
-                  @update:pricePerShare="
-                    (shareType, pricePerShare) =>
-                      (shareholder.shares?.[shareType].pricePerShare =
-                        pricePerShare)
-                  "
-                  @update:totalPrice="
-                    (shareType, totalPrice) =>
-                      (shareholder.shares[shareType].totalPrice = totalPrice)
-                  "
-                /> -->
               </div>
 
               <UButton
@@ -293,6 +303,30 @@ const updatePricePerShare = (
       shareholder.shares[shareType].quantity * pricePerShare;
   }
 };
+
+// Watch for hasParValueFreeShares changes and set pricePerShare to 10 when true
+watch(
+  () => formState.value.hasParValueFreeShares,
+  (hasParValueFreeShares) => {
+    if (hasParValueFreeShares) {
+      // Set all shareholders' shares pricePerShare to 10
+      formState.value.shareholders.forEach((shareholder) => {
+        if (shareholder.shares) {
+          Object.keys(shareholder.shares).forEach((shareType) => {
+            const shareTypeKey = shareType as ShareType;
+            if (shareholder.shares?.[shareTypeKey]) {
+              shareholder.shares[shareTypeKey].pricePerShare = 10;
+              // Recalculate total price
+              shareholder.shares[shareTypeKey].totalPrice =
+                shareholder.shares[shareTypeKey].quantity * 10;
+            }
+          });
+        }
+      });
+    }
+  },
+  { immediate: true }
+);
 
 // Generate dropdown menu items for adding persons
 const exsitingPeopleMenuItems = computed(() => {

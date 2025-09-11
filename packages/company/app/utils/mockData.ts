@@ -57,6 +57,11 @@ export const generateMockShareholder = (): ShareholderSchema => {
     address: faker.location.streetAddress(true),
     cellphone: `09${faker.string.numeric(8)}`, // Generate Taiwan mobile format 09XXXXXXXX
     dateOfBirth: birthDate,
+    capitalContribution: faker.number.float({
+      min: 10000,
+      max: 1000000,
+      fractionDigits: 2,
+    }),
     isReadonly: false,
     shares: generateMockShares(),
   };

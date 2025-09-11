@@ -1,6 +1,3 @@
-import { getLocalTimeZone, today } from "@internationalized/date";
-import type * as z from "zod";
-
 // Create a date 18 years ago to set as default for adult persons
 const createDefaultAdultBirthDate = (): Date => {
   const today = new Date();
@@ -21,7 +18,9 @@ export const createEmptyPerson = (): PersonSchema => ({
   // idCardBack: undefined as any,
 });
 
-const createEmptyShares = (): Record<
+export const createEmptyShares = (
+  defaultPricePerShare: number = 0
+): Record<
   ShareType,
   { quantity: number; pricePerShare: number; totalPrice: number }
 > => {
@@ -29,7 +28,7 @@ const createEmptyShares = (): Record<
     (acc, shareType) => {
       acc[shareType] = {
         quantity: 0,
-        pricePerShare: 0,
+        pricePerShare: defaultPricePerShare,
         totalPrice: 0,
       };
       return acc;
@@ -41,14 +40,17 @@ const createEmptyShares = (): Record<
   );
 };
 
-export const createEmptyShareholder = (): ShareholderSchema => ({
+export const createEmptyShareholder = (
+  hasParValueFreeShares: boolean = false
+): ShareholderSchema => ({
   name: "",
   idNumber: "",
   address: "",
   cellphone: "",
   dateOfBirth: createDefaultAdultBirthDate(),
+  capitalContribution: undefined,
   isReadonly: false,
-  shares: createEmptyShares(),
+  shares: createEmptyShares(hasParValueFreeShares ? 10 : 0),
 });
 
 export const createInitialForm = () => ({
