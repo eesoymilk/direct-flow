@@ -1,24 +1,120 @@
 export default defineNuxtRouteMiddleware(() => {
   const applicationStore = useCompanyApplicationStore();
 
-  // Validate the entire form using the schema
-  const validation = companyApplicationFormSchema.safeParse(
-    applicationStore.formState
-  );
-
-  if (!validation.success) {
+  // Check basic required fields first
+  if (!applicationStore.formState.candidateNames?.length) {
     const toast = useToast();
-    const errorMessages = validation.error.issues
-      .slice(0, 3) // Limit to first 3 errors to avoid overwhelming the user
-      .map((issue) => issue.message);
-
     toast.add({
       title: "表單資料不完整",
-      description: `請完成表單填寫：${errorMessages.join("、")}`,
+      description: "請填寫候選公司名稱",
       color: "warning",
       icon: "i-lucide-alert-triangle",
     });
+    return navigateTo("/apply");
+  }
 
+  if (!applicationStore.formState.organizationType) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整", 
+      description: "請選擇組織類型",
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  if (!applicationStore.formState.businessItemsDescription) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫營業項目描述", 
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  if (!applicationStore.formState.address) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫公司地址",
+      color: "warning", 
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  // Check person data
+  if (!applicationStore.formState.responsiblePerson?.name) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫負責人資料",
+      color: "warning",
+      icon: "i-lucide-alert-triangle", 
+    });
+    return navigateTo("/apply");
+  }
+
+  if (!applicationStore.formState.representative?.name) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫代表人資料", 
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  if (!applicationStore.formState.contactPerson?.name) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫聯絡人資料",
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  // Check organization-specific required fields
+  if (applicationStore.formState.organizationType === 'corporation') {
+    if (applicationStore.formState.isCloselyHeld && !applicationStore.formState.closelyHeldShareholderCount) {
+      const toast = useToast();
+      toast.add({
+        title: "表單資料不完整", 
+        description: "閉鎖型股份有限公司請填寫股東人數",
+        color: "warning",
+        icon: "i-lucide-alert-triangle",
+      });
+      return navigateTo("/apply");
+    }
+
+    if (!applicationStore.formState.hasParValueFreeShares && !applicationStore.formState.parValue) {
+      const toast = useToast();
+      toast.add({
+        title: "表單資料不完整",
+        description: "請填寫票面金額或選擇無票面金額股份",
+        color: "warning", 
+        icon: "i-lucide-alert-triangle",
+      });
+      return navigateTo("/apply");
+    }
+  }
+
+  // Check shareholders for corporations and limited companies
+  if ((applicationStore.formState.organizationType === 'corporation' || applicationStore.formState.organizationType === 'limited_company') && 
+      !applicationStore.formState.shareholders?.length) {
+    const toast = useToast();
+    toast.add({
+      title: "表單資料不完整",
+      description: "請添加至少一名股東", 
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
     return navigateTo("/apply");
   }
 });
