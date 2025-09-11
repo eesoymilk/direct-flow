@@ -1,5 +1,5 @@
 {
-  "id": "195db578-9b35-40bb-b0ec-ca45342a397d",
+  "id": "15fd0a34-1420-4e2e-9070-ad66a61d6046",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -206,8 +206,12 @@
           "name": "companies_responsible_person_id_people_id_fk",
           "tableFrom": "companies",
           "tableTo": "people",
-          "columnsFrom": ["responsible_person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "responsible_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -215,8 +219,12 @@
           "name": "companies_contact_person_id_people_id_fk",
           "tableFrom": "companies",
           "tableTo": "people",
-          "columnsFrom": ["contact_person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "contact_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -224,8 +232,12 @@
           "name": "companies_representative_id_people_id_fk",
           "tableFrom": "companies",
           "tableTo": "people",
-          "columnsFrom": ["representative_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "representative_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -272,8 +284,12 @@
           "name": "company_documents_company_id_companies_id_fk",
           "tableFrom": "company_documents",
           "tableTo": "companies",
-          "columnsFrom": ["company_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "company_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -281,8 +297,12 @@
           "name": "company_documents_document_id_documents_id_fk",
           "tableFrom": "company_documents",
           "tableTo": "documents",
-          "columnsFrom": ["document_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -329,8 +349,12 @@
           "name": "application_documents_application_id_company_applications_id_fk",
           "tableFrom": "application_documents",
           "tableTo": "company_applications",
-          "columnsFrom": ["application_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "application_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -338,8 +362,12 @@
           "name": "application_documents_document_id_documents_id_fk",
           "tableFrom": "application_documents",
           "tableTo": "documents",
-          "columnsFrom": ["document_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -394,8 +422,12 @@
           "name": "application_shareholders_application_id_company_applications_id_fk",
           "tableFrom": "application_shareholders",
           "tableTo": "company_applications",
-          "columnsFrom": ["application_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "application_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -403,8 +435,12 @@
           "name": "application_shareholders_person_id_people_id_fk",
           "tableFrom": "application_shareholders",
           "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -607,8 +643,12 @@
           "name": "company_applications_responsible_person_id_people_id_fk",
           "tableFrom": "company_applications",
           "tableTo": "people",
-          "columnsFrom": ["responsible_person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "responsible_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -616,8 +656,12 @@
           "name": "company_applications_representative_id_people_id_fk",
           "tableFrom": "company_applications",
           "tableTo": "people",
-          "columnsFrom": ["representative_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "representative_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -625,8 +669,12 @@
           "name": "company_applications_contact_person_id_people_id_fk",
           "tableFrom": "company_applications",
           "tableTo": "people",
-          "columnsFrom": ["contact_person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "contact_person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -700,8 +748,12 @@
           "name": "review_issues_round_id_review_rounds_id_fk",
           "tableFrom": "review_issues",
           "tableTo": "review_rounds",
-          "columnsFrom": ["round_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "round_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -777,8 +829,12 @@
           "name": "review_rounds_application_id_company_applications_id_fk",
           "tableFrom": "review_rounds",
           "tableTo": "company_applications",
-          "columnsFrom": ["application_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "application_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -838,8 +894,12 @@
           "name": "review_verifications_round_id_review_rounds_id_fk",
           "tableFrom": "review_verifications",
           "tableTo": "review_rounds",
-          "columnsFrom": ["round_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "round_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -894,7 +954,9 @@
         "document_types_name_unique": {
           "name": "document_types_name_unique",
           "nullsNotDistinct": false,
-          "columns": ["name"]
+          "columns": [
+            "name"
+          ]
         }
       },
       "policies": {},
@@ -969,8 +1031,12 @@
           "name": "documents_document_type_id_document_types_id_fk",
           "tableFrom": "documents",
           "tableTo": "document_types",
-          "columnsFrom": ["document_type_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "document_type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1056,7 +1122,9 @@
         "people_id_number_unique": {
           "name": "people_id_number_unique",
           "nullsNotDistinct": false,
-          "columns": ["id_number"]
+          "columns": [
+            "id_number"
+          ]
         }
       },
       "policies": {},
@@ -1099,8 +1167,12 @@
           "name": "person_documents_person_id_people_id_fk",
           "tableFrom": "person_documents",
           "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1108,8 +1180,12 @@
           "name": "person_documents_document_id_documents_id_fk",
           "tableFrom": "person_documents",
           "tableTo": "documents",
-          "columnsFrom": ["document_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "document_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1184,8 +1260,12 @@
           "name": "shareholder_shares_shareholder_id_shareholders_id_fk",
           "tableFrom": "shareholder_shares",
           "tableTo": "shareholders",
-          "columnsFrom": ["shareholder_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "shareholder_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1218,6 +1298,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "capital_contribution": {
+          "name": "capital_contribution",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1239,8 +1325,12 @@
           "name": "shareholders_company_id_companies_id_fk",
           "tableFrom": "shareholders",
           "tableTo": "companies",
-          "columnsFrom": ["company_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "company_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1248,8 +1338,12 @@
           "name": "shareholders_person_id_people_id_fk",
           "tableFrom": "shareholders",
           "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1288,17 +1382,31 @@
     "public.review_issue_severity": {
       "name": "review_issue_severity",
       "schema": "public",
-      "values": ["low", "medium", "high", "critical"]
+      "values": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
     },
     "public.review_issue_type": {
       "name": "review_issue_type",
       "schema": "public",
-      "values": ["missing", "invalid", "clarification", "modification"]
+      "values": [
+        "missing",
+        "invalid",
+        "clarification",
+        "modification"
+      ]
     },
     "public.review_round_status": {
       "name": "review_round_status",
       "schema": "public",
-      "values": ["reviewing", "resolved", "completed"]
+      "values": [
+        "reviewing",
+        "resolved",
+        "completed"
+      ]
     },
     "public.share_type": {
       "name": "share_type",

@@ -24,6 +24,7 @@ export const shareholders = pgTable("shareholders", {
   personId: uuid("person_id")
     .notNull()
     .references(() => people.id, { onDelete: "cascade" }),
+  capitalContribution: decimal("capital_contribution", { precision: 12, scale: 2 }), // 出資額
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

@@ -48,7 +48,7 @@ export const PERSON_FIELDS = [
   "dateOfBirth",
 ] as const;
 
-export const SHAREHOLDER_FIELDS = [...PERSON_FIELDS, "shares"] as const;
+export const SHAREHOLDER_FIELDS = [...PERSON_FIELDS, "shares", "capitalContribution"] as const;
 
 export const COMPANY_DOCUMENT_FIELDS = [
   "bankBookFront",

@@ -26,6 +26,7 @@ export const shareholderSchema = z.object(
     email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
     // TODO: Add dateOfBirth validation
     dateOfBirth: z.date(),
+    capitalContribution: z.number().min(0, { message: "出資額不能為負數" }).nullish(),
     isReadonly: z.boolean().optional(),
     referenceType: z.enum(PERSON_TYPES).optional(),
     // While shares are optional, they are required to be present to make the form validation simpler
@@ -86,6 +87,7 @@ export const shareholderResponseSchema = responseBaseSchema
   .extend({
     id: z.string().uuid(), // Changed to UUID to match new schema
     applicationId: z.string().uuid(),
+    capitalContribution: z.number().min(0).nullable(),
     person: personResponseSchema,
     // Share holdings are now in separate shareHoldings relationship
   });
