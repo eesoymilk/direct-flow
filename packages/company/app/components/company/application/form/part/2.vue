@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <h2 class="text-xl font-semibold text-text mb-4">負責人與聯絡人資料</h2>
+    <h2 class="text-xl font-semibold text-text mb-4">相關負責人資料</h2>
 
     <h3 class="text-lg font-semibold text-text">負責人資料</h3>
     <UForm
@@ -9,7 +9,7 @@
       attach
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name">
+      <UFormField label="姓名" name="name" required>
         <UInput
           v-model="formState.responsiblePerson.name"
           placeholder="請輸入負責人姓名"
@@ -17,7 +17,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber">
+      <UFormField label="身分證字號" name="idNumber" required>
         <UInput
           v-model="formState.responsiblePerson.idNumber"
           placeholder="請輸入負責人身份證字號"
@@ -25,7 +25,7 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address">
+      <UFormField label="戶籍地址" name="address" required>
         <UInput
           v-model="formState.responsiblePerson.address"
           placeholder="請輸入負責人戶籍地址"
@@ -33,11 +33,12 @@
         />
       </UFormField>
 
-      <UFormField label="出生日期" name="dateOfBirth">
-        <UInputDate
-          v-model="formState.responsiblePerson.dateOfBirth"
-          placeholder="請選擇負責人出生日期"
-          class="w-full"
+      <UFormField label="出生日期" name="dateOfBirth" required>
+        <DatePicker
+          :value="formState.responsiblePerson.dateOfBirth"
+          @select-date="
+            (date) => (formState.responsiblePerson.dateOfBirth = date)
+          "
         />
       </UFormField>
 
@@ -49,7 +50,7 @@
         />
       </UFormField>
 
-      <UFormField label="電子郵件" name="email">
+      <UFormField label="電子郵件" name="email" required>
         <UInput
           v-model="formState.responsiblePerson.email"
           placeholder="請輸入負責人電子郵件"
@@ -84,7 +85,7 @@
       attach
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name">
+      <UFormField label="姓名" name="name" required>
         <UInput
           v-model="formState.representative.name"
           placeholder="請輸入代表人姓名"
@@ -92,7 +93,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber">
+      <UFormField label="身分證字號" name="idNumber" required>
         <UInput
           v-model="formState.representative.idNumber"
           placeholder="請輸入代表人身分證字號"
@@ -100,7 +101,7 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address">
+      <UFormField label="戶籍地址" name="address" required>
         <UInput
           v-model="formState.representative.address"
           placeholder="請輸入代表人戶籍地址"
@@ -108,11 +109,10 @@
         />
       </UFormField>
 
-      <UFormField label="出生日期" name="dateOfBirth">
-        <UInputDate
-          v-model="formState.representative.dateOfBirth"
-          placeholder="請選擇董事出生日期"
-          class="w-full"
+      <UFormField label="出生日期" name="dateOfBirth" required>
+        <DatePicker
+          :value="formState.representative.dateOfBirth"
+          @select-date="(date) => (formState.representative.dateOfBirth = date)"
         />
       </UFormField>
 
@@ -124,7 +124,7 @@
         />
       </UFormField>
 
-      <UFormField label="電子郵件" name="email">
+      <UFormField label="電子郵件" name="email" required>
         <UInput
           v-model="formState.representative.email"
           placeholder="請輸入董事電子郵件"
@@ -165,7 +165,7 @@
       :schema="contactPersonSchema"
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      <UFormField label="姓名" name="name">
+      <UFormField label="姓名" name="name" required>
         <UInput
           v-model="formState.contactPerson.name"
           placeholder="請輸入聯絡人姓名"
@@ -173,7 +173,7 @@
         />
       </UFormField>
 
-      <UFormField label="身分證字號" name="idNumber">
+      <UFormField label="身分證字號" name="idNumber" required>
         <UInput
           v-model="formState.contactPerson.idNumber"
           placeholder="請輸入聯絡人身分證字號"
@@ -181,7 +181,7 @@
         />
       </UFormField>
 
-      <UFormField label="戶籍地址" name="address">
+      <UFormField label="戶籍地址" name="address" required>
         <UInput
           v-model="formState.contactPerson.address"
           placeholder="請輸入聯絡人戶籍地址"
@@ -189,11 +189,10 @@
         />
       </UFormField>
 
-      <UFormField label="出生日期" name="dateOfBirth">
-        <UInputDate
-          v-model="formState.contactPerson.dateOfBirth"
-          placeholder="請選擇聯絡人出生日期"
-          class="w-full"
+      <UFormField label="出生日期" name="dateOfBirth" required>
+        <DatePicker
+          :value="formState.contactPerson.dateOfBirth"
+          @select-date="(date) => (formState.contactPerson.dateOfBirth = date)"
         />
       </UFormField>
 
@@ -205,7 +204,7 @@
         />
       </UFormField>
 
-      <UFormField label="電子郵件" name="email">
+      <UFormField label="電子郵件" name="email" required>
         <UInput
           v-model="formState.contactPerson.email"
           placeholder="請輸入聯絡人電子郵件"

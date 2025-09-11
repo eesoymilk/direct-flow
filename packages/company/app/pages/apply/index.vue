@@ -53,10 +53,22 @@
         <template #form-part-2>
           <CompanyApplicationFormPart2 />
         </template>
-        <template #form-part-3>
+        <template
+          v-if="
+            formState.organizationType === 'corporation' ||
+            formState.organizationType === 'limited_company'
+          "
+          #form-part-3
+        >
           <CompanyApplicationFormPart3 />
         </template>
-        <template v-if="isStockCompany" #form-part-4>
+        <template
+          v-if="
+            formState.organizationType === 'corporation' ||
+            formState.organizationType === 'limited_company'
+          "
+          #form-part-4
+        >
           <CompanyApplicationFormPart4 />
         </template>
       </UStepper>
@@ -113,21 +125,26 @@ const stepperItems = computed((): StepperItem[] => {
       description: "請填寫負責人、董事與聯絡人資料",
       icon: "i-lucide-user",
     },
-    {
-      slot: "form-part-3",
-      title: "董事與股東資料",
-      description: "請填寫董事與股東資料",
-      icon: "i-lucide-users",
-    },
   ];
 
-  if (isStockCompany.value) {
-    basicItems.push({
-      slot: "form-part-4",
-      title: "股份資料",
-      description: "請填寫股份資料",
-      icon: "i-lucide-share",
-    });
+  if (
+    formState.value.organizationType === "corporation" ||
+    formState.value.organizationType === "limited_company"
+  ) {
+    basicItems.push(
+      {
+        slot: "form-part-3",
+        title: "董事與股東資料",
+        description: "請填寫董事與股東資料",
+        icon: "i-lucide-users",
+      },
+      {
+        slot: "form-part-4",
+        title: "股份資料",
+        description: "請填寫股份資料",
+        icon: "i-lucide-share",
+      }
+    );
   }
 
   return basicItems;
