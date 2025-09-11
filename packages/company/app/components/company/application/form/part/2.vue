@@ -33,18 +33,18 @@
         />
       </UFormField>
 
-      <UFormField label="電話" name="telephone">
-        <UInput
-          v-model="formState.responsiblePerson.telephone"
-          placeholder="請輸入負責人電話 (必須提供電話或手機其中一項)"
+      <UFormField label="出生日期" name="dateOfBirth">
+        <UInputDate
+          v-model="formState.responsiblePerson.dateOfBirth"
+          placeholder="請選擇負責人出生日期"
           class="w-full"
         />
       </UFormField>
 
-      <UFormField label="手機" name="cellphone">
+      <UFormField label="手機" name="cellphone" required>
         <UInput
           v-model="formState.responsiblePerson.cellphone"
-          placeholder="請輸入負責人手機 (必須提供電話或手機其中一項)"
+          placeholder="請輸入負責人手機 (09XXXXXXXX)"
           class="w-full"
         />
       </UFormField>
@@ -108,18 +108,18 @@
         />
       </UFormField>
 
-      <UFormField label="電話" name="telephone">
-        <UInput
-          v-model="formState.representative.telephone"
-          placeholder="請輸入董事電話"
+      <UFormField label="出生日期" name="dateOfBirth">
+        <UInputDate
+          v-model="formState.representative.dateOfBirth"
+          placeholder="請選擇董事出生日期"
           class="w-full"
         />
       </UFormField>
 
-      <UFormField label="手機" name="cellphone">
+      <UFormField label="手機" name="cellphone" required>
         <UInput
           v-model="formState.representative.cellphone"
-          placeholder="請輸入董事手機"
+          placeholder="請輸入董事手機 (09XXXXXXXX)"
           class="w-full"
         />
       </UFormField>
@@ -189,18 +189,18 @@
         />
       </UFormField>
 
-      <UFormField label="電話" name="telephone">
-        <UInput
-          v-model="formState.contactPerson.telephone"
-          placeholder="請輸入聯絡人電話 (必須提供電話或手機其中一項)"
+      <UFormField label="出生日期" name="dateOfBirth">
+        <UInputDate
+          v-model="formState.contactPerson.dateOfBirth"
+          placeholder="請選擇聯絡人出生日期"
           class="w-full"
         />
       </UFormField>
 
-      <UFormField label="手機" name="cellphone">
+      <UFormField label="手機" name="cellphone" required>
         <UInput
           v-model="formState.contactPerson.cellphone"
-          placeholder="請輸入聯絡人手機 (必須提供電話或手機其中一項)"
+          placeholder="請輸入聯絡人手機 (09XXXXXXXX)"
           class="w-full"
         />
       </UFormField>

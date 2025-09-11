@@ -77,7 +77,7 @@ export const documentSchema = z.object({
 });
 
 // Schema for contact person, representative, and responsible person
-// Requires: name, id, address, (tel OR cel), email
+// Requires: name, id, address, cellphone, email, dateOfBirth
 export const getBasePersonSchema = (name: string) =>
   z.object(
     {
@@ -87,14 +87,17 @@ export const getBasePersonSchema = (name: string) =>
         .string()
         .min(1, { message: `${name}戶籍地址不能為空` })
         .max(255, { message: `${name}戶籍地址最多255個字` }),
-      telephone: z.string().optional(),
-      cellphone: z.string().optional(),
+      cellphone: z
+        .string()
+        .min(1, { message: `${name}手機號碼不能為空` })
+        .regex(/^09\d{8}$/, {
+          message: "請輸入有效的手機號碼格式 (09XXXXXXXX)",
+        }),
       email: z
         .string()
         .email({ message: "請輸入有效的電子郵件" })
         .min(1, { message: `${name}電子郵件不能為空` }),
-      // TODO: Add dateOfBirth validation
-      dateOfBirth: z.date().optional(),
+      dateOfBirth: z.date({ message: `${name}出生日期不能為空` }),
     },
     {
       message: `${name}資料不能為空`,

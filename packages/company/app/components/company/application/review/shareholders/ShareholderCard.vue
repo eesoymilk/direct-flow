@@ -103,23 +103,6 @@
             </template>
           </CompanyApplicationReviewUiFieldCard>
 
-          <!-- Telephone -->
-          <CompanyApplicationReviewUiFieldCard
-            label="電話"
-            :value="shareholder.person.telephone"
-            v-bind="shareholderStatusesProps.telephone"
-          >
-            <template #actions>
-              <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.telephone.isVerified"
-                :has-issue="shareholderStatuses.telephone.hasIssue"
-                :field-path="`shareholders[${index}].telephone`"
-                @verify="() => $emit('verifyField', 'telephone', index)"
-                @add-issue="(issue) => $emit('addFieldIssue', issue)"
-              />
-            </template>
-          </CompanyApplicationReviewUiFieldCard>
-
           <!-- Cellphone -->
           <CompanyApplicationReviewUiFieldCard
             label="手機"

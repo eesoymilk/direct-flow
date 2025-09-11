@@ -65,21 +65,6 @@
     </CompanyApplicationReviewUiFieldCard>
 
     <!-- Telephone -->
-    <CompanyApplicationReviewUiFieldCard
-      label="電話"
-      :value="person.telephone || '未提供'"
-      v-bind="getFieldStatusProps('telephone')"
-    >
-      <template #actions>
-        <CompanyApplicationReviewUiFieldActions
-          :is-verified="fieldStatuses.telephone.isVerified"
-          :has-issue="fieldStatuses.telephone.hasIssue"
-          :field-path="`${props.personType}.telephone`"
-          @verify="() => verifyField('telephone')"
-          @add-issue="addFieldIssue"
-        />
-      </template>
-    </CompanyApplicationReviewUiFieldCard>
 
     <!-- Cellphone -->
     <CompanyApplicationReviewUiFieldCard

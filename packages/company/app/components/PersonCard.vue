@@ -93,25 +93,8 @@
         </div>
       </div>
 
-      <!-- Telephone Field -->
-      <div v-if="person.telephone" class="space-y-2">
-        <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-phone" class="w-4 h-4 text-gray-400" />
-          <label
-            class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-          >
-            電話
-          </label>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-          <p class="font-mono text-sm text-gray-800 font-medium">
-            {{ person.telephone }}
-          </p>
-        </div>
-      </div>
-
       <!-- Cellphone Field -->
-      <div v-if="person.cellphone" class="space-y-2">
+      <div class="space-y-2">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-smartphone" class="w-4 h-4 text-gray-400" />
           <label
@@ -157,9 +140,8 @@ interface Person {
   idNumber: string;
   address: string;
   email?: string;
-  telephone?: string;
-  cellphone?: string;
-  dateOfBirth?: Date;
+  cellphone: string;
+  dateOfBirth: Date;
   isReadonly?: boolean;
   shares?: number;
 }

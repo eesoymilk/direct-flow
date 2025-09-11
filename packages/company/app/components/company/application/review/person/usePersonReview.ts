@@ -11,7 +11,6 @@ export const usePersonReview = () => {
       name: application.value.responsiblePerson.name,
       idNumber: application.value.responsiblePerson.idNumber,
       address: application.value.responsiblePerson.address,
-      telephone: application.value.responsiblePerson.telephone,
       cellphone: application.value.responsiblePerson.cellphone,
       email: application.value.responsiblePerson.email,
     };
@@ -25,7 +24,6 @@ export const usePersonReview = () => {
       name: application.value.representative.name,
       idNumber: application.value.representative.idNumber,
       address: application.value.representative.address,
-      telephone: application.value.representative.telephone,
       cellphone: application.value.representative.cellphone,
       email: application.value.representative.email,
     };
@@ -39,7 +37,6 @@ export const usePersonReview = () => {
       name: application.value.contactPerson.name,
       idNumber: application.value.contactPerson.idNumber,
       address: application.value.contactPerson.address,
-      telephone: application.value.contactPerson.telephone,
       cellphone: application.value.contactPerson.cellphone,
       email: application.value.contactPerson.email,
     };

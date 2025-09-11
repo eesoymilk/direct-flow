@@ -14,6 +14,7 @@ export const createEmptyPerson = (): PersonSchema => ({
   idNumber: "",
   address: "",
   email: "",
+  cellphone: "",
   dateOfBirth: createDefaultAdultBirthDate(),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
@@ -44,6 +45,7 @@ export const createEmptyShareholder = (): ShareholderSchema => ({
   name: "",
   idNumber: "",
   address: "",
+  cellphone: "",
   dateOfBirth: createDefaultAdultBirthDate(),
   isReadonly: false,
   shares: createEmptyShares(),

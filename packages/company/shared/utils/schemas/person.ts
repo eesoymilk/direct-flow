@@ -5,29 +5,11 @@ import { PERSON_TYPES } from "~/components/company/application/review/constants"
 
 export const personSchema = getBasePersonSchema("人員");
 
-export const responsiblePersonSchema = getBasePersonSchema("負責人").refine(
-  ({ telephone, cellphone }) => telephone || cellphone,
-  {
-    message: "負責人必須提供電話或手機其中一項",
-    path: ["telephone", "cellphone"],
-  }
-);
+export const responsiblePersonSchema = getBasePersonSchema("負責人");
 
-export const representativeSchema = getBasePersonSchema("代表人").refine(
-  ({ telephone, cellphone }) => telephone || cellphone,
-  {
-    message: "代表人必須提供電話或手機其中一項",
-    path: ["telephone", "cellphone"],
-  }
-);
+export const representativeSchema = getBasePersonSchema("代表人");
 
-export const contactPersonSchema = getBasePersonSchema("聯絡人").refine(
-  ({ telephone, cellphone }) => telephone || cellphone,
-  {
-    message: "聯絡人必須提供電話或手機其中一項",
-    path: ["telephone", "cellphone"],
-  }
-);
+export const contactPersonSchema = getBasePersonSchema("聯絡人");
 
 export const shareholderSchema = z.object(
   {
@@ -37,8 +19,10 @@ export const shareholderSchema = z.object(
       .string()
       .min(1, { message: "股東戶籍地址不能為空" })
       .max(255, { message: "股東戶籍地址最多255個字" }),
-    telephone: z.string().optional(),
-    cellphone: z.string().optional(),
+    cellphone: z
+      .string()
+      .min(1, { message: "股東手機號碼不能為空" })
+      .regex(/^09\d{8}$/, { message: "請輸入有效的手機號碼格式 (09XXXXXXXX)" }),
     email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
     // TODO: Add dateOfBirth validation
     dateOfBirth: z.date(),

@@ -43,7 +43,6 @@ export const PERSON_FIELDS = [
   "name",
   "idNumber",
   "address",
-  "telephone",
   "cellphone",
   "email",
   "dateOfBirth",

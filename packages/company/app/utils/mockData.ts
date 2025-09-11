@@ -9,14 +9,14 @@ const generateTaiwaneseIdNumber = (): string => {
   return `${letter}${oneOrTwo}${numbers}`;
 };
 
-// Generate mock person data for contact/responsible/representative (includes email, tel/cel required)
+// Generate mock person data for contact/responsible/representative (includes email, cellphone, dateOfBirth required)
 export const generateMockPerson = (): PersonSchema => ({
   name: faker.person.fullName(),
   idNumber: generateTaiwaneseIdNumber(),
   address: faker.location.streetAddress(true), // Full address with city, state, zip
-  telephone: faker.phone.number(),
-  cellphone: faker.phone.number(),
+  cellphone: `09${faker.string.numeric(8)}`, // Generate Taiwan mobile format 09XXXXXXXX
   email: faker.internet.email(),
+  dateOfBirth: faker.date.birthdate({ min: 18, max: 80, mode: "age" }),
   // TODO: Add idCardFront and idCardBack when file storage is ready
   // idCardFront: undefined as any,
   // idCardBack: undefined as any,
@@ -55,6 +55,7 @@ export const generateMockShareholder = (): ShareholderSchema => {
     name: faker.person.fullName(),
     idNumber: generateTaiwaneseIdNumber(),
     address: faker.location.streetAddress(true),
+    cellphone: `09${faker.string.numeric(8)}`, // Generate Taiwan mobile format 09XXXXXXXX
     dateOfBirth: birthDate,
     isReadonly: false,
     shares: generateMockShares(),
