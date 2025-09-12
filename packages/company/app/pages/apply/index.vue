@@ -108,7 +108,7 @@ const toast = useToast();
 const stepper = useTemplateRef("stepper");
 
 const applicationStore = useCompanyApplicationStore();
-const { formState, isStockCompany } = storeToRefs(applicationStore);
+const { formState } = storeToRefs(applicationStore);
 const { resetForm, populateWithMockData } = applicationStore;
 
 const stepperItems = computed((): StepperItem[] => {
@@ -150,7 +150,10 @@ const stepperItems = computed((): StepperItem[] => {
   return basicItems;
 });
 
-const isDev = computed(() => process.env.NODE_ENV === "development");
+const isDev = computed(() => {
+  return true;
+  return process.env.NODE_ENV === "development";
+});
 
 const handleGenerateMockData = (organizationType?: OrganizationType) => {
   populateWithMockData({ organizationType });
