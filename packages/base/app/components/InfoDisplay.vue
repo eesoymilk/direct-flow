@@ -30,14 +30,14 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 interface Props {
   label: string;
   icon: string;
-  value: string | number | undefined | null;
+  value: T | undefined | null;
   variant?: "default" | "highlighted";
   fullWidth?: boolean;
-  formatter?: (value: any) => string;
+  formatter?: (value: T) => string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
