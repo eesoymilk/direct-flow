@@ -1,21 +1,28 @@
 <template>
-  <div class="audit-report-preview font-serif text-sm leading-relaxed">
+  <div class="bg-white min-h-[600px] leading-[1.8] font-serif text-sm">
     <!-- Report Header -->
     <div class="text-center mb-8">
-      <h1 class="text-lg font-bold mb-2">{{ template.header.title }}</h1>
-      <div class="text-sm">
-        <p>{{ template.header.entity }}</p>
-        <p>{{ template.header.period }}</p>
+      <h1 class="text-lg font-bold mb-4">{{ template.header.title }}</h1>
+      <div class="text-left mb-6">
+        <p class="font-medium">{{ template.header.recipient }}</p>
       </div>
     </div>
 
     <!-- Report Sections -->
     <div v-for="section in template.sections" :key="section.title" class="mb-6">
-      <h2 class="text-base font-bold mb-3 border-b border-gray-300 pb-1">
+      <h2 class="text-sm font-bold mb-3 border-b border-gray-300 pb-1">
         {{ section.title }}
       </h2>
       <div class="space-y-3">
-        <p v-for="paragraph in section.paragraphs" :key="paragraph" class="indent-8">
+        <p
+          v-for="(paragraph, index) in section.paragraphs"
+          :key="index"
+          class="text-justify mb-2"
+          :class="{
+            'indent-8': !paragraph.match(/^\d+\./),
+            'pl-4': paragraph.match(/^\d+\./),
+          }"
+        >
           {{ paragraph }}
         </p>
       </div>
@@ -35,38 +42,39 @@
 </template>
 
 <script setup lang="ts">
-import { generateAuditReportTemplate } from '~/shared/utils/audit-report-generator';
-import type { AuditReportData } from '~/shared/types/audit-report';
-
-interface Props {
-  opinionType: string;
-  opinionData: {
-    entityName?: string;
-    periodStart?: Date;
-    periodEnd?: Date;
-    qualificationReason?: string;
-    materialAmount?: string;
-    adverseReason?: string;
-    disclaimerReason?: string;
-  };
-}
-
-const props = defineProps<Props>();
+const store = useAuditBuilderStore();
 
 const getReportTemplate = () => {
-  const reportData: AuditReportData = {
-    entityName: props.opinionData.entityName || '[受查者名稱]',
-    periodStart: props.opinionData.periodStart || new Date('2023-01-01'),
-    periodEnd: props.opinionData.periodEnd || new Date('2023-12-31'),
-    reportDate: new Date(),
-    firmName: '會計師事務所名稱',
-    auditorName: '會計師姓名',
-    opinionType: props.opinionType as any,
-    accountingFramework: '一般公認會計原則',
-    qualificationReason: props.opinionData.qualificationReason,
-    materialAmount: props.opinionData.materialAmount ? parseInt(props.opinionData.materialAmount) : undefined,
-    adverseReason: props.opinionData.adverseReason,
-    disclaimerReason: props.opinionData.disclaimerReason
+  const reportData = {
+    entityName: store.globalInfo.entityName || "[受查者名稱]",
+    periodStart: store.globalInfo.periodStart || new Date("2023-01-01"),
+    periodEnd: store.globalInfo.periodEnd || new Date("2023-12-31"),
+    comparativePeriodStart:
+      store.globalInfo.comparativePeriodStart || undefined,
+    comparativePeriodEnd: store.globalInfo.comparativePeriodEnd || undefined,
+    reportDate: store.globalInfo.reportDate || new Date(),
+    firmName: store.globalInfo.firmName || "安侯建業聯合會計師事務所",
+    auditorName: store.globalInfo.auditorName || "會計師姓名",
+    opinionType: store.selectedOpinion || "unqualified",
+    accountingFramework:
+      store.globalInfo.accountingFramework || "商業會計法及商業會計處理準則",
+    qualificationReason:
+      store.opinionSpecificData.qualificationReason || undefined,
+    materialAmount: store.opinionSpecificData.materialAmount
+      ? parseInt(store.opinionSpecificData.materialAmount)
+      : undefined,
+    adverseReason: store.opinionSpecificData.adverseReason || undefined,
+    disclaimerReason: store.opinionSpecificData.disclaimerReason || undefined,
+    independenceCompliance:
+      store.combinedOpinionData.independenceCompliance ?? true,
+    ethicalRequirementsCompliance:
+      store.combinedOpinionData.ethicalRequirementsCompliance ?? true,
+    goingConcern: store.opinionSpecificData.goingConcern || undefined,
+    emphasisOfMatter: store.opinionSpecificData.emphasisOfMatter || undefined,
+    otherMatter: store.opinionSpecificData.otherMatter || undefined,
+    keyAuditMatters: store.opinionSpecificData.keyAuditMatters || undefined,
+    previousAuditor: store.opinionSpecificData.previousAuditor || undefined,
+    previousOpinion: store.opinionSpecificData.previousOpinion || undefined,
   };
 
   return generateAuditReportTemplate(reportData);
@@ -75,27 +83,3 @@ const getReportTemplate = () => {
 const template = computed(() => getReportTemplate());
 </script>
 
-<style scoped>
-.audit-report-preview {
-  background: white;
-  min-height: 600px;
-  line-height: 1.8;
-}
-
-.audit-report-preview h1 {
-  font-size: 18px;
-}
-
-.audit-report-preview h2 {
-  font-size: 14px;
-}
-
-.audit-report-preview p {
-  text-align: justify;
-  margin-bottom: 8px;
-}
-
-.indent-8 {
-  text-indent: 2rem;
-}
-</style>

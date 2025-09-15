@@ -5,4 +5,6 @@ export default defineNuxtConfig({
   imports: {
     dirs: ["~/shared/**"],
   },
+
+  modules: ["@primevue/nuxt-module"],
 });

@@ -28,7 +28,7 @@ import {
 } from "@internationalized/date";
 
 interface DatePickerProps {
-  value: Date;
+  value?: Date;
   emptyLabel?: string;
 }
 
@@ -51,11 +51,13 @@ const buttonLabel = computed(() =>
 watch(
   () => props.value,
   (newVal) => {
-    modelValue.value = new CalendarDate(
-      newVal.getFullYear(),
-      newVal.getMonth() + 1,
-      newVal.getDate()
-    );
+    if (newVal) {
+      modelValue.value = new CalendarDate(
+        newVal.getFullYear(),
+        newVal.getMonth() + 1,
+        newVal.getDate()
+      );
+    }
   },
   { immediate: true }
 );

@@ -24,7 +24,6 @@
       <slot />
     </main>
     <AppFooter class="z-10" />
-    <!-- <DebugPopover /> -->
   </div>
 </template>
 

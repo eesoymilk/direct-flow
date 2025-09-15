@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import Aura from "@primeuix/themes/aura";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -28,12 +29,26 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-auth-utils",
     "@nuxt/test-utils",
+    "@primevue/nuxt-module",
   ],
+
+  typescript: {
+    typeCheck: true,
+    strict: true,
+  },
 
   css: [join(currentDir, "./app/assets/css/tailwind.css")],
 
   ui: {
     colorMode: false,
+  },
+
+  primevue: {
+    options: {
+      theme: {
+        preset: Aura,
+      },
+    },
   },
 
   imports: {

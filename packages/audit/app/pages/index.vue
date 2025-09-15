@@ -164,7 +164,7 @@
           <div class="max-w-md">
             <UCard
               class="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg bg-white/80 backdrop-blur-sm cursor-pointer"
-              @click="$router.push('/opinion-builder')"
+              @click="$router.push('/builder')"
             >
               <template #header>
                 <div class="flex items-center gap-3">

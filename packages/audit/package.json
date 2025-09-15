@@ -24,21 +24,25 @@
     "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@internationalized/date": "^3.9.0",
     "@nuxt/eslint": "1.9.0",
     "@nuxt/fonts": "0.11.4",
     "@nuxt/icon": "2.0.0",
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "^3.3.3",
     "@pinia/nuxt": "0.11.2",
+    "@primeuix/themes": "^1.2.3",
     "@vueuse/nuxt": "13.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "docx": "^9.5.1",
     "drizzle-orm": "^0.44.4",
-    "nuxt": "4.1.0",
+    "nuxt": "^4.1.2",
     "nuxt-auth-utils": "0.5.20",
     "pg": "^8.16.0",
     "pinia": "^3.0.3",
+    "primevue": "^4.3.9",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
     "vue": "^3.5.21",
@@ -47,10 +51,12 @@
   },
   "devDependencies": {
     "@direct-flow/base": "workspace:*",
+    "@primevue/nuxt-module": "^4.3.9",
     "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.31.4",
     "prettier": "^3.5.3",
     "tsx": "^4.20.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vue-tsc": "^3.0.7"
   }
 }

@@ -8,7 +8,7 @@
       isHeaderVisible ? 'translate-y-0' : '-translate-y-full',
     ]"
   >
-    <UContainer class="flex items-center justify-between h-16 w-full">
+    <UContainer class="flex items-center justify-between py-2 w-full">
       <!-- Left side - Logo and Brand -->
       <NuxtLink to="/" class="flex items-center gap-3 group flex-shrink-0">
         <Icon
