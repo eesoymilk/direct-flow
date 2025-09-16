@@ -4,3 +4,13 @@ export const OPINION_TYPES = [
   "adverse",
   "disclaimer",
 ] as const;
+
+export const AUDITING_FRAMEWORKS = [
+  "businessAccountingGuidelines",
+  "IFRS",
+] as const;
+
+export const OTHER_MATTER_OPTIONS = [
+  "noPreviousAuditor",
+  "noPreviousAuditReport",
+] as const;

@@ -1,152 +1,149 @@
 import { faker } from "@faker-js/faker";
-import type { SelectItem } from "@nuxt/ui";
 import * as z from "zod";
 
 // Define the schema for global info validation
-export const globalInfoSchema = z.object({
+export const basicInfoSchema = z.object({
   entityName: z.string().min(1, "受查者名稱為必填"),
-  periodStart: z.date({ required_error: "期初日期為必填" }),
-  periodEnd: z.date({ required_error: "期末日期為必填" }),
+  startYear: z.number({ required_error: "開始年份為必填" }),
+  endYear: z.number({ required_error: "結束年份為必填" }),
+  comparativeStartYear: z.number().optional(),
+  comparativeEndYear: z.number().optional(),
   firmName: z.string().min(1, "會計師事務所為必填"),
   auditorName: z.string().min(1, "會計師姓名為必填"),
   accountingFramework: z.enum(["businessAccountingGuidelines", "IFRS"], {
     required_error: "請選擇會計架構",
   }),
-  comparativePeriodStart: z.date().optional(),
-  comparativePeriodEnd: z.date().optional(),
 });
 
 export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   // State
-  const globalInfo = ref<Partial<GlobalAuditInfo>>({
-    entityName: "",
-    firmName: "",
-    auditorName: "",
-    reportDate: new Date(),
-    accountingFramework: "businessAccountingGuidelines",
-  });
+  const basicInfo = ref<Partial<AuditBasicInfo>>({});
 
-  const opinionSpecificData = ref<Partial<OpinionSpecificData>>({});
-
-  const selectedOpinion = ref<OpinionType | null>(null);
   const hasComparativePeriod = ref(false);
 
-  // Options
-  const frameworkItems = ref<SelectItem[]>([
-    {
-      label: "商業會計處理準則",
-      value: "businessAccountingGuidelines",
-    },
-    { label: "國際財務報導準則 (IFRS)", value: "IFRS" },
-  ]);
+  const opinionInfo = ref<Partial<AuditOpinionInfo>>({});
 
-  const opinionTypes = ref<
-    Array<{
-      type: OpinionType;
-      title: string;
-      description: string;
-      tags: string[];
-    }>
-  >([
-    {
-      type: "unqualified" as OpinionType,
-      title: "無保留意見",
-      description: "財務報表在所有重大方面均依照適用之財務報導架構編製",
-      tags: ["標準意見", "無修正"],
-    },
-    {
-      type: "qualified" as OpinionType,
-      title: "保留意見",
-      description: "除特定事項外，財務報表在所有重大方面均適當表達",
-      tags: ["修正意見", "部分限制"],
-    },
-    {
-      type: "adverse" as OpinionType,
-      title: "否定意見",
-      description: "財務報表整體而言並未適當表達",
-      tags: ["修正意見", "重大違反"],
-    },
-    {
-      type: "disclaimer" as OpinionType,
-      title: "無法表示意見",
-      description: "無法取得充分適切之查核證據作為查核意見之基礎",
-      tags: ["修正意見", "查核範圍限制"],
-    },
-  ]);
-
-  // Computed getters
-  const isGlobalInfoComplete = computed(
-    () =>
-      !!(
-        globalInfo.value.entityName &&
-        globalInfo.value.periodStart &&
-        globalInfo.value.periodEnd &&
-        globalInfo.value.firmName &&
-        globalInfo.value.auditorName &&
-        globalInfo.value.accountingFramework
-      )
+  const entityLabel = computed(
+    () => basicInfo.value.entityName || "[空白的受查者名稱]"
   );
 
-  const selectedOpinionData = computed(() => {
-    return opinionTypes.value.find((op) => op.type === selectedOpinion.value);
-  });
+  const opinionSectionTemplate = computed((): AuditReportSection => {
+    const paragraphs: string[] = [];
 
-  const combinedOpinionData = computed((): AuditOpinionFormData => {
-    return {
-      ...globalInfo.value,
-      ...opinionSpecificData.value,
-      comparativePeriodStart: hasComparativePeriod.value
-        ? globalInfo.value.comparativePeriodStart
-        : undefined,
-      comparativePeriodEnd: hasComparativePeriod.value
-        ? globalInfo.value.comparativePeriodEnd
-        : undefined,
-      independenceCompliance: true,
-      ethicalRequirementsCompliance: true,
-    } as AuditOpinionFormData;
-  });
+    const yearStr = getYearStr(
+      basicInfo.value.currentYear,
+      basicInfo.value.comparativeYear
+    );
 
-  // Actions
-  const selectOpinion = (opinionType: OpinionType) => {
-    if (!isGlobalInfoComplete.value) return;
+    const frameworkText = getAccountingFrameworkText(
+      basicInfo.value.accountingFramework
+    );
 
-    selectedOpinion.value = opinionType;
-    // Reset opinion-specific data when switching opinion types
-    opinionSpecificData.value = { opinionType };
-  };
+    paragraphs.push(
+      `${entityLabel.value}${yearStr}十二月三十一日之資產負債表，暨${yearStr}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表，以及財務報表附註(包括重大會計政策彙總)，業經本會計師查核竣事。`
+    );
 
-  const updateGlobalInfo = (updates: Partial<typeof globalInfo.value>) => {
-    globalInfo.value = { ...globalInfo.value, ...updates };
-  };
+    switch (opinionInfo.value.opinionType) {
+      case "unqualified":
+        paragraphs.push(
+          `依本會計師之意見，上開財務報表在所有重大方面係依照${frameworkText}編製，足以允當表達${entityLabel.value}${yearStr}之財務狀況，暨${yearStr}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表之財務績效及現金流量。`
+        );
+        break;
 
-  const updateOpinionSpecificData = (updates: Partial<OpinionSpecificData>) => {
-    opinionSpecificData.value = { ...opinionSpecificData.value, ...updates };
-  };
+      case "qualified":
+        paragraphs.push(
+          `依本會計師之意見，除前段所述事項之影響外，上開財務報表在所有重大方面係依照${frameworkText}編製，足以允當表達${entityLabel.value}${yearStr}之財務狀況，暨${yearStr}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表之財務績效及現金流量。`
+        );
+        break;
 
-  const setComparativePeriod = (hasComparative: boolean) => {
-    hasComparativePeriod.value = hasComparative;
-    if (!hasComparative) {
-      globalInfo.value.comparativePeriodStart = undefined;
-      globalInfo.value.comparativePeriodEnd = undefined;
+      case "adverse":
+        paragraphs.push(
+          `依本會計師之意見，由於前段所述事項之重大性及其廣泛性之影響，上開財務報表未依照${frameworkText}編製，未能允當表達${entityLabel.value}${yearStr}之財務狀況，暨${yearStr}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表之財務績效及現金流量。`
+        );
+        break;
+
+      case "disclaimer":
+        paragraphs.push(
+          `由於前段所述事項之重大性及其廣泛性之可能影響，本會計師無法對上開財務報表表示意見。`
+        );
+        break;
+
+      default:
+        break;
     }
-  };
+
+    return {
+      title: "查核意見",
+      paragraphs,
+    };
+  });
+
+  const opinionBasisSectionTemplate = computed((): AuditReportSection => {
+    const paragraphs: string[] = [];
+
+    const auditingStandardText = getAccountingStandardText(
+      basicInfo.value.accountingFramework
+    );
+
+    paragraphs.push(
+      `本會計師係依照${auditingStandardText}執行查核工作。本會計師於該等準則下之責任將於會計師查核財務報表之責任段進一步說明。本會計師所隸屬事務所受獨立性規範之人員已依會計師職業道德規範，與${entityLabel.value}保持超然獨立，並履行該規範之其他責任。本會計師相信已取得足夠及適切之查核證據，以作為表示查核意見之基礎。`
+    );
+
+    return {
+      title: "查核意見之基礎",
+      paragraphs,
+    };
+  });
+
+  const managementResponsibilitySectionTemplate = computed(
+    (): AuditReportSection => {
+      const paragraphs: string[] = [];
+
+      paragraphs.push(
+        `本會計師所隸屬事務所受獨立性規範之人員已依會計師職業道德規範，與${entityLabel.value}保持超然獨立，並履行該規範之其他責任。`
+      );
+
+      return {
+        title: "管理階層對財務報表之責任",
+        paragraphs,
+      };
+    }
+  );
+
+  const reportTemplate = computed((): AuditReportTemplate => {
+    const firmName = basicInfo.value.firmName || "[空白的會計師事務所]";
+    const auditorName = basicInfo.value.auditorName || "[空白的會計師姓名]";
+    const reportDate = formatRocDate(basicInfo.value.reportDate);
+
+    return {
+      header: {
+        title: "會計師查核報告",
+        recipient: `${entityLabel.value}董事會 公鑒：`,
+        entity: entityLabel.value,
+      },
+      sections: [
+        opinionSectionTemplate.value,
+        opinionBasisSectionTemplate.value,
+      ],
+      footer: {
+        firmName,
+        auditorName,
+        date: reportDate,
+      },
+    };
+  });
 
   const generateMockData = () => {
-    const currentYear = new Date().getFullYear();
+    const currentYear = faker.number.int({ min: 1911, max: 2025 });
 
-    const periodEnd = faker.date.between({
+    const reportDate = faker.date.between({
       from: new Date(currentYear - 1, 0, 1),
       to: new Date(currentYear, 11, 31),
     });
 
-    const periodStart = new Date(periodEnd);
-    periodStart.setFullYear(periodEnd.getFullYear() - 1);
-    periodStart.setDate(periodStart.getDate() + 1);
-
-    globalInfo.value = {
+    basicInfo.value = {
       entityName: faker.company.name() + "股份有限公司",
-      periodStart: periodStart,
-      periodEnd: periodEnd,
+      currentYear,
       firmName: faker.helpers.arrayElement([
         "勤業眾信聯合會計師事務所",
         "安侯建業聯合會計師事務所",
@@ -154,10 +151,7 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
         "安永聯合會計師事務所",
       ]),
       auditorName: faker.person.lastName() + faker.person.firstName(),
-      reportDate: faker.date.between({
-        from: periodEnd,
-        to: new Date(periodEnd.getFullYear(), periodEnd.getMonth() + 6),
-      }),
+      reportDate,
       accountingFramework: faker.helpers.arrayElement([
         "businessAccountingGuidelines",
         "IFRS",
@@ -167,53 +161,27 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     // Optionally set comparative period
     if (faker.datatype.boolean()) {
       hasComparativePeriod.value = true;
-      const comparativePeriodEnd = new Date(periodStart);
-      comparativePeriodEnd.setDate(comparativePeriodEnd.getDate() - 1);
-      const comparativePeriodStart = new Date(comparativePeriodEnd);
-      comparativePeriodStart.setFullYear(
-        comparativePeriodEnd.getFullYear() - 1
-      );
-      comparativePeriodStart.setDate(comparativePeriodStart.getDate() + 1);
-
-      globalInfo.value.comparativePeriodStart = comparativePeriodStart;
-      globalInfo.value.comparativePeriodEnd = comparativePeriodEnd;
+      basicInfo.value.comparativeYear = faker.number.int({
+        min: 1911,
+        max: 2025,
+      });
     }
   };
 
   const reset = () => {
-    globalInfo.value = {
-      entityName: "",
-      periodStart: undefined,
-      periodEnd: undefined,
-      firmName: "",
-      auditorName: "",
-      reportDate: new Date(),
-      accountingFramework: "businessAccountingGuidelines",
-    };
-    opinionSpecificData.value = {};
-    selectedOpinion.value = null;
+    basicInfo.value = {};
+    opinionInfo.value = {};
     hasComparativePeriod.value = false;
   };
 
   return {
     // State
-    globalInfo,
-    opinionSpecificData,
-    selectedOpinion,
+    basicInfo,
+    opinionInfo,
     hasComparativePeriod,
-    frameworkItems,
-    opinionTypes,
-
-    // Computed
-    isGlobalInfoComplete,
-    selectedOpinionData,
-    combinedOpinionData,
+    reportTemplate,
 
     // Actions
-    selectOpinion,
-    updateGlobalInfo,
-    updateOpinionSpecificData,
-    setComparativePeriod,
     generateMockData,
     reset,
   };

@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import Aura from "@primeuix/themes/aura";
+import { DirectFlowTheme } from "./themes/directFlow";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -41,12 +41,32 @@ export default defineNuxtConfig({
 
   ui: {
     colorMode: false,
+    theme: {
+      colors: [
+        "primary",
+        "secondary",
+        "success",
+        "info",
+        "warning",
+        "error",
+        "neutral",
+      ],
+    },
   },
 
   primevue: {
+    autoImport: true,
     options: {
+      ripple: true,
       theme: {
-        preset: Aura,
+        preset: DirectFlowTheme,
+        options: {
+          cssLayer: {
+            name: "primevue",
+            order: "theme, base, primevue",
+          },
+          darkModeSelector: ".dark",
+        },
       },
     },
   },

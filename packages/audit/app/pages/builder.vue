@@ -40,8 +40,8 @@
 
             <UForm
               class="grid grid-cols-2 gap-4"
-              :state="globalInfo"
-              :schema="globalInfoSchema"
+              :state="basicInfo"
+              :schema="basicInfoSchema"
             >
               <UFormField
                 label="受查者名稱"
@@ -50,73 +50,31 @@
                 required
               >
                 <UInput
-                  v-model="globalInfo.entityName"
+                  v-model="basicInfo.entityName"
                   placeholder="請輸入受查者名稱"
                   class="w-full"
                 />
               </UFormField>
 
               <UFormField label="期末日期" name="periodEnd" required>
-                <DatePicker
-                  :value="globalInfo.periodEnd"
-                  @select-date="
-                    (date: Date) => updateGlobalInfo({ periodEnd: date })
-                  "
-                  empty-label="期末日期"
-                />
-              </UFormField>
-              <UFormField label="期初日期" name="periodStart" required>
-                <DatePicker
-                  :value="globalInfo.periodStart"
-                  @select-date="
-                    (date: Date) => updateGlobalInfo({ periodStart: date })
-                  "
-                  empty-label="期初日期"
-                />
+                <UInputNumber :value="basicInfo.currentYear" class="w-full" />
               </UFormField>
 
-              <UFormField
-                name="hasComparativePeriod"
-                class="col-span-full"
-                required
-              >
+              <UFormField name="hasComparativePeriod" class="col-span-full">
                 <UCheckbox
                   v-model="hasComparativePeriod"
                   label="包含比較期間"
-                  required
                 />
               </UFormField>
 
               <UFormField
                 v-if="hasComparativePeriod"
                 label="比較期間期末"
-                name="comparativePeriodEnd"
+                name="comparativeYear"
               >
-                <DatePicker
-                  :value="globalInfo.comparativePeriodEnd"
-                  @select-date="
-                    (date: Date) =>
-                      updateGlobalInfo({
-                        comparativePeriodEnd: date,
-                      })
-                  "
-                  empty-label="比較期間期末"
-                />
-              </UFormField>
-              <UFormField
-                v-if="hasComparativePeriod"
-                label="比較期間期初"
-                name="comparativePeriodStart"
-              >
-                <DatePicker
-                  :value="globalInfo.comparativePeriodStart"
-                  @select-date="
-                    (date: Date) =>
-                      updateGlobalInfo({
-                        comparativePeriodStart: date,
-                      })
-                  "
-                  empty-label="比較期間期初"
+                <UInputNumber
+                  :value="basicInfo.comparativeYear"
+                  class="w-full"
                 />
               </UFormField>
 
@@ -127,7 +85,7 @@
                 required
               >
                 <UInput
-                  v-model="globalInfo.firmName"
+                  v-model="basicInfo.firmName"
                   placeholder="請輸入會計師事務所名稱"
                   class="w-full"
                 />
@@ -140,7 +98,7 @@
                 required
               >
                 <UInput
-                  v-model="globalInfo.auditorName"
+                  v-model="basicInfo.auditorName"
                   placeholder="請輸入會計師姓名"
                   class="w-full"
                 />
@@ -153,7 +111,7 @@
                 required
               >
                 <USelect
-                  v-model="globalInfo.accountingFramework"
+                  v-model="basicInfo.accountingFramework"
                   :items="frameworkItems"
                   placeholder="選擇適用的會計架構"
                   class="w-full"
@@ -162,93 +120,73 @@
             </UForm>
           </UCard>
 
-          <!-- Opinion Type Selection -->
-          <UCard :class="{ 'opacity-50': !isGlobalInfoComplete }">
-            <template #header>
-              <h2 class="text-xl font-semibold text-gray-900">
-                選擇查核意見類型
-              </h2>
-              <p
-                v-if="!isGlobalInfoComplete"
-                class="text-sm text-gray-500 mt-1"
-              >
-                請先完成基本資料填寫
-              </p>
-            </template>
-          </UCard>
+          <AuditOpinionOrgChart />
 
           <!-- Opinion Details Form -->
-          <UCard v-if="selectedOpinion">
+          <UCard>
             <template #header>
               <h3 class="text-lg font-semibold text-gray-900">
-                {{ selectedOpinionData?.title }} - 詳細設定
+                {{ opinionInfo.opinionType }} - 詳細設定
               </h3>
             </template>
 
             <div class="space-y-4">
               <!-- Conditional fields based on opinion type -->
-              <div v-if="selectedOpinion === 'qualified'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    保留意見原因 *
-                  </label>
+              <div
+                v-if="opinionInfo.opinionType === 'qualified'"
+                class="space-y-4"
+              >
+                <UFormField label="保留意見原因">
                   <UTextarea
-                    v-model="opinionSpecificData.qualificationReason"
+                    v-model="opinionInfo.reason"
                     placeholder="請描述導致保留意見的具體原因"
                     :rows="4"
                   />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    影響金額 (如適用)
-                  </label>
+                </UFormField>
+                <UFormField label="影響金額 (如適用)">
                   <UInput
-                    v-model="opinionSpecificData.materialAmount"
+                    v-model="opinionInfo.materialAmount"
                     placeholder="請輸入金額"
                     type="number"
                   />
-                </div>
-              </div>
-
-              <div v-if="selectedOpinion === 'adverse'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    否定意見原因 *
-                  </label>
-                  <UTextarea
-                    v-model="opinionSpecificData.adverseReason"
-                    placeholder="請描述導致否定意見的重大違反會計準則之情形"
-                    :rows="4"
-                  />
-                </div>
-              </div>
-
-              <div v-if="selectedOpinion === 'disclaimer'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    無法表示意見原因 *
-                  </label>
-                  <UTextarea
-                    v-model="opinionSpecificData.disclaimerReason"
-                    placeholder="請描述導致查核範圍受到限制的原因"
-                    :rows="4"
-                  />
-                </div>
+                </UFormField>
               </div>
 
               <div
-                v-if="selectedOpinion === 'unqualified'"
+                v-if="opinionInfo.opinionType === 'adverse'"
+                class="space-y-4"
+              >
+                <UFormField label="否定意見原因">
+                  <UTextarea
+                    v-model="opinionInfo.reason"
+                    placeholder="請描述導致否定意見的重大違反會計準則之情形"
+                    :rows="4"
+                  />
+                </UFormField>
+              </div>
+
+              <div
+                v-if="opinionInfo.opinionType === 'disclaimer'"
+                class="space-y-4"
+              >
+                <UFormField label="無法表示意見原因">
+                  <UTextarea
+                    v-model="opinionInfo.reason"
+                    placeholder="請描述導致查核範圍受到限制的原因"
+                    :rows="4"
+                  />
+                </UFormField>
+              </div>
+
+              <div
+                v-if="opinionInfo.opinionType === 'unqualified'"
                 class="p-4 bg-green-50 border border-green-200 rounded-lg"
               >
-                <div class="flex items-center gap-2">
-                  <UIcon
-                    name="i-lucide-check-circle"
-                    class="h-5 w-5 text-green-600"
-                  />
+                <UFormField label="無保留意見不需要額外的說明或修正事項">
                   <span class="text-sm text-green-700">
                     無保留意見不需要額外的說明或修正事項
                   </span>
-                </div>
+                </UFormField>
               </div>
             </div>
           </UCard>
@@ -266,14 +204,11 @@
               </h2>
             </template>
 
-            <div v-if="selectedOpinion" class="space-y-4">
+            <div v-if="opinionInfo.opinionType" class="space-y-4">
               <div
                 class="bg-white border-2 border-gray-200 rounded-lg p-6 min-h-96"
               >
-                <AuditOpinionPreview
-                  :opinion-type="selectedOpinion"
-                  :opinion-data="combinedOpinionData"
-                />
+                <AuditReportPreview />
               </div>
             </div>
 
@@ -293,7 +228,6 @@
               label="產生財報"
               color="primary"
               size="lg"
-              :disabled="!selectedOpinion"
               class="flex-1"
               @click="generateReport"
             />
@@ -303,7 +237,6 @@
               color="neutral"
               variant="outline"
               size="lg"
-              :disabled="!selectedOpinion"
               @click="saveTemplate"
             />
           </div>
@@ -317,68 +250,27 @@
 import type { SelectItem } from "@nuxt/ui";
 
 const auditStore = useAuditBuilderStore();
-const {
-  globalInfo,
-  combinedOpinionData,
-  opinionSpecificData,
-  selectedOpinion,
-  hasComparativePeriod,
-  isGlobalInfoComplete,
-  opinionTypes,
-  selectedOpinionData,
-} = storeToRefs(auditStore);
-const { generateMockData, updateGlobalInfo, selectOpinion } = auditStore;
+const { basicInfo, opinionInfo, hasComparativePeriod } =
+  storeToRefs(auditStore);
+const { generateMockData } = auditStore;
 
 const frameworkItems: SelectItem[] = [
   {
     label: "商業會計處理準則",
     value: "businessAccountingGuidelines",
   },
-  { label: "國際財務報導準則 (IFRS)", value: "IFRS" },
+  {
+    label: "國際財務報導準則 (IFRS)",
+    value: "IFRS",
+  },
 ];
 
 const generateReport = async () => {
-  if (!selectedOpinion) return;
-
-  try {
-    const reportData = {
-      ...combinedOpinionData.value,
-      materialAmount: opinionSpecificData.value.materialAmount
-        ? parseInt(opinionSpecificData.value.materialAmount)
-        : undefined,
-      // Ensure dates are properly handled and required fields are present
-      entityName: globalInfo.value.entityName || "",
-      periodStart: globalInfo.value.periodStart || new Date(),
-      periodEnd: globalInfo.value.periodEnd || new Date(),
-      reportDate: globalInfo.value.reportDate || new Date(),
-      firmName: globalInfo.value.firmName || "",
-      auditorName: globalInfo.value.auditorName || "",
-      accountingFramework: globalInfo.value.accountingFramework as
-        | "businessAccountingGuidelines"
-        | "IFRS",
-    };
-
-    const blob = await generateAuditDocxBlob(reportData);
-
-    // Download the file
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `audit-report-${reportData.entityName}-${reportData.periodEnd.getFullYear()}.docx`;
-    link.click();
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error generating report:", error);
-  }
+  // TODO: Implement report generation
 };
 
 const saveTemplate = () => {
   // TODO: Implement template saving
-  console.log("Saving template:", {
-    opinionType: selectedOpinion,
-    globalInfo: globalInfo,
-    opinionSpecificData: opinionSpecificData,
-  });
 };
 
 useSeoMeta({

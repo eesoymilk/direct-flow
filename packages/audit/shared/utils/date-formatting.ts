@@ -27,10 +27,10 @@ export function formatROCDate(date: Date | string | undefined): string {
   const rocYear = toROCYear(validDate);
   const month = validDate.getMonth() + 1;
   const day = validDate.getDate();
-  
+
   // Convert to Chinese number format for years over 100
   const yearStr = rocYear >= 100 ? `一○${rocYear - 100}` : rocYear.toString();
-  
+
   return `民國${yearStr}年${month}月${day}日`;
 }
 
@@ -46,7 +46,9 @@ export function formatROCYear(date: Date | string | undefined): string {
 /**
  * Formats period for balance sheet dates: 民國一○七年十二月三十一日
  */
-export function formatBalanceSheetDate(date: Date | string | undefined): string {
+export function formatBalanceSheetDate(
+  date: Date | string | undefined
+): string {
   const rocYear = toROCYear(date);
   const yearStr = rocYear >= 100 ? `一○${rocYear - 100}` : rocYear.toString();
   return `民國${yearStr}年十二月三十一日`;
@@ -55,7 +57,9 @@ export function formatBalanceSheetDate(date: Date | string | undefined): string 
 /**
  * Formats period range for income statements: 民國一○七年一月一日至十二月三十一日
  */
-export function formatIncomeStatementPeriod(date: Date | string | undefined): string {
+export function formatIncomeStatementPeriod(
+  date: Date | string | undefined
+): string {
   const rocYear = toROCYear(date);
   const yearStr = rocYear >= 100 ? `一○${rocYear - 100}` : rocYear.toString();
   return `民國${yearStr}年一月一日至十二月三十一日`;
@@ -65,7 +69,7 @@ export function formatIncomeStatementPeriod(date: Date | string | undefined): st
  * Formats comparative periods for dual-year reports
  */
 export function formatComparativePeriods(
-  currentYear: Date | string | undefined, 
+  currentYear: Date | string | undefined,
   comparativeYear: Date | string | undefined
 ): {
   balanceSheetPeriod: string;
@@ -73,13 +77,15 @@ export function formatComparativePeriods(
 } {
   const currentROC = toROCYear(currentYear);
   const compareROC = toROCYear(comparativeYear);
-  
-  const currentYearStr = currentROC >= 100 ? `一○${currentROC - 100}` : currentROC.toString();
-  const compareYearStr = compareROC >= 100 ? `一○${compareROC - 100}` : compareROC.toString();
-  
+
+  const currentYearStr =
+    currentROC >= 100 ? `一○${currentROC - 100}` : currentROC.toString();
+  const compareYearStr =
+    compareROC >= 100 ? `一○${compareROC - 100}` : compareROC.toString();
+
   return {
     balanceSheetPeriod: `民國${currentYearStr}年及${compareYearStr}年十二月三十一日`,
-    incomeStatementPeriod: `民國${currentYearStr}年及${compareYearStr}年一月一日至十二月三十一日`
+    incomeStatementPeriod: `民國${currentYearStr}年及${compareYearStr}年一月一日至十二月三十一日`,
   };
 }
 
@@ -87,14 +93,12 @@ export function formatComparativePeriods(
  * Formats complete financial statement period description
  */
 export function formatFinancialStatementPeriod(
-  currentPeriodEnd: Date | string | undefined, 
+  currentPeriodEnd: Date | string | undefined,
   comparativePeriodEnd?: Date | string | undefined
 ): string {
   if (comparativePeriodEnd) {
-    const { balanceSheetPeriod, incomeStatementPeriod } = formatComparativePeriods(
-      currentPeriodEnd, 
-      comparativePeriodEnd
-    );
+    const { balanceSheetPeriod, incomeStatementPeriod } =
+      formatComparativePeriods(currentPeriodEnd, comparativePeriodEnd);
     return `${balanceSheetPeriod}之資產負債表，暨${incomeStatementPeriod}之綜合損益表、權益變動表及現金流量表`;
   } else {
     const balanceSheetDate = formatBalanceSheetDate(currentPeriodEnd);
@@ -107,22 +111,14 @@ export function formatFinancialStatementPeriod(
  * Format numbers with Chinese thousands separators
  */
 export function formatChineseNumber(amount: number): string {
-  return new Intl.NumberFormat('zh-TW').format(amount);
-}
-
-/**
- * Get standard accounting framework text
- */
-export function getAccountingFrameworkText(framework: string): string {
-  if (framework.includes('IFRS') || framework.includes('國際財務報導準則')) {
-    return '國際財務報導準則、國際會計準則、國際財務報導解釋及解釋公告';
-  }
-  return '商業會計法及商業會計處理準則中與財務會計相關之規定暨財團法人中華民國會計研究發展基金會所公開之各號企業會計準則公報及其解釋';
+  return new Intl.NumberFormat("zh-TW").format(amount);
 }
 
 /**
  * Get auditing standards text based on accounting framework
  */
 export function getAuditingStandardsText(framework: string): string {
-  return framework.includes('IFRS') ? '審計準則規定' : '會計師查核簽證財務報表規則及一般公認審計準則';
+  return framework.includes("IFRS")
+    ? "審計準則規定"
+    : "會計師查核簽證財務報表規則及一般公認審計準則";
 }
