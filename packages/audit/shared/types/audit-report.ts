@@ -1,14 +1,14 @@
 import type {
   AUDITING_FRAMEWORKS,
   OPINION_TYPES,
-  OTHER_MATTER_OPTIONS,
+  OTHER_MATTER_TYPES,
 } from "../utils/constants";
 
 export type OpinionType = (typeof OPINION_TYPES)[number];
 
 export type AccountingFramework = (typeof AUDITING_FRAMEWORKS)[number];
 
-export type OtherMatterOption = (typeof OTHER_MATTER_OPTIONS)[number];
+export type OtherMatterType = (typeof OTHER_MATTER_TYPES)[number];
 
 export interface AuditBasicInfo {
   entityName: string;
@@ -24,7 +24,7 @@ export interface AuditOpinionInfo {
   opinionType: OpinionType;
   reason?: string;
   materialAmount?: number;
-  otherMatterOption?: OtherMatterOption;
+  otherMatterOption?: { type: OtherMatterType; previousAuditReportDate?: Date };
 }
 
 export interface AuditReportData {

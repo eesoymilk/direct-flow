@@ -122,72 +122,44 @@
 
           <AuditOpinionOrgChart />
 
-          <!-- Opinion Details Form -->
           <UCard>
             <template #header>
-              <h3 class="text-lg font-semibold text-gray-900">
-                {{ opinionInfo.opinionType }} - 詳細設定
-              </h3>
+              <h3 class="text-lg font-semibold text-gray-900">其他事項段</h3>
             </template>
 
             <div class="space-y-4">
-              <!-- Conditional fields based on opinion type -->
-              <div
-                v-if="opinionInfo.opinionType === 'qualified'"
-                class="space-y-4"
-              >
-                <UFormField label="保留意見原因">
-                  <UTextarea
-                    v-model="opinionInfo.reason"
-                    placeholder="請描述導致保留意見的具體原因"
-                    :rows="4"
-                  />
-                </UFormField>
-                <UFormField label="影響金額 (如適用)">
-                  <UInput
-                    v-model="opinionInfo.materialAmount"
-                    placeholder="請輸入金額"
-                    type="number"
-                  />
-                </UFormField>
-              </div>
+              <UCheckbox
+                v-model="includeOtherMatterSection"
+                label="包含其他事項段"
+              />
 
-              <div
-                v-if="opinionInfo.opinionType === 'adverse'"
-                class="space-y-4"
-              >
-                <UFormField label="否定意見原因">
-                  <UTextarea
-                    v-model="opinionInfo.reason"
-                    placeholder="請描述導致否定意見的重大違反會計準則之情形"
-                    :rows="4"
-                  />
-                </UFormField>
-              </div>
+              <URadioGroup
+                v-if="
+                  includeOtherMatterSection && opinionInfo.otherMatterOption
+                "
+                v-model="opinionInfo.otherMatterOption.type"
+                :items="otherMatterOptions"
+                variant="card"
+                placeholder="其他事項選項"
+                class="w-full"
+              />
 
-              <div
-                v-if="opinionInfo.opinionType === 'disclaimer'"
-                class="space-y-4"
+              <UFormField
+                v-if="
+                  includeOtherMatterSection &&
+                  opinionInfo.otherMatterOption?.type ===
+                    'previousReportHandledByOtherAuditor'
+                "
+                label="前次查核報告日期"
               >
-                <UFormField label="無法表示意見原因">
-                  <UTextarea
-                    v-model="opinionInfo.reason"
-                    placeholder="請描述導致查核範圍受到限制的原因"
-                    :rows="4"
-                  />
-                </UFormField>
-              </div>
-
-              <div
-                v-if="opinionInfo.opinionType === 'unqualified'"
-                class="p-4 bg-green-50 border border-green-200 rounded-lg"
-              >
-                <UFormField label="無保留意見不需要額外的說明或修正事項">
-                  <span class="text-sm text-green-700">
-                    無保留意見不需要額外的說明或修正事項
-                  </span>
-                </UFormField>
-              </div>
+                <DatePicker
+                  v-model="
+                    opinionInfo.otherMatterOption.previousAuditReportDate
+                  "
+                  placeholder="請選擇前次查核報告日期"
+                  class="w-full"
+                />
+              </UFormField>
             </div>
           </UCard>
         </div>
@@ -247,11 +219,16 @@
 </template>
 
 <script setup lang="ts">
-import type { SelectItem } from "@nuxt/ui";
+import type { RadioGroupItem, SelectItem } from "@nuxt/ui";
 
 const auditStore = useAuditBuilderStore();
-const { basicInfo, opinionInfo, hasComparativePeriod } =
-  storeToRefs(auditStore);
+const {
+  basicInfo,
+  opinionInfo,
+  hasComparativePeriod,
+  includeOtherMatterSection,
+  entityLabel,
+} = storeToRefs(auditStore);
 const { generateMockData } = auditStore;
 
 const frameworkItems: SelectItem[] = [
@@ -264,6 +241,19 @@ const frameworkItems: SelectItem[] = [
     value: "IFRS",
   },
 ];
+
+const otherMatterOptions = computed((): RadioGroupItem[] => [
+  {
+    label: "前次查核報告由其他會計師出具",
+    description: `${entityLabel.value}公司民國一一一年度之財務報表係由其他會計師查核，並於民國一一二年六月九日出具查核意見。`,
+    value: "previousReportHandledByOtherAuditor",
+  },
+  {
+    label: "缺漏前次查核報告",
+    description: `${entityLabel.value}公司民國一一一年度之財務報表係由其他會計師查核，並於民國一一二年六月九日出具查核意見。`,
+    value: "missingPreviousAuditReport",
+  },
+]);
 
 const generateReport = async () => {
   // TODO: Implement report generation

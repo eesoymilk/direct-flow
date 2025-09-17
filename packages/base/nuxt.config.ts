@@ -72,6 +72,15 @@ export default defineNuxtConfig({
   },
 
   imports: {
-    dirs: ["~/shared/**"],
+    presets: [
+      {
+        from: "primevue/usetoast",
+        imports: [{ name: "useToast", as: "usePrimeToast" }],
+      },
+      {
+        from: "@nuxt/ui/composables/useToast.js",
+        imports: [{ name: "useToast", as: "useNuxtUiToast" }],
+      },
+    ],
   },
 });

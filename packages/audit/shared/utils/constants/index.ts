@@ -10,7 +10,7 @@ export const AUDITING_FRAMEWORKS = [
   "IFRS",
 ] as const;
 
-export const OTHER_MATTER_OPTIONS = [
-  "noPreviousAuditor",
-  "noPreviousAuditReport",
+export const OTHER_MATTER_TYPES = [
+  "previousReportHandledByOtherAuditor",
+  "missingPreviousAuditReport",
 ] as const;

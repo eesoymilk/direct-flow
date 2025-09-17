@@ -6,28 +6,25 @@ import {
   AlignmentType,
   Packer,
 } from "docx";
-import type {
-  AuditReportData,
-  AuditReportTemplate,
-} from "../types/audit-report";
-import { generateAuditReportTemplate } from "./audit-report-generator";
+import type { AuditReportTemplate } from "../types/audit-report";
 
-export function createAuditDocument(data: AuditReportData): Document {
-  const template = generateAuditReportTemplate(data);
-  return generateDocxDocument(template);
+export function createAuditDocument(
+  auditReportTemplate: AuditReportTemplate
+): Document {
+  return generateDocxDocument(auditReportTemplate);
 }
 
 export async function generateAuditDocxBuffer(
-  data: AuditReportData
+  auditReportTemplate: AuditReportTemplate
 ): Promise<Buffer> {
-  const doc = createAuditDocument(data);
+  const doc = createAuditDocument(auditReportTemplate);
   return await Packer.toBuffer(doc);
 }
 
 export async function generateAuditDocxBlob(
-  data: AuditReportData
+  auditReportTemplate: AuditReportTemplate
 ): Promise<Blob> {
-  const doc = createAuditDocument(data);
+  const doc = createAuditDocument(auditReportTemplate);
   return await Packer.toBlob(doc);
 }
 
@@ -94,17 +91,6 @@ function createEntityInfo(template: AuditReportTemplate): Paragraph[] {
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
-    }),
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: template.header.period,
-          size: 24, // 12pt
-          font: "Times New Roman",
-        }),
-      ],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 600 },
     }),
   ];
 }
