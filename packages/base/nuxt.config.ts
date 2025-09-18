@@ -9,6 +9,10 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-09-08",
   devtools: { enabled: true },
 
+  alias: {
+    "~": "/<rootDir>",
+  },
+
   future: {
     compatibilityVersion: 4,
   },
@@ -55,7 +59,6 @@ export default defineNuxtConfig({
   },
 
   primevue: {
-    autoImport: true,
     options: {
       ripple: true,
       theme: {

@@ -12,8 +12,8 @@ export type OtherMatterType = (typeof OTHER_MATTER_TYPES)[number];
 
 export interface AuditBasicInfo {
   entityName: string;
-  currentYear: number;
-  comparativeYear?: number;
+  currentRocYear: number;
+  comparativeRocYear?: number;
   firmName: string;
   auditorName: string;
   accountingFramework: AccountingFramework;

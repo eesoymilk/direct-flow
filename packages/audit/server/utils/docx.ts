@@ -5,8 +5,10 @@ import {
   HeadingLevel,
   AlignmentType,
   Packer,
+  PageNumber,
+  Header,
+  Footer,
 } from "docx";
-import type { AuditReportTemplate } from "../types/audit-report";
 
 export function createAuditDocument(
   auditReportTemplate: AuditReportTemplate
@@ -26,6 +28,52 @@ export async function generateAuditDocxBlob(
 ): Promise<Blob> {
   const doc = createAuditDocument(auditReportTemplate);
   return await Packer.toBlob(doc);
+}
+
+/**
+ * Estimates the number of pages in the audit report based on content analysis
+ * This is an approximation since actual page count requires document rendering
+ */
+export function estimatePageCount(template: AuditReportTemplate): number {
+  let totalWords = 0;
+
+  // Count words in title and entity info
+  totalWords += countWords(template.header.title);
+  totalWords += countWords(template.header.entity);
+
+  // Count words in all sections
+  template.sections.forEach((section) => {
+    totalWords += countWords(section.title);
+    section.paragraphs.forEach((paragraph) => {
+      totalWords += countWords(paragraph);
+    });
+  });
+
+  // Count words in footer
+  totalWords += countWords(template.footer.firmName);
+  totalWords += countWords(template.footer.auditorName);
+  totalWords += countWords(template.footer.date);
+
+  // Estimate pages (assuming ~300 words per page for Chinese text with spacing)
+  const wordsPerPage = 300;
+  const estimatedPages = Math.max(1, Math.ceil(totalWords / wordsPerPage));
+
+  return estimatedPages;
+}
+
+/**
+ * Helper function to count words in a string
+ */
+function countWords(text: string): number {
+  if (!text || typeof text !== "string") return 0;
+
+  // For Chinese text, count characters instead of words
+  // For mixed text, use a hybrid approach
+  const chineseChars = text.match(/[\u4e00-\u9fff]/g)?.length || 0;
+  const englishWords = text.match(/[a-zA-Z]+/g)?.length || 0;
+
+  // Approximate: 1 Chinese character ≈ 0.5 English words
+  return Math.ceil(chineseChars * 0.5 + englishWords);
 }
 
 function generateDocxDocument(template: AuditReportTemplate): Document {
@@ -57,6 +105,54 @@ function generateDocxDocument(template: AuditReportTemplate): Document {
               left: 1440,
             },
           },
+        },
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: template.header.entity,
+                    size: 20,
+                    font: "Times New Roman",
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+          }),
+        },
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: "第 ",
+                    size: 20,
+                    font: "Times New Roman",
+                  }),
+                  new TextRun({
+                    children: [PageNumber.CURRENT],
+                  }),
+                  new TextRun({
+                    text: " 頁，共 ",
+                    size: 20,
+                    font: "Times New Roman",
+                  }),
+                  new TextRun({
+                    children: [PageNumber.TOTAL_PAGES],
+                  }),
+                  new TextRun({
+                    text: " 頁",
+                    size: 20,
+                    font: "Times New Roman",
+                  }),
+                ],
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+          }),
         },
         children,
       },
@@ -95,7 +191,7 @@ function createEntityInfo(template: AuditReportTemplate): Paragraph[] {
   ];
 }
 
-function createSection(section: any): Paragraph[] {
+function createSection(section: AuditReportSection): Paragraph[] {
   const paragraphs: Paragraph[] = [];
 
   // Section title

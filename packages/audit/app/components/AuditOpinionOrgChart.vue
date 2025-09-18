@@ -11,8 +11,8 @@
       v-model:selection-keys="selectionKeys"
       :value="opinionOrgChartData"
       selection-mode="single"
-      @update:selection-keys="onUpdateSelectionKeys"
       class="w-full"
+      @update:selection-keys="onUpdateSelectionKeys"
     >
       <template #default="{ node }">
         <div
@@ -43,7 +43,7 @@
             <div
               class="w-4 h-4 bg-green-100 border-2 border-green-400 rounded-full flex items-center justify-center"
             >
-              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div class="w-2 h-2 bg-green-500 rounded-full" />
             </div>
             <span class="text-gray-700">無保留意見</span>
           </div>
@@ -51,7 +51,7 @@
             <div
               class="w-4 h-4 bg-amber-100 border-2 border-amber-400 rounded-full flex items-center justify-center"
             >
-              <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+              <div class="w-2 h-2 bg-amber-500 rounded-full" />
             </div>
             <span class="text-gray-700">保留意見</span>
           </div>
@@ -59,7 +59,7 @@
             <div
               class="w-4 h-4 bg-red-100 border-2 border-red-400 rounded-full flex items-center justify-center"
             >
-              <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+              <div class="w-2 h-2 bg-red-500 rounded-full" />
             </div>
             <span class="text-gray-700">否定意見</span>
           </div>
@@ -67,7 +67,7 @@
             <div
               class="w-4 h-4 bg-gray-100 border-2 border-gray-400 rounded-full flex items-center justify-center"
             >
-              <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+              <div class="w-2 h-2 bg-gray-500 rounded-full" />
             </div>
             <span class="text-gray-700">無法表示意見</span>
           </div>
@@ -110,7 +110,7 @@ interface OpinionNode {
   children?: OpinionNode[];
 }
 
-const emit = defineEmits<{
+defineEmits<{
   opinionSelected: [opinionType: OpinionType];
 }>();
 
@@ -118,6 +118,7 @@ const store = useAuditBuilderStore();
 
 const { opinionInfo } = storeToRefs(store);
 
+// TODO: make this 2-way dynamic wrt to the opinion types in the store
 const selectionKeys = ref<Record<string, boolean>>({});
 
 const selectedKey = computed(() => {
@@ -222,7 +223,7 @@ const onUpdateSelectionKeys = (newSelectionKeys: Record<string, boolean>) => {
   if (keys.length === 0) {
     return;
   }
-  opinionInfo.value.opinionType = keys[0] as OpinionType;
+  opinionInfo.value.opinionType = keys[0]?.split("-")[0] as OpinionType;
 };
 
 const getOpinionTypeLabelClass = (opinionType: OpinionType) => {

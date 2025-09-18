@@ -46,6 +46,8 @@
 </template>
 
 <script setup lang="ts">
-const auditStore = useAuditBuilderStore();
-const { reportTemplate } = storeToRefs(auditStore);
+interface Props {
+  reportTemplate: AuditReportTemplate;
+}
+defineProps<Props>();
 </script>

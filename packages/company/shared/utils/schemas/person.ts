@@ -1,7 +1,6 @@
 import * as z from "zod";
 import { getBasePersonSchema, getShareSchema, idNumberSchema } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
-import { PERSON_TYPES } from "~/components/company/application/review/constants";
 
 export const personSchema = getBasePersonSchema("人員");
 
@@ -26,7 +25,10 @@ export const shareholderSchema = z.object(
     email: z.string().email({ message: "請輸入有效的電子郵件" }).optional(),
     // TODO: Add dateOfBirth validation
     dateOfBirth: z.date(),
-    capitalContribution: z.number().min(0, { message: "出資額不能為負數" }).nullish(),
+    capitalContribution: z
+      .number()
+      .min(0, { message: "出資額不能為負數" })
+      .nullish(),
     isReadonly: z.boolean().optional(),
     referenceType: z.enum(PERSON_TYPES).optional(),
     // While shares are optional, they are required to be present to make the form validation simpler
