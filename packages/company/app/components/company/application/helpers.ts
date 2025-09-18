@@ -6,7 +6,7 @@ export const getSectionName = (sectionKey: string): string => {
     companyMonetaryInfo: "資本額資料",
     responsiblePerson: "負責人",
     contactPerson: "聯絡人",
-    shareholders: "股東",
+    partners: "股東",
     documents: "必要文件",
   };
   return sectionNames[sectionKey] || sectionKey;
@@ -45,7 +45,7 @@ export const getFieldDisplayName = (fieldPath: string): string => {
     "contactPerson.idCardFront": "聯絡人身分證正面",
     "contactPerson.idCardBack": "聯絡人身分證背面",
 
-    // Shareholder nested fields (with index)
+    // Partner nested fields (with index)
     // These will be handled by pattern matching below
 
     // Document nested fields
@@ -53,8 +53,8 @@ export const getFieldDisplayName = (fieldPath: string): string => {
     "documents.bankBookInside": "公司存摺內頁",
     "documents.bankBookStamp": "公司存摺戳章頁",
     "documents.balanceProof": "餘額證明",
-    "documents.shareholderPayments": "股東匯款資料",
-    "documents.shareholderAgreement": "股東同意書",
+    "documents.partnerPayments": "股東匯款資料",
+    "documents.partnerAgreement": "股東同意書",
     "documents.houseUseAgreement": "房屋使用同意書",
     "documents.directorConsent": "董監事願任同意書",
     "documents.declaration": "聲明書",
@@ -66,16 +66,16 @@ export const getFieldDisplayName = (fieldPath: string): string => {
     return fullPathNames[fieldPath];
   }
 
-  // Handle shareholder array patterns like "shareholders.0.name" or "shareholders.0.idCardFront"
-  const shareholderMatch = fieldPath.match(/^shareholders(\[\d+\])\.(.+)$/);
-  if (shareholderMatch && shareholderMatch[1] && shareholderMatch[2]) {
-    const shareholderIndex = parseInt(
-      shareholderMatch[1].replace("[", "").replace("]", "")
+  // Handle partner array patterns like "partners.0.name" or "partners.0.idCardFront"
+  const partnerMatch = fieldPath.match(/^partners(\[\d+\])\.(.+)$/);
+  if (partnerMatch && partnerMatch[1] && partnerMatch[2]) {
+    const partnerIndex = parseInt(
+      partnerMatch[1].replace("[", "").replace("]", "")
     );
-    const field = shareholderMatch[2];
-    const shareholderNumber = shareholderIndex + 1; // Convert to 1-based for display
+    const field = partnerMatch[2];
+    const partnerNumber = partnerIndex + 1; // Convert to 1-based for display
 
-    const shareholderFieldNames: Record<string, string> = {
+    const partnerFieldNames: Record<string, string> = {
       name: "姓名",
       idNumber: "身分證字號",
       birthDate: "出生日期",
@@ -87,8 +87,8 @@ export const getFieldDisplayName = (fieldPath: string): string => {
       idCardBack: "身分證背面",
     };
 
-    const fieldLabel = shareholderFieldNames[field] || field;
-    return `股東 ${shareholderNumber} ${fieldLabel}`;
+    const fieldLabel = partnerFieldNames[field] || field;
+    return `股東 ${partnerNumber} ${fieldLabel}`;
   }
 
   // Handle other array patterns like "businessItems.0"
@@ -139,8 +139,8 @@ const getLastPartFieldName = (fieldName: string): string => {
     bankBookInside: "公司存摺內頁",
     bankBookStamp: "公司存摺戳章頁",
     balanceProof: "餘額證明",
-    shareholderPayments: "股東匯款資料",
-    shareholderAgreement: "股東同意書",
+    partnerPayments: "股東匯款資料",
+    partnerAgreement: "股東同意書",
     houseUseAgreement: "房屋使用同意書",
     directorConsent: "董監事願任同意書",
     declaration: "聲明書",
@@ -166,7 +166,7 @@ const getLastPartFieldName = (fieldName: string): string => {
     preferredShares: "特別股數",
     parValue: "每股面額",
 
-    // Shareholder fields
+    // Partner fields
     shareholdingRatio: "持股比例",
     investmentAmount: "投資金額",
 

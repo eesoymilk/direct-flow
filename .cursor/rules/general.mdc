@@ -162,21 +162,21 @@ This is a company registration management system with specific domain patterns:
 **Core Entities and Schemas:**
 
 - Use Zod schemas from `shared/utils/schemas/` for validation
-- Main schemas: `companyApplicationFormSchema`, `personSchema`, `shareholderSchema`
+- Main schemas: `companyApplicationFormSchema`, `personSchema`, `partnerSchema`
 - Database types from `shared/types/database.ts` using Drizzle `InferSelectModel`
 - Organization types: `company_limited`, `closely_held_company_limited`, `limited_company`, `sole_proprietorship`, `partnership`
 
 **Application Review System:**
 
 - Multi-round review workflow with issues and verifications tracking
-- Section-based review interface: company basic info, business items, monetary info, persons, shareholders, documents
+- Section-based review interface: company basic info, business items, monetary info, persons, partners, documents
 - Issue severity levels: `critical`, `major`, `minor`
 - Review round statuses: `reviewing`, `completed`
 - Application statuses: `submitted`, `staff_review`, `pending_client_update`, `approved`, `rejected`
 
 **Document Management:**
 
-- Required documents: `bankBookFront`, `bankBookInside`, `bankBookStamp`, `shareholderPayments`, `balanceProof`, `houseUseAgreement`, `shareholderAgreement`, `directorConsent`, `declaration`, `legalPersonDeclaration`
+- Required documents: `bankBookFront`, `bankBookInside`, `bankBookStamp`, `partnerPayments`, `balanceProof`, `houseUseAgreement`, `partnerAgreement`, `directorConsent`, `declaration`, `legalPersonDeclaration`
 - File validation: JPEG, PNG, PDF formats with size and dimension checks
 - Use `getFileField()` helper for document schema fields
 
@@ -184,7 +184,7 @@ This is a company registration management system with specific domain patterns:
 
 - Three main person types: `responsiblePerson`, `representative`, `contactPerson`
 - Person relationships tracked with boolean flags: `isDirectorSameAsResponsiblePerson`, `isContactPersonSameAsResponsiblePerson`, `isContactPersonSameAsDirector`
-- Shareholders managed separately with share information
+- Partners managed separately with share information
 
 **API Patterns:**
 

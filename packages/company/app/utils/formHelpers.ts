@@ -40,9 +40,9 @@ export const createEmptyShares = (
   );
 };
 
-export const createEmptyShareholder = (
+export const createEmptyPartner = (
   hasParValueFreeShares: boolean = false
-): ShareholderSchema => ({
+): PartnerSchema => ({
   name: "",
   idNumber: "",
   address: "",
@@ -82,7 +82,7 @@ export const createInitialForm = () => ({
 
   responsiblePerson: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
-  shareholders: [createEmptyShareholder()],
+  partners: [createEmptyPartner()],
   // TODO: Add documents when file storage is ready
   // documents: createInitialDocuments(),
 });

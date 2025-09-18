@@ -76,7 +76,7 @@
       </CompanyApplicationReviewUiDocumentFieldGroup>
     </CompanyApplicationReviewUiDocumentCategorySection>
 
-    <!-- Shareholder Documents Category -->
+    <!-- Partner Documents Category -->
     <CompanyApplicationReviewUiDocumentCategorySection
       title="股東相關文件"
       description="股東匯款及同意書相關文件"
@@ -86,18 +86,18 @@
       <CompanyApplicationReviewUiDocumentFieldGroup>
         <CompanyApplicationReviewUiFieldCard
           label="股東匯款條或存摺資料"
-          v-bind="getFieldStatusProps('shareholderPayments')"
+          v-bind="getFieldStatusProps('partnerPayments')"
         >
-          <CompanyApplicationReviewDocumentsShareholderPaymentDocuments
-            :documents="companyDocuments.shareholderPayments"
-            :document-status="getDocumentStatus('shareholderPayments')"
+          <CompanyApplicationReviewDocumentsPartnerPaymentDocuments
+            :documents="companyDocuments.partnerPayments"
+            :document-status="getDocumentStatus('partnerPayments')"
           />
           <template #actions>
             <CompanyApplicationReviewUiFieldActions
-              :is-verified="fieldStatuses.shareholderPayments.isVerified"
-              :has-issue="fieldStatuses.shareholderPayments.hasIssue"
-              field-path="documents.shareholderPayments"
-              @verify="() => verifyField('shareholderPayments')"
+              :is-verified="fieldStatuses.partnerPayments.isVerified"
+              :has-issue="fieldStatuses.partnerPayments.hasIssue"
+              field-path="documents.partnerPayments"
+              @verify="() => verifyField('partnerPayments')"
               @add-issue="addFieldIssue"
             />
           </template>
@@ -105,14 +105,14 @@
 
         <CompanyApplicationReviewUiDocumentField
           label="股東同意書"
-          :document-status="getDocumentStatus('shareholderAgreement')"
+          :document-status="getDocumentStatus('partnerAgreement')"
           document-type="股東同意書"
-          :file-url="companyDocuments.shareholderAgreement"
-          field-path="documents.shareholderAgreement"
-          :is-verified="fieldStatuses.shareholderAgreement.isVerified"
-          :has-issue="fieldStatuses.shareholderAgreement.hasIssue"
-          :field-status-props="getFieldStatusProps('shareholderAgreement')"
-          @verify="() => verifyField('shareholderAgreement')"
+          :file-url="companyDocuments.partnerAgreement"
+          field-path="documents.partnerAgreement"
+          :is-verified="fieldStatuses.partnerAgreement.isVerified"
+          :has-issue="fieldStatuses.partnerAgreement.hasIssue"
+          :field-status-props="getFieldStatusProps('partnerAgreement')"
+          @verify="() => verifyField('partnerAgreement')"
           @add-issue="addFieldIssue"
         />
       </CompanyApplicationReviewUiDocumentFieldGroup>

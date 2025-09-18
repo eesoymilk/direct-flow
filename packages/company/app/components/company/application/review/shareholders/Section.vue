@@ -1,45 +1,45 @@
 <template>
-  <CompanyApplicationReviewShareholdersSectionBase
+  <CompanyApplicationReviewPartnersSectionBase
     title="股東資料"
     description="股東的基本資料及持股資訊"
     empty-state-message="尚無股東資料"
     :is-open="sectionIsOpen"
-    :shareholders-count="shareholders.length"
+    :partners-count="partners.length"
     :aggregate-status="status"
     :quick-action-items="quickActionItems"
     @toggle="handleToggleSection"
   >
-    <CompanyApplicationReviewShareholdersShareholderCard
-      v-for="(shareholder, index) in shareholders"
-      :key="shareholder.id"
-      :shareholder="shareholder"
+    <CompanyApplicationReviewPartnersPartnerCard
+      v-for="(partner, index) in partners"
+      :key="partner.id"
+      :partner="partner"
       :index="index"
-      :is-expanded="expandedShareholders[index] || false"
-      :overall-status="getShareholderOverallStatus(index)"
-      :shareholder-statuses="getShareholderStatuses(index)"
-      :shareholder-statuses-props="getShareholderStatusesProps(index)"
-      @toggle="toggleShareholderExpanded(index)"
-      @verify-field="(field, index) => verifyShareholderField(field, index)"
+      :is-expanded="expandedPartners[index] || false"
+      :overall-status="getPartnerOverallStatus(index)"
+      :partner-statuses="getPartnerStatuses(index)"
+      :partner-statuses-props="getPartnerStatusesProps(index)"
+      @toggle="togglePartnerExpanded(index)"
+      @verify-field="(field, index) => verifyPartnerField(field, index)"
       @add-field-issue="(issue) => addFieldIssue(issue)"
     />
-  </CompanyApplicationReviewShareholdersSectionBase>
+  </CompanyApplicationReviewPartnersSectionBase>
 </template>
 
 <script setup lang="ts">
-import { useShareholderReviewSection } from "./useShareholderReviewSection";
+import { usePartnerReviewSection } from "./usePartnerReviewSection";
 
 const {
-  shareholders,
+  partners,
   sectionIsOpen,
   status,
   quickActionItems,
-  getShareholderStatuses,
-  getShareholderOverallStatus,
-  getShareholderStatusesProps,
+  getPartnerStatuses,
+  getPartnerOverallStatus,
+  getPartnerStatusesProps,
   addFieldIssue,
-  verifyShareholderField,
+  verifyPartnerField,
   handleToggleSection,
-} = useShareholderReviewSection({
+} = usePartnerReviewSection({
   sectionTitle: "股東資料",
   verifyAllLabel: "驗證全部",
   clearAllLabel: "清除標記",
@@ -47,17 +47,17 @@ const {
 });
 
 // Collapsible state management
-const expandedShareholders = ref<Record<number, boolean>>({});
+const expandedPartners = ref<Record<number, boolean>>({});
 
-const toggleShareholderExpanded = (index: number) => {
-  expandedShareholders.value[index] = !expandedShareholders.value[index];
+const togglePartnerExpanded = (index: number) => {
+  expandedPartners.value[index] = !expandedPartners.value[index];
 };
 
-// Initialize first few shareholders as expanded by default
+// Initialize first few partners as expanded by default
 onMounted(() => {
-  // Expand first 3 shareholders by default for better UX
-  shareholders.value.slice(0, 3).forEach((_, index) => {
-    expandedShareholders.value[index] = true;
+  // Expand first 3 partners by default for better UX
+  partners.value.slice(0, 3).forEach((_, index) => {
+    expandedPartners.value[index] = true;
   });
 });
 </script>

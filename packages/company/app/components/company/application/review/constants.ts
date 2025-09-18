@@ -6,7 +6,7 @@ export const SECTION_KEYS = [
   "companyMonetaryInfo",
   "responsiblePerson",
   "contactPerson",
-  "shareholders",
+  "partners",
   "documents",
 ] as const;
 
@@ -51,10 +51,10 @@ export const COMPANY_DOCUMENT_FIELDS = [
   "bankBookFront",
   "bankBookInside",
   "bankBookStamp",
-  "shareholderPayments",
+  "partnerPayments",
   "balanceProof",
   "houseUseAgreement",
-  "shareholderAgreement",
+  "partnerAgreement",
   "directorConsent",
   "declaration",
   "legalPersonDeclaration",
@@ -66,10 +66,10 @@ export const DOCUMENT_LABELS: Record<CompanyDocumentField, string> = {
   bankBookFront: "公司存摺正面",
   bankBookInside: "公司存摺內頁",
   bankBookStamp: "公司存摺戳章頁",
-  shareholderPayments: "股東匯款條或存摺資料",
+  partnerPayments: "股東匯款條或存摺資料",
   balanceProof: "餘額證明或次日的存入100元證明",
   houseUseAgreement: "房屋使用同意書",
-  shareholderAgreement: "股東同意書",
+  partnerAgreement: "股東同意書",
   directorConsent: "董監事願任同意書",
   declaration: "聲明書",
   legalPersonDeclaration: "法人聲明書",
@@ -90,12 +90,9 @@ export const DOCUMENT_CATEGORIES = {
       "balanceProof",
     ] as CompanyDocumentField[],
   },
-  shareholderDocuments: {
+  partnerDocuments: {
     title: "股東相關文件",
-    fields: [
-      "shareholderPayments",
-      "shareholderAgreement",
-    ] as CompanyDocumentField[],
+    fields: ["partnerPayments", "partnerAgreement"] as CompanyDocumentField[],
   },
   legalDocuments: {
     title: "法律文件",

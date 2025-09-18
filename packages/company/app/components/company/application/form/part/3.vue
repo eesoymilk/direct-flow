@@ -7,7 +7,7 @@
         :label="`新增${personTypeLabel}`"
         variant="soft"
         class="rounded-full"
-        @click="addShareholder"
+        @click="addPartner"
       />
       <UButton
         v-if="canAddShareType"
@@ -39,19 +39,19 @@
       </UDropdownMenu>
     </div>
 
-    <!-- Shareholders array validation wrapper -->
+    <!-- Partners array validation wrapper -->
     <UForm
-      :state="{ shareholders: formState.shareholders }"
-      :schema="z.object({ shareholders: shareholderArraySchema })"
+      :state="{ partners: formState.partners }"
+      :schema="z.object({ partners: partnerArraySchema })"
       attach
     >
-      <UFormField name="shareholders">
+      <UFormField name="partners">
         <div class="space-y-6">
           <UForm
-            v-for="(shareholder, index) in formState.shareholders"
+            v-for="(partner, index) in formState.partners"
             :key="index"
-            :state="shareholder"
-            :schema="shareholderSchema"
+            :state="partner"
+            :schema="partnerSchema"
             attach
             class="space-y-4"
           >
@@ -59,56 +59,84 @@
               variant="subtle"
               class="relative overflow-visible"
               :class="{
-                'border-primary/20 bg-primary/5': shareholder.isReadonly,
+                'border-primary/20 bg-primary/5': partner.isReadonly,
               }"
             >
               <div
-                v-if="shareholder.isReadonly && shareholder.referenceType"
+                v-if="partner.isReadonly && partner.referenceType"
                 class="absolute top-2 right-2 flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full"
               >
                 <UIcon name="i-lucide-link" class="w-3 h-3" />
-                {{
-                  getPersonLabel(shareholder.referenceType)
-                }}（僅可編輯出資額{{ isCorporation ? "以及持股" : "" }}）
+                {{ getPersonLabel(partner.referenceType) }}（僅可編輯出資額{{
+                  isCorporation ? "以及持股" : ""
+                }}）
               </div>
-              <div class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField label="姓名" name="name" class="w-full">
+              <div class="space-y-4 grid grid-cols-1 md:grid-cols-6 gap-4">
+                <UFormField label="姓名" name="name" class="w-full col-span-2">
                   <UInput
-                    v-model="shareholder.name"
-                    :readonly="shareholder.isReadonly"
-                    :disabled="shareholder.isReadonly"
+                    v-model="partner.name"
+                    :readonly="partner.isReadonly"
+                    :disabled="partner.isReadonly"
                     :placeholder="`請輸入${personTypeLabel}姓名`"
                     class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
+                    :class="{ 'opacity-60': partner.isReadonly }"
                   />
                 </UFormField>
 
-                <UFormField label="身分證字號" name="idNumber" required>
+                <UFormField
+                  label="身分證字號"
+                  name="idNumber"
+                  required
+                  class="col-span-2"
+                >
                   <UInput
-                    v-model="shareholder.idNumber"
-                    :readonly="shareholder.isReadonly"
-                    :disabled="shareholder.isReadonly"
+                    v-model="partner.idNumber"
+                    :readonly="partner.isReadonly"
+                    :disabled="partner.isReadonly"
                     :placeholder="`請輸入${personTypeLabel}身分證字號`"
                     class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
+                    :class="{ 'opacity-60': partner.isReadonly }"
                   />
                 </UFormField>
 
-                <UFormField label="戶籍地址" name="address" required>
+                <UFormField
+                  label="職務"
+                  name="partnerType"
+                  class="w-full col-span-2"
+                >
+                  <USelect
+                    v-model="partner.partnerType"
+                    :items="partnerTypeItems"
+                    :placeholder="`請選擇${personTypeLabel}職務`"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="戶籍地址"
+                  name="address"
+                  required
+                  class="col-span-3"
+                >
                   <UInput
-                    v-model="shareholder.address"
-                    :readonly="shareholder.isReadonly"
-                    :disabled="shareholder.isReadonly"
+                    v-model="partner.address"
+                    :readonly="partner.isReadonly"
+                    :disabled="partner.isReadonly"
                     :placeholder="`請輸入${personTypeLabel}戶籍地址`"
                     class="w-full"
-                    :class="{ 'opacity-60': shareholder.isReadonly }"
+                    :class="{ 'opacity-60': partner.isReadonly }"
                   />
                 </UFormField>
 
-                <UFormField label="出生日期" name="dateOfBirth" required>
+                <UFormField
+                  label="出生日期"
+                  name="dateOfBirth"
+                  required
+                  class="col-span-3"
+                >
                   <DatePicker
-                    v-model="shareholder.dateOfBirth"
-                    format="YYYY/MM/DD"
+                    v-model="partner.dateOfBirth"
+                    date-format="yy/mm/dd"
                     class="w-full h-8"
                   />
                 </UFormField>
@@ -120,7 +148,7 @@
                   required
                 >
                   <UInputNumber
-                    v-model="shareholder.capitalContribution"
+                    v-model="partner.capitalContribution"
                     :min="0"
                     :placeholder="`請輸入${personTypeLabel}出資額`"
                     class="w-full"
@@ -134,19 +162,19 @@
                 </UFormField>
 
                 <USeparator
-                  v-if="isCorporation && shareholder.shares"
+                  v-if="isCorporation && partner.shares"
                   class="col-span-full"
                 />
 
                 <!-- Stock company shares -->
                 <div
-                  v-if="isCorporation && shareholder.shares"
+                  v-if="isCorporation && partner.shares"
                   class="col-span-full space-y-4"
                 >
                   <h4 class="text-md font-medium text-text">持股資料</h4>
                   <UForm
                     v-for="[shareType, share] in Object.entries(
-                      shareholder.shares
+                      partner.shares
                     ).slice(0, shareCount)"
                     :key="shareType"
                     :state="share"
@@ -175,7 +203,7 @@
                             }"
                             @update:model-value="
                               updateQuantity(
-                                shareholder,
+                                partner,
                                 shareType as ShareType,
                                 $event
                               )
@@ -206,7 +234,7 @@
                             }"
                             @update:model-value="
                               updatePricePerShare(
-                                shareholder,
+                                partner,
                                 shareType as ShareType,
                                 $event
                               )
@@ -248,13 +276,13 @@
                 size="sm"
                 color="error"
                 class="rounded-full absolute -top-3 -right-3 cursor-pointer"
-                :disabled="formState.shareholders.length === 1"
-                @click="removeShareholder(index)"
+                :disabled="formState.partners.length === 1"
+                @click="removePartner(index)"
               />
             </UCard>
 
             <USeparator
-              v-if="index !== formState.shareholders.length - 1"
+              v-if="index !== formState.partners.length - 1"
               class="my-6"
             />
           </UForm>
@@ -272,12 +300,19 @@ const applicationStore = useCompanyApplicationStore();
 const { formState, shareTypes, isCorporation, shareCount } =
   storeToRefs(applicationStore);
 const {
-  addShareholder,
+  addPartner,
   addShareType,
   removeShareType,
-  removeShareholder,
-  addPersonAsShareholder,
+  removePartner,
+  addPersonAsPartner,
 } = applicationStore;
+
+const partnerTypeItems = computed(() =>
+  PARTNER_TYPES.map((type) => ({
+    label: getPartnerTypeLabel(type),
+    value: type,
+  }))
+);
 
 const personTypeLabel = computed(() =>
   formState.value.organizationType === "partnership" ? "合夥人" : "股東"
@@ -292,24 +327,24 @@ const canRemoveShareType = computed(
 );
 
 const updateQuantity = (
-  shareholder: ShareholderSchema,
+  partner: PartnerSchema,
   shareType: ShareType,
   quantity: number
 ) => {
-  if (shareholder.shares && shareholder.shares[shareType]) {
-    shareholder.shares[shareType].totalPrice =
-      quantity * shareholder.shares[shareType].pricePerShare;
+  if (partner.shares && partner.shares[shareType]) {
+    partner.shares[shareType].totalPrice =
+      quantity * partner.shares[shareType].pricePerShare;
   }
 };
 
 const updatePricePerShare = (
-  shareholder: ShareholderSchema,
+  partner: PartnerSchema,
   shareType: ShareType,
   pricePerShare: number
 ) => {
-  if (shareholder.shares && shareholder.shares[shareType]) {
-    shareholder.shares[shareType].totalPrice =
-      shareholder.shares[shareType].quantity * pricePerShare;
+  if (partner.shares && partner.shares[shareType]) {
+    partner.shares[shareType].totalPrice =
+      partner.shares[shareType].quantity * pricePerShare;
   }
 };
 
@@ -317,16 +352,16 @@ watch(
   () => formState.value.hasParValueFreeShares,
   (hasParValueFreeShares) => {
     if (hasParValueFreeShares) {
-      // Set all shareholders' shares pricePerShare to 10
-      formState.value.shareholders.forEach((shareholder) => {
-        if (shareholder.shares) {
-          Object.keys(shareholder.shares).forEach((shareType) => {
+      // Set all partners' shares pricePerShare to 10
+      formState.value.partners.forEach((partner) => {
+        if (partner.shares) {
+          Object.keys(partner.shares).forEach((shareType) => {
             const shareTypeKey = shareType as ShareType;
-            if (shareholder.shares?.[shareTypeKey]) {
-              shareholder.shares[shareTypeKey].pricePerShare = 10;
+            if (partner.shares?.[shareTypeKey]) {
+              partner.shares[shareTypeKey].pricePerShare = 10;
               // Recalculate total price
-              shareholder.shares[shareTypeKey].totalPrice =
-                shareholder.shares[shareTypeKey].quantity * 10;
+              partner.shares[shareTypeKey].totalPrice =
+                partner.shares[shareTypeKey].quantity * 10;
             }
           });
         }
@@ -342,14 +377,14 @@ const exsitingPeopleMenuItems = computed(() => {
   items.push({
     label: `加入負責人 (${formState.value.responsiblePerson.name})`,
     icon: "i-lucide-user",
-    onSelect: () => addPersonAsShareholder("responsiblePerson"),
+    onSelect: () => addPersonAsPartner("responsiblePerson"),
   });
 
   if (!formState.value.isContactPersonSameAsResponsiblePerson) {
     items.push({
       label: `加入聯絡人 (${formState.value.contactPerson.name})`,
       icon: "i-lucide-phone",
-      onSelect: () => addPersonAsShareholder("contactPerson"),
+      onSelect: () => addPersonAsPartner("contactPerson"),
     });
   }
 

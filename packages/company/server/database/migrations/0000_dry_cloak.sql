@@ -25,7 +25,7 @@ CREATE TABLE "companies" (
 	"is_foreign_investment" boolean DEFAULT false,
 	"is_chinese_investment" boolean DEFAULT false,
 	"is_public_offering" boolean DEFAULT false,
-	"closely_held_shareholder_count" integer,
+	"closely_held_partner_count" integer,
 	"has_multiple_voting_rights_preferred_shares" boolean DEFAULT false,
 	"has_veto_rights_preferred_shares" boolean DEFAULT false,
 	"has_preferred_shares_board_rights" boolean DEFAULT false,
@@ -51,7 +51,7 @@ CREATE TABLE "application_documents" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "application_shareholders" (
+CREATE TABLE "application_partners" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"application_id" uuid NOT NULL,
 	"person_id" uuid NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE "company_applications" (
 	"is_foreign_investment" boolean DEFAULT false,
 	"is_chinese_investment" boolean DEFAULT false,
 	"is_public_offering" boolean DEFAULT false,
-	"closely_held_shareholder_count" integer,
+	"closely_held_partner_count" integer,
 	"has_multiple_voting_rights_preferred_shares" boolean DEFAULT false,
 	"has_veto_rights_preferred_shares" boolean DEFAULT false,
 	"has_preferred_shares_board_rights" boolean DEFAULT false,
@@ -163,9 +163,9 @@ CREATE TABLE "person_documents" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "shareholder_shares" (
+CREATE TABLE "partner_shares" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"shareholder_id" integer NOT NULL,
+	"partner_id" integer NOT NULL,
 	"code" "share_type" DEFAULT 'ordinary' NOT NULL,
 	"quantity" integer DEFAULT 0 NOT NULL,
 	"price_per_share" numeric(10, 2),
@@ -174,7 +174,7 @@ CREATE TABLE "shareholder_shares" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "shareholders" (
+CREATE TABLE "partners" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"company_id" uuid NOT NULL,
 	"person_id" uuid NOT NULL,
@@ -190,8 +190,8 @@ ALTER TABLE "company_documents" ADD CONSTRAINT "company_documents_company_id_com
 ALTER TABLE "company_documents" ADD CONSTRAINT "company_documents_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_documents" ADD CONSTRAINT "application_documents_application_id_company_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."company_applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_documents" ADD CONSTRAINT "application_documents_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_shareholders" ADD CONSTRAINT "application_shareholders_application_id_company_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."company_applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_shareholders" ADD CONSTRAINT "application_shareholders_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_partners" ADD CONSTRAINT "application_partners_application_id_company_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."company_applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_partners" ADD CONSTRAINT "application_partners_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "company_applications" ADD CONSTRAINT "company_applications_responsible_person_id_people_id_fk" FOREIGN KEY ("responsible_person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "company_applications" ADD CONSTRAINT "company_applications_representative_id_people_id_fk" FOREIGN KEY ("representative_id") REFERENCES "public"."people"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "company_applications" ADD CONSTRAINT "company_applications_contact_person_id_people_id_fk" FOREIGN KEY ("contact_person_id") REFERENCES "public"."people"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -201,6 +201,6 @@ ALTER TABLE "review_verifications" ADD CONSTRAINT "review_verifications_round_id
 ALTER TABLE "documents" ADD CONSTRAINT "documents_document_type_id_document_types_id_fk" FOREIGN KEY ("document_type_id") REFERENCES "public"."document_types"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "person_documents" ADD CONSTRAINT "person_documents_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "person_documents" ADD CONSTRAINT "person_documents_document_id_documents_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "shareholder_shares" ADD CONSTRAINT "shareholder_shares_shareholder_id_shareholders_id_fk" FOREIGN KEY ("shareholder_id") REFERENCES "public"."shareholders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "shareholders" ADD CONSTRAINT "shareholders_company_id_companies_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "shareholders" ADD CONSTRAINT "shareholders_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "partner_shares" ADD CONSTRAINT "partner_shares_partner_id_partners_id_fk" FOREIGN KEY ("partner_id") REFERENCES "public"."partners"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "partners" ADD CONSTRAINT "partners_company_id_companies_id_fk" FOREIGN KEY ("company_id") REFERENCES "public"."companies"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "partners" ADD CONSTRAINT "partners_person_id_people_id_fk" FOREIGN KEY ("person_id") REFERENCES "public"."people"("id") ON DELETE cascade ON UPDATE no action;

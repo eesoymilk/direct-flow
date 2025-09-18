@@ -10,20 +10,20 @@
           {{ title }}
         </h4>
         <UBadge
-          v-if="shareholder.person.idNumber"
-          :label="shareholder.person.idNumber"
+          v-if="partner.person.idNumber"
+          :label="partner.person.idNumber"
           color="neutral"
           variant="subtle"
         />
         <UBadge
-          v-if="shareholder.shares !== undefined"
-          :label="`${shareholder.shares.toLocaleString()} 股`"
+          v-if="partner.shares !== undefined"
+          :label="`${partner.shares.toLocaleString()} 股`"
           color="info"
           variant="subtle"
         />
         <UBadge
-          v-if="shareholder.capitalContribution !== null"
-          :label="`NT$ ${shareholder.capitalContribution.toLocaleString()}`"
+          v-if="partner.capitalContribution !== null"
+          :label="`NT$ ${partner.capitalContribution.toLocaleString()}`"
           color="success"
           variant="subtle"
         />
@@ -61,14 +61,14 @@
           <!-- Name -->
           <CompanyApplicationReviewUiFieldCard
             label="姓名"
-            :value="shareholder.person.name"
-            v-bind="shareholderStatusesProps.name"
+            :value="partner.person.name"
+            v-bind="partnerStatusesProps.name"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.name.isVerified"
-                :has-issue="shareholderStatuses.name.hasIssue"
-                :field-path="`shareholders[${index}].name`"
+                :is-verified="partnerStatuses.name.isVerified"
+                :has-issue="partnerStatuses.name.hasIssue"
+                :field-path="`partners[${index}].name`"
                 @verify="() => $emit('verifyField', 'name', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -78,14 +78,14 @@
           <!-- ID Number -->
           <CompanyApplicationReviewUiFieldCard
             label="身分證字號"
-            :value="shareholder.person.idNumber"
-            v-bind="shareholderStatusesProps.idNumber"
+            :value="partner.person.idNumber"
+            v-bind="partnerStatusesProps.idNumber"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.idNumber.isVerified"
-                :has-issue="shareholderStatuses.idNumber.hasIssue"
-                :field-path="`shareholders[${index}].idNumber`"
+                :is-verified="partnerStatuses.idNumber.isVerified"
+                :has-issue="partnerStatuses.idNumber.hasIssue"
+                :field-path="`partners[${index}].idNumber`"
                 @verify="() => $emit('verifyField', 'idNumber', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -95,14 +95,14 @@
           <!-- Address -->
           <CompanyApplicationReviewUiFieldCard
             label="地址"
-            :value="shareholder.person.address"
-            v-bind="shareholderStatusesProps.address"
+            :value="partner.person.address"
+            v-bind="partnerStatusesProps.address"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.address.isVerified"
-                :has-issue="shareholderStatuses.address.hasIssue"
-                :field-path="`shareholders[${index}].address`"
+                :is-verified="partnerStatuses.address.isVerified"
+                :has-issue="partnerStatuses.address.hasIssue"
+                :field-path="`partners[${index}].address`"
                 @verify="() => $emit('verifyField', 'address', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -112,14 +112,14 @@
           <!-- Cellphone -->
           <CompanyApplicationReviewUiFieldCard
             label="手機"
-            :value="shareholder.person.cellphone"
-            v-bind="shareholderStatusesProps.cellphone"
+            :value="partner.person.cellphone"
+            v-bind="partnerStatusesProps.cellphone"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.cellphone.isVerified"
-                :has-issue="shareholderStatuses.cellphone.hasIssue"
-                :field-path="`shareholders[${index}].cellphone`"
+                :is-verified="partnerStatuses.cellphone.isVerified"
+                :has-issue="partnerStatuses.cellphone.hasIssue"
+                :field-path="`partners[${index}].cellphone`"
                 @verify="() => $emit('verifyField', 'cellphone', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -129,14 +129,14 @@
           <!-- Email -->
           <CompanyApplicationReviewUiFieldCard
             label="電子郵件"
-            :value="shareholder.person.email"
-            v-bind="shareholderStatusesProps.email"
+            :value="partner.person.email"
+            v-bind="partnerStatusesProps.email"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.email.isVerified"
-                :has-issue="shareholderStatuses.email.hasIssue"
-                :field-path="`shareholders[${index}].email`"
+                :is-verified="partnerStatuses.email.isVerified"
+                :has-issue="partnerStatuses.email.hasIssue"
+                :field-path="`partners[${index}].email`"
                 @verify="() => $emit('verifyField', 'email', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -145,16 +145,16 @@
 
           <!-- Shares -->
           <CompanyApplicationReviewUiFieldCard
-            v-if="shareholder.shares !== undefined"
+            v-if="partner.shares !== undefined"
             label="持股數"
-            :value="shareholder.shares?.toLocaleString() || '0'"
-            v-bind="shareholderStatusesProps.shares"
+            :value="partner.shares?.toLocaleString() || '0'"
+            v-bind="partnerStatusesProps.shares"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.shares.isVerified"
-                :has-issue="shareholderStatuses.shares.hasIssue"
-                :field-path="`shareholders[${index}].shares`"
+                :is-verified="partnerStatuses.shares.isVerified"
+                :has-issue="partnerStatuses.shares.hasIssue"
+                :field-path="`partners[${index}].shares`"
                 @verify="() => $emit('verifyField', 'shares', index)"
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
@@ -164,15 +164,21 @@
           <!-- Capital Contribution -->
           <CompanyApplicationReviewUiFieldCard
             label="出資額"
-            :value="shareholder.capitalContribution !== null ? `NT$ ${shareholder.capitalContribution?.toLocaleString()}` : '未填寫'"
-            v-bind="shareholderStatusesProps.capitalContribution"
+            :value="
+              partner.capitalContribution !== null
+                ? `NT$ ${partner.capitalContribution?.toLocaleString()}`
+                : '未填寫'
+            "
+            v-bind="partnerStatusesProps.capitalContribution"
           >
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
-                :is-verified="shareholderStatuses.capitalContribution.isVerified"
-                :has-issue="shareholderStatuses.capitalContribution.hasIssue"
-                :field-path="`shareholders[${index}].capitalContribution`"
-                @verify="() => $emit('verifyField', 'capitalContribution', index)"
+                :is-verified="partnerStatuses.capitalContribution.isVerified"
+                :has-issue="partnerStatuses.capitalContribution.hasIssue"
+                :field-path="`partners[${index}].capitalContribution`"
+                @verify="
+                  () => $emit('verifyField', 'capitalContribution', index)
+                "
                 @add-issue="(issue) => $emit('addFieldIssue', issue)"
               />
             </template>
@@ -184,19 +190,19 @@
 </template>
 
 <script setup lang="ts">
-import type { FieldStatus, ShareholderField } from "../types";
+import type { FieldStatus, PartnerField } from "../types";
 
 interface Props {
-  shareholder: ShareholderResponse;
+  partner: PartnerResponse;
   index: number;
   isExpanded: boolean;
   overallStatus: {
     hasVerified: boolean;
     hasIssues: boolean;
   };
-  shareholderStatuses: Record<ShareholderField, FieldStatus>;
-  shareholderStatusesProps: Record<
-    ShareholderField,
+  partnerStatuses: Record<PartnerField, FieldStatus>;
+  partnerStatusesProps: Record<
+    PartnerField,
     {
       statusLabel: string;
       statusBadgeColor: "success" | "warning" | "neutral";
@@ -208,12 +214,12 @@ const props = defineProps<Props>();
 
 defineEmits<{
   toggle: [];
-  verifyField: [field: ShareholderField, index: number];
+  verifyField: [field: PartnerField, index: number];
   addFieldIssue: [issue: ReviewIssueSchema];
 }>();
 
 const title = computed(
   () =>
-    `股東 ${props.index + 1}${props.shareholder.person.name ? ` - ${props.shareholder.person.name}` : ""}`
+    `股東 ${props.index + 1}${props.partner.person.name ? ` - ${props.partner.person.name}` : ""}`
 );
 </script>

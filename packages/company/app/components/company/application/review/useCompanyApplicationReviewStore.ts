@@ -4,7 +4,7 @@ import {
   getCompanyDocumentFieldInfos,
   getInitalReviewSections,
   getPersonDocumentFieldInfos,
-  getShareholderDocumentFieldInfos,
+  getPartnerDocumentFieldInfos,
 } from "./utils";
 import type { ReviewSections, SectionKey, SectionState } from "./types";
 // import type { ReviewRound } from "../../../../shared/types/database";
@@ -88,7 +88,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       }
 
       const allReviewableFields = getAllFieldInfos({
-        shareholderCount: application.value.shareholders.length,
+        partnerCount: application.value.partners.length,
       }).filter(({ fieldCategory }) => fieldCategory === "reviewableField");
 
       const allReviewableFieldsReviewed = allReviewableFields.every(
@@ -111,7 +111,7 @@ export const useCompanyApplicationReviewStore = defineStore(
       }
 
       const allDocumentFields = getAllDocumentFields(
-        application.value.shareholders.length
+        application.value.partners.length
       );
 
       const allDocumentFieldsReviewed = allDocumentFields.every(
@@ -266,7 +266,7 @@ export const useCompanyApplicationReviewStore = defineStore(
         companyMonetaryInfo: { issues: [], verifications: [], isOpen: false },
         responsiblePerson: { issues: [], verifications: [], isOpen: false },
         contactPerson: { issues: [], verifications: [], isOpen: false },
-        shareholders: { issues: [], verifications: [], isOpen: false },
+        partners: { issues: [], verifications: [], isOpen: false },
         documents: { issues: [], verifications: [], isOpen: false },
       };
       isDirty.value = false;
@@ -322,11 +322,11 @@ export const useCompanyApplicationReviewStore = defineStore(
         });
       });
 
-      const shareholderDocumentFields = getShareholderDocumentFieldInfos(
-        application.value.shareholders.length
+      const partnerDocumentFields = getPartnerDocumentFieldInfos(
+        application.value.partners.length
       );
-      shareholderDocumentFields.forEach(({ fieldPath }) => {
-        addIssue("shareholders", {
+      partnerDocumentFields.forEach(({ fieldPath }) => {
+        addIssue("partners", {
           fieldPath,
           ...issueTemplate,
         });

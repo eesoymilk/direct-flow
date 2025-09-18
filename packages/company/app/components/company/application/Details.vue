@@ -22,9 +22,9 @@
       </div>
     </template>
 
-    <template #shareholders>
+    <template #partners>
       <div class="space-y-6">
-        <CompanyApplicationReviewShareholdersSection />
+        <CompanyApplicationReviewPartnersSection />
       </div>
     </template>
   </UTabs>
@@ -64,7 +64,7 @@ const tabItems = ref([
   {
     label: "股東資料",
     icon: "i-lucide-users",
-    slot: "shareholders",
+    slot: "partners",
   },
 ] satisfies TabsItem[]);
 </script>

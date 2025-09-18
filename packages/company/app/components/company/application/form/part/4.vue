@@ -99,14 +99,14 @@
           <div class="text-center">
             <div class="text-sm text-gray-600 mb-1">股東人數</div>
             <div class="text-xl font-bold text-gray-800">
-              {{ formState.shareholders.length }} 人
+              {{ formState.partners.length }} 人
             </div>
           </div>
         </div>
       </UCard>
     </UCard>
 
-    <!-- Shareholder Breakdown -->
+    <!-- Partner Breakdown -->
     <UCard>
       <template #header>
         <h3 class="text-lg font-medium">股東持股明細</h3>
@@ -114,12 +114,12 @@
 
       <div class="space-y-4">
         <div
-          v-for="(shareholder, index) in formState.shareholders"
+          v-for="(partner, index) in formState.partners"
           :key="index"
           class="border rounded-lg p-4 bg-gray-50"
         >
           <div class="flex items-center justify-between mb-3">
-            <h4 class="font-medium text-gray-800">{{ shareholder.name }}</h4>
+            <h4 class="font-medium text-gray-800">{{ partner.name }}</h4>
             <UButton
               :label="String(index + 1)"
               size="sm"
@@ -134,17 +134,13 @@
               <div class="text-sm font-medium text-green-700">普通股</div>
               <div class="text-sm text-gray-600">
                 股數：{{
-                  formatNumber(
-                    getShareholderOrdinaryShares(shareholder).quantity
-                  )
+                  formatNumber(getPartnerOrdinaryShares(partner).quantity)
                 }}
                 股
               </div>
               <div class="text-sm text-gray-600">
                 金額：{{
-                  formatCurrency(
-                    getShareholderOrdinaryShares(shareholder).totalPrice
-                  )
+                  formatCurrency(getPartnerOrdinaryShares(partner).totalPrice)
                 }}
               </div>
             </div>
@@ -154,17 +150,13 @@
               <div class="text-sm font-medium text-blue-700">特別股</div>
               <div class="text-sm text-gray-600">
                 股數：{{
-                  formatNumber(
-                    getShareholderPreferredShares(shareholder).quantity
-                  )
+                  formatNumber(getPartnerPreferredShares(partner).quantity)
                 }}
                 股
               </div>
               <div class="text-sm text-gray-600">
                 金額：{{
-                  formatCurrency(
-                    getShareholderPreferredShares(shareholder).totalPrice
-                  )
+                  formatCurrency(getPartnerPreferredShares(partner).totalPrice)
                 }}
               </div>
             </div>
@@ -175,7 +167,7 @@
           <div class="flex justify-between items-center">
             <span class="text-sm font-medium text-gray-700">該股東總計：</span>
             <span class="font-bold text-gray-800">
-              {{ formatCurrency(getShareholderTotal(shareholder)) }}
+              {{ formatCurrency(getPartnerTotal(partner)) }}
             </span>
           </div>
         </div>

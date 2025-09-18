@@ -133,8 +133,8 @@
           "notNull": false,
           "default": false
         },
-        "closely_held_shareholder_count": {
-          "name": "closely_held_shareholder_count",
+        "closely_held_partner_count": {
+          "name": "closely_held_partner_count",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -378,8 +378,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.application_shareholders": {
-      "name": "application_shareholders",
+    "public.application_partners": {
+      "name": "application_partners",
       "schema": "",
       "columns": {
         "id": {
@@ -418,9 +418,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "application_shareholders_application_id_company_applications_id_fk": {
-          "name": "application_shareholders_application_id_company_applications_id_fk",
-          "tableFrom": "application_shareholders",
+        "application_partners_application_id_company_applications_id_fk": {
+          "name": "application_partners_application_id_company_applications_id_fk",
+          "tableFrom": "application_partners",
           "tableTo": "company_applications",
           "columnsFrom": [
             "application_id"
@@ -431,9 +431,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "application_shareholders_person_id_people_id_fk": {
-          "name": "application_shareholders_person_id_people_id_fk",
-          "tableFrom": "application_shareholders",
+        "application_partners_person_id_people_id_fk": {
+          "name": "application_partners_person_id_people_id_fk",
+          "tableFrom": "application_partners",
           "tableTo": "people",
           "columnsFrom": [
             "person_id"
@@ -562,8 +562,8 @@
           "notNull": false,
           "default": false
         },
-        "closely_held_shareholder_count": {
-          "name": "closely_held_shareholder_count",
+        "closely_held_partner_count": {
+          "name": "closely_held_partner_count",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -1196,8 +1196,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.shareholder_shares": {
-      "name": "shareholder_shares",
+    "public.partner_shares": {
+      "name": "partner_shares",
       "schema": "",
       "columns": {
         "id": {
@@ -1206,8 +1206,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "shareholder_id": {
-          "name": "shareholder_id",
+        "partner_id": {
+          "name": "partner_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -1256,12 +1256,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "shareholder_shares_shareholder_id_shareholders_id_fk": {
-          "name": "shareholder_shares_shareholder_id_shareholders_id_fk",
-          "tableFrom": "shareholder_shares",
-          "tableTo": "shareholders",
+        "partner_shares_partner_id_partners_id_fk": {
+          "name": "partner_shares_partner_id_partners_id_fk",
+          "tableFrom": "partner_shares",
+          "tableTo": "partners",
           "columnsFrom": [
-            "shareholder_id"
+            "partner_id"
           ],
           "columnsTo": [
             "id"
@@ -1276,8 +1276,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.shareholders": {
-      "name": "shareholders",
+    "public.partners": {
+      "name": "partners",
       "schema": "",
       "columns": {
         "id": {
@@ -1321,9 +1321,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "shareholders_company_id_companies_id_fk": {
-          "name": "shareholders_company_id_companies_id_fk",
-          "tableFrom": "shareholders",
+        "partners_company_id_companies_id_fk": {
+          "name": "partners_company_id_companies_id_fk",
+          "tableFrom": "partners",
           "tableTo": "companies",
           "columnsFrom": [
             "company_id"
@@ -1334,9 +1334,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "shareholders_person_id_people_id_fk": {
-          "name": "shareholders_person_id_people_id_fk",
-          "tableFrom": "shareholders",
+        "partners_person_id_people_id_fk": {
+          "name": "partners_person_id_people_id_fk",
+          "tableFrom": "partners",
           "tableTo": "people",
           "columnsFrom": [
             "person_id"

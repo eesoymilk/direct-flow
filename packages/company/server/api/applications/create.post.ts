@@ -1,7 +1,7 @@
 const bodySchema = companyApplicationBaseSchema.extend({
   responsiblePerson: responsiblePersonSchema,
   contactPerson: contactPersonSchema,
-  shareholders: shareholderSchema.array(),
+  partners: partnerSchema.array(),
 });
 
 export default eventHandler(async (event) => {
@@ -22,7 +22,7 @@ export default eventHandler(async (event) => {
     const {
       responsiblePerson,
       contactPerson,
-      shareholders,
+      partners,
       isContactPersonSameAsResponsiblePerson,
       ...data
     } = body.data;
@@ -43,36 +43,36 @@ export default eventHandler(async (event) => {
         contactPersonId: contactPersonResult.id,
       });
 
-      const shareholderData: { person: Person }[] = [];
-      if (shareholders) {
-        for (const shareholder of shareholders) {
-          let shareholderResult: Person;
+      const partnerData: { person: Person }[] = [];
+      if (partners) {
+        for (const partner of partners) {
+          let partnerResult: Person;
 
-          if (shareholder.referenceType === "responsiblePerson") {
-            shareholderResult = responsiblePersonResult;
-          } else if (shareholder.referenceType === "contactPerson") {
-            shareholderResult = contactPersonResult;
+          if (partner.referenceType === "responsiblePerson") {
+            partnerResult = responsiblePersonResult;
+          } else if (partner.referenceType === "contactPerson") {
+            partnerResult = contactPersonResult;
           } else {
-            // Ensure email is provided for new shareholders
-            const shareholderPersonData = {
-              ...shareholder,
-              email: shareholder.email || "", // Provide default empty string if email is not provided
+            // Ensure email is provided for new partners
+            const partnerPersonData = {
+              ...partner,
+              email: partner.email || "", // Provide default empty string if email is not provided
             };
-            shareholderResult = await createPerson(tx, shareholderPersonData);
+            partnerResult = await createPerson(tx, partnerPersonData);
           }
 
-          shareholderData.push({
-            person: shareholderResult,
+          partnerData.push({
+            person: partnerResult,
             // Removed shares field - now handled by share holdings system
           });
         }
       }
 
-      if (shareholderData.length > 0) {
-        await createApplicationShareholderRelationships(
+      if (partnerData.length > 0) {
+        await createApplicationPartnerRelationships(
           tx,
           application.id,
-          shareholderData
+          partnerData
         );
       }
 
@@ -80,7 +80,7 @@ export default eventHandler(async (event) => {
         application,
         responsiblePerson: responsiblePersonResult,
         contactPerson: contactPersonResult,
-        shareholders: shareholderData.map((s) => s.person),
+        partners: partnerData.map((s) => s.person),
       };
     });
   } catch (error: any) {

@@ -4,4 +4,4 @@ export * from "./person/schema";
 export * from "./document/schema";
 export * from "./companyApplication/schema";
 export * from "./companyApplicationReview/schema";
-export * from "./shareholder/schema";
+export * from "./partner/schema";

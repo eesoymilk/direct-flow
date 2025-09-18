@@ -21,10 +21,10 @@ export const useDocumentReview = () => {
       bankBookFront: isFirstReview ? null : "mock-file-url",
       bankBookInside: isFirstReview ? null : "mock-file-url",
       bankBookStamp: isFirstReview ? null : "mock-file-url",
-      shareholderPayments: isFirstReview ? [] : ["mock-file-url"],
+      partnerPayments: isFirstReview ? [] : ["mock-file-url"],
       balanceProof: isFirstReview ? null : "mock-file-url",
       houseUseAgreement: isFirstReview ? null : "mock-file-url",
-      shareholderAgreement: isFirstReview ? null : "mock-file-url",
+      partnerAgreement: isFirstReview ? null : "mock-file-url",
       directorConsent: isFirstReview ? null : "mock-file-url",
       declaration: isFirstReview ? null : "mock-file-url",
       legalPersonDeclaration: isFirstReview ? null : "mock-file-url",
@@ -36,8 +36,8 @@ export const useDocumentReview = () => {
       | "responsiblePerson"
       | "representative"
       | "contactPerson"
-      | "shareholder",
-    shareholderId?: number
+      | "partner",
+    partnerId?: number
   ) => {
     if (!application.value) {
       throw new Error("Application not found");
@@ -54,8 +54,8 @@ export const useDocumentReview = () => {
   const getDocumentStatus = (field: CompanyDocumentField) => {
     const document = companyDocuments.value[field];
 
-    // For shareholderPayments (array)
-    if (field === "shareholderPayments") {
+    // For partnerPayments (array)
+    if (field === "partnerPayments") {
       return Array.isArray(document) && document.length > 0
         ? "uploaded"
         : "missing";
@@ -73,9 +73,9 @@ export const useDocumentReview = () => {
   const getPersonDocumentStatus = (
     field: PersonDocumentField,
     personType: string,
-    shareholderId?: number
+    partnerId?: number
   ) => {
-    const documents = getPersonDocuments(personType as any, shareholderId);
+    const documents = getPersonDocuments(personType as any, partnerId);
     return documents[field] ? "uploaded" : "missing";
   };
 

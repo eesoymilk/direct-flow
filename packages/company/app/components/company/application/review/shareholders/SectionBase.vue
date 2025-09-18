@@ -23,10 +23,7 @@
     />
 
     <!-- Empty State -->
-    <div
-      v-if="shareholdersCount === 0"
-      class="px-4 py-8 text-center text-gray-500"
-    >
+    <div v-if="partnersCount === 0" class="px-4 py-8 text-center text-gray-500">
       <UIcon
         name="i-lucide-users"
         class="w-12 h-12 mx-auto mb-2 text-gray-300"
@@ -34,7 +31,7 @@
       <p>{{ emptyStateMessage }}</p>
     </div>
 
-    <!-- Shareholders Content -->
+    <!-- Partners Content -->
     <div v-else class="space-y-6 px-2 pb-2">
       <slot />
     </div>
@@ -50,7 +47,7 @@ interface Props {
   description: string;
   emptyStateMessage: string;
   isOpen: boolean;
-  shareholdersCount: number;
+  partnersCount: number;
   aggregateStatus: SectionStatus;
   quickActionItems: DropdownMenuItem[];
 }

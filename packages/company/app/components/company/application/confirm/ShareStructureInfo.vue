@@ -42,9 +42,8 @@
 interface Props {
   formState: CompanyApplicationFormSchema & {
     responsiblePerson: PersonSchema;
-    representative: PersonSchema;
     contactPerson: PersonSchema;
-    shareholders: ShareholderSchema[];
+    partners: readonly PartnerSchema[];
   };
 }
 

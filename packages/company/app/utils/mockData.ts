@@ -48,8 +48,8 @@ export const generateMockShares = () =>
     >
   );
 
-// Generate mock shareholder data including shares (dateOfBirth required, contact info not displayed)
-export const generateMockShareholder = (): ShareholderSchema => {
+// Generate mock partner data including shares (dateOfBirth required, contact info not displayed)
+export const generateMockPartner = (): PartnerSchema => {
   const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
   return {
     name: faker.person.fullName(),
@@ -231,20 +231,20 @@ export const generateMockFormData = ({
     ? form.responsiblePerson
     : generateMockPerson();
 
-  const shareholderCount = faker.number.int({ min: 3, max: 7 });
+  const partnerCount = faker.number.int({ min: 3, max: 7 });
   const shareTypeCount = isCorporation
     ? faker.number.int({ min: 1, max: 6 })
     : 1;
 
-  form.shareholders = Array.from({ length: shareholderCount }, (_, index) =>
-    generateMockShareholder()
+  form.partners = Array.from({ length: partnerCount }, (_, index) =>
+    generateMockPartner()
   );
 
   return {
     ...mockFormData,
     responsiblePerson: form.responsiblePerson,
     contactPerson: form.contactPerson,
-    shareholders: form.shareholders,
+    partners: form.partners,
     shareTypeCount,
   };
 };

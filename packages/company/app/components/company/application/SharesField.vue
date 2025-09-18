@@ -70,7 +70,7 @@
 <script setup lang="ts">
 interface Props {
   shareTypes: readonly ShareType[];
-  shareValue: ShareholderSchema["shares"];
+  shareValue: PartnerSchema["shares"];
 }
 
 interface Emits {

@@ -75,7 +75,7 @@ export type CompanyField =
 
 export type PersonField = (typeof PERSON_FIELDS)[number];
 
-export type ShareholderField = (typeof SHAREHOLDER_FIELDS)[number];
+export type PartnerField = (typeof SHAREHOLDER_FIELDS)[number];
 
 export type CompanyDocumentField = (typeof COMPANY_DOCUMENT_FIELDS)[number];
 

@@ -6,7 +6,7 @@ export const useCompanyApplicationStore = defineStore(
       CompanyApplicationFormSchema & {
         responsiblePerson: PersonSchema;
         contactPerson: PersonSchema;
-        shareholders: ShareholderSchema[];
+        partners: PartnerSchema[];
       }
     >(createInitialForm());
 
@@ -42,9 +42,9 @@ export const useCompanyApplicationStore = defineStore(
       let totalPrice = 0;
       let weightedPricePerShare = 0;
 
-      for (const shareholder of formState.value.shareholders) {
-        if (shareholder.shares?.ordinary) {
-          const ordinary = shareholder.shares.ordinary;
+      for (const partner of formState.value.partners) {
+        if (partner.shares?.ordinary) {
+          const ordinary = partner.shares.ordinary;
           totalQuantity += ordinary.quantity;
           totalPrice += ordinary.totalPrice;
         }
@@ -67,8 +67,8 @@ export const useCompanyApplicationStore = defineStore(
       let totalPrice = 0;
       let weightedPricePerShare = 0;
 
-      for (const shareholder of formState.value.shareholders) {
-        if (shareholder.shares) {
+      for (const partner of formState.value.partners) {
+        if (partner.shares) {
           // Sum all preferred share types (preferred_a through preferred_e)
           const preferredTypes = SHARE_TYPES.filter((type) =>
             type.startsWith("preferred_")
@@ -76,9 +76,7 @@ export const useCompanyApplicationStore = defineStore(
 
           for (const shareType of preferredTypes) {
             const share =
-              shareholder.shares?.[
-                shareType as keyof typeof shareholder.shares
-              ];
+              partner.shares?.[shareType as keyof typeof partner.shares];
             if (share) {
               totalQuantity += share.quantity;
               totalPrice += share.totalPrice;
@@ -110,14 +108,14 @@ export const useCompanyApplicationStore = defineStore(
       };
     });
 
-    const addShareholder = () => {
-      const newShareholder = createEmptyShareholder(
+    const addPartner = () => {
+      const newPartner = createEmptyPartner(
         formState.value.hasParValueFreeShares
       );
-      formState.value.shareholders.push(newShareholder);
+      formState.value.partners.push(newPartner);
     };
 
-    const addPersonAsShareholder = (personType: PersonType) => {
+    const addPersonAsPartner = (personType: PersonType) => {
       let sourcePerson;
       if (personType === "responsiblePerson") {
         sourcePerson = formState.value.responsiblePerson;
@@ -125,10 +123,10 @@ export const useCompanyApplicationStore = defineStore(
         sourcePerson = formState.value.contactPerson;
       }
 
-      const existingShareholder = formState.value.shareholders.find(
+      const existingPartner = formState.value.partners.find(
         (s) => s.referenceType === personType
       );
-      if (existingShareholder) {
+      if (existingPartner) {
         toast.add({
           title: "此人員已是股東",
           description: `${sourcePerson.name} 已在股東列表中`,
@@ -138,8 +136,8 @@ export const useCompanyApplicationStore = defineStore(
         return;
       }
 
-      // Create readonly shareholder with reference
-      const newShareholder: ShareholderSchema = {
+      // Create readonly partner with reference
+      const newPartner: PartnerSchema = {
         ...sourcePerson,
         address: sourcePerson.address || "",
         dateOfBirth: sourcePerson.dateOfBirth || new Date(),
@@ -151,7 +149,7 @@ export const useCompanyApplicationStore = defineStore(
         ),
       };
 
-      formState.value.shareholders.push(newShareholder);
+      formState.value.partners.push(newPartner);
 
       toast.add({
         title: "股東已加入",
@@ -161,8 +159,8 @@ export const useCompanyApplicationStore = defineStore(
       });
     };
 
-    const removeShareholder = (index: number) => {
-      formState.value.shareholders.splice(index, 1);
+    const removePartner = (index: number) => {
+      formState.value.partners.splice(index, 1);
     };
 
     const addShareType = () => {
@@ -182,9 +180,9 @@ export const useCompanyApplicationStore = defineStore(
         throw new Error(`New share type ${newShareType} not found`);
       }
 
-      for (const shareholder of formState.value.shareholders) {
-        if (shareholder.shares) {
-          shareholder.shares[newShareType] = {
+      for (const partner of formState.value.partners) {
+        if (partner.shares) {
+          partner.shares[newShareType] = {
             quantity: 0,
             pricePerShare: 0,
             totalPrice: 0,
@@ -301,9 +299,9 @@ export const useCompanyApplicationStore = defineStore(
       preferredSharesTotal: readonly(preferredSharesTotal),
       totalShares: readonly(totalShares),
       // Actions
-      addShareholder,
-      addPersonAsShareholder,
-      removeShareholder,
+      addPartner,
+      addPersonAsPartner,
+      removePartner,
       addShareType,
       removeShareType,
       resetForm,

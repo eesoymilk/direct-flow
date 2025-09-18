@@ -85,7 +85,7 @@ All endpoints include comprehensive error handling with appropriate HTTP status 
 
 - [ ] Add application status history tracking
 - [ ] Add application comments table and functionality
-- [ ] Add shareholders relationship and data
+- [ ] Add partners relationship and data
 - [ ] Add authentication and authorization
 - [ ] Add audit logging
 - [ ] Add email notifications for status changes

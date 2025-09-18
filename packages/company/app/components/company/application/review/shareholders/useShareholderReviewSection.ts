@@ -1,15 +1,15 @@
 import type { DropdownMenuItem } from "@nuxt/ui";
 import type { SectionStatus } from "~/composables/useReviewSectionStatus";
-import { useShareholderReview } from "./useShareholderReview";
-import type { FieldStatus, SectionConfig, ShareholderField } from "../types";
+import { usePartnerReview } from "./usePartnerReview";
+import type { FieldStatus, SectionConfig, PartnerField } from "../types";
 import { generateFieldStatus } from "../utils";
 import { useCompanyApplicationReviewStore } from "../useCompanyApplicationReviewStore";
 import { SHAREHOLDER_FIELDS } from "../constants";
 
-export const SHAREHOLDER_SECTION_KEY = "shareholders";
+export const SHAREHOLDER_SECTION_KEY = "partners";
 
-export const useShareholderReviewSection = (config: SectionConfig) => {
-  const { shareholders } = useShareholderReview();
+export const usePartnerReviewSection = (config: SectionConfig) => {
+  const { partners } = usePartnerReview();
 
   const reviewStore = useCompanyApplicationReviewStore();
   const {
@@ -26,19 +26,19 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
 
   const sectionIsOpen = computed(() => sectionState.value.isOpen);
 
-  // Aggregate field statuses per shareholder (similar to person sections)
+  // Aggregate field statuses per partner (similar to person sections)
   const fieldStatuses = computed(() => {
-    const shareholderStatuses: Record<
+    const partnerStatuses: Record<
       number,
-      Record<ShareholderField, FieldStatus>
+      Record<PartnerField, FieldStatus>
     > = {};
 
-    shareholders.value.forEach((_, index) => {
+    partners.value.forEach((_, index) => {
       const statusesReducer = (
-        acc: Record<ShareholderField, FieldStatus>,
-        field: ShareholderField
-      ): Record<ShareholderField, FieldStatus> => {
-        const fieldPath = `shareholders[${index}].${field}`;
+        acc: Record<PartnerField, FieldStatus>,
+        field: PartnerField
+      ): Record<PartnerField, FieldStatus> => {
+        const fieldPath = `partners[${index}].${field}`;
         const issue = sectionState.value.issues.find(
           (i) => i.fieldPath === fieldPath
         );
@@ -51,13 +51,13 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
         return acc;
       };
 
-      shareholderStatuses[index] = SHAREHOLDER_FIELDS.reduce(
+      partnerStatuses[index] = SHAREHOLDER_FIELDS.reduce(
         statusesReducer,
-        {} as Record<ShareholderField, FieldStatus>
+        {} as Record<PartnerField, FieldStatus>
       );
     });
 
-    return shareholderStatuses;
+    return partnerStatuses;
   });
 
   // Flat statuses for aggregate calculations (keeping for compatibility)
@@ -65,9 +65,9 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     const statuses: Record<string, FieldStatus> = {};
 
     Object.entries(fieldStatuses.value).forEach(
-      ([shareholderIndex, shareholderFields]) => {
-        Object.entries(shareholderFields).forEach(([field, status]) => {
-          const fieldPath = `shareholders[${shareholderIndex}].${field}`;
+      ([partnerIndex, partnerFields]) => {
+        Object.entries(partnerFields).forEach(([field, status]) => {
+          const fieldPath = `partners[${partnerIndex}].${field}`;
           statuses[fieldPath] = status;
         });
       }
@@ -76,7 +76,7 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     return statuses;
   });
 
-  // Aggregate status across all shareholders and fields
+  // Aggregate status across all partners and fields
   const status = computed((): SectionStatus => {
     const allStatuses = Object.values(allFieldStatuses.value);
     const issues = allStatuses.filter((s) => s.hasIssue);
@@ -106,13 +106,13 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     statusLabel,
   } = useReviewSectionStatus(status);
 
-  // Helper functions for individual shareholder fields (optimized)
-  const getShareholderFieldStatus = (
-    field: ShareholderField,
-    shareholderIndex: number
+  // Helper functions for individual partner fields (optimized)
+  const getPartnerFieldStatus = (
+    field: PartnerField,
+    partnerIndex: number
   ): FieldStatus => {
     return (
-      fieldStatuses.value[shareholderIndex]?.[field] || {
+      fieldStatuses.value[partnerIndex]?.[field] || {
         hasIssue: false,
         isVerified: false,
         issue: undefined,
@@ -121,14 +121,14 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     );
   };
 
-  const getShareholderFieldStatusProps = (
-    field: ShareholderField,
-    shareholderIndex: number
+  const getPartnerFieldStatusProps = (
+    field: PartnerField,
+    partnerIndex: number
   ): {
     statusLabel: string;
     statusBadgeColor: "success" | "warning" | "neutral";
   } => {
-    const fieldStatus = fieldStatuses.value[shareholderIndex]?.[field];
+    const fieldStatus = fieldStatuses.value[partnerIndex]?.[field];
     const { isVerified = false, hasIssue = false } = fieldStatus || {};
 
     return {
@@ -141,35 +141,33 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     };
   };
 
-  const getShareholderStatuses = (shareholderIndex: number) =>
+  const getPartnerStatuses = (partnerIndex: number) =>
     SHAREHOLDER_FIELDS.reduce(
       (acc, field) => {
-        acc[field] = getShareholderFieldStatus(field, shareholderIndex);
+        acc[field] = getPartnerFieldStatus(field, partnerIndex);
         return acc;
       },
-      {} as Record<ShareholderField, FieldStatus>
+      {} as Record<PartnerField, FieldStatus>
     );
 
-  const getShareholderOverallStatus = (shareholderIndex: number) => {
-    const shareholderFields = getShareholderStatuses(shareholderIndex);
+  const getPartnerOverallStatus = (partnerIndex: number) => {
+    const partnerFields = getPartnerStatuses(partnerIndex);
     return {
-      hasVerified: Object.values(shareholderFields).every(
+      hasVerified: Object.values(partnerFields).every(
         (field) => field.isVerified
       ),
-      hasIssues: Object.values(shareholderFields).some(
-        (field) => field.hasIssue
-      ),
+      hasIssues: Object.values(partnerFields).some((field) => field.hasIssue),
     };
   };
 
-  const getShareholderStatusesProps = (shareholderIndex: number) =>
+  const getPartnerStatusesProps = (partnerIndex: number) =>
     SHAREHOLDER_FIELDS.reduce(
       (acc, field) => {
-        acc[field] = getShareholderFieldStatusProps(field, shareholderIndex);
+        acc[field] = getPartnerFieldStatusProps(field, partnerIndex);
         return acc;
       },
       {} as Record<
-        ShareholderField,
+        PartnerField,
         {
           statusLabel: string;
           statusBadgeColor: "success" | "warning" | "neutral";
@@ -180,33 +178,33 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
   // Field actions
   const addFieldIssue = (issue: ReviewIssueSchema) => {
     clearField(SHAREHOLDER_SECTION_KEY, issue.fieldPath);
-    console.log("Adding issue for shareholders:", issue);
+    console.log("Adding issue for partners:", issue);
     addIssue(SHAREHOLDER_SECTION_KEY, issue);
   };
 
-  const verifyShareholderField = (
-    field: ShareholderField,
-    shareholderIndex: number,
+  const verifyPartnerField = (
+    field: PartnerField,
+    partnerIndex: number,
     note?: string
   ) => {
-    const fieldPath = `shareholders[${shareholderIndex}].${field}`;
+    const fieldPath = `partners[${partnerIndex}].${field}`;
     clearField(SHAREHOLDER_SECTION_KEY, fieldPath);
     addVerification(SHAREHOLDER_SECTION_KEY, { fieldPath, note });
   };
 
   // Bulk actions
   const verifyAllFields = () => {
-    shareholders.value.forEach((_, index) => {
+    partners.value.forEach((_, index) => {
       SHAREHOLDER_FIELDS.forEach((field) => {
-        verifyShareholderField(field, index, "批量標記為已驗證");
+        verifyPartnerField(field, index, "批量標記為已驗證");
       });
     });
   };
 
   const clearAllMarkers = () => {
-    shareholders.value.forEach((_, index) => {
+    partners.value.forEach((_, index) => {
       SHAREHOLDER_FIELDS.forEach((field) => {
-        const fieldPath = `shareholders[${index}].${field}`;
+        const fieldPath = `partners[${index}].${field}`;
         clearField(SHAREHOLDER_SECTION_KEY, fieldPath);
       });
     });
@@ -215,9 +213,9 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
   const markAllReviewed = () => {
     // Get current field statuses to avoid marking fields that have issues
     const currentStatuses: Record<string, boolean> = {};
-    shareholders.value.forEach((_, index) => {
+    partners.value.forEach((_, index) => {
       SHAREHOLDER_FIELDS.forEach((field) => {
-        const fieldPath = `shareholders[${index}].${field}`;
+        const fieldPath = `partners[${index}].${field}`;
         const hasIssue = sectionState.value.issues.some(
           (i) => i.fieldPath === fieldPath
         );
@@ -225,9 +223,9 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
       });
     });
 
-    shareholders.value.forEach((_, index) => {
+    partners.value.forEach((_, index) => {
       SHAREHOLDER_FIELDS.forEach((field) => {
-        const fieldPath = `shareholders[${index}].${field}`;
+        const fieldPath = `partners[${index}].${field}`;
         if (!currentStatuses[fieldPath]) {
           addVerification(SHAREHOLDER_SECTION_KEY, {
             fieldPath,
@@ -268,10 +266,10 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
 
   return {
     // State
-    shareholders,
+    partners,
     sectionState,
     sectionIsOpen,
-    fieldStatuses, // Aggregated statuses by shareholder index and field
+    fieldStatuses, // Aggregated statuses by partner index and field
     status,
     sectionBorderClass,
     statusIcon,
@@ -281,15 +279,15 @@ export const useShareholderReviewSection = (config: SectionConfig) => {
     quickActionItems,
 
     // Field helpers (optimized)
-    getShareholderFieldStatus,
-    getShareholderFieldStatusProps,
-    getShareholderStatuses,
-    getShareholderOverallStatus,
-    getShareholderStatusesProps,
+    getPartnerFieldStatus,
+    getPartnerFieldStatusProps,
+    getPartnerStatuses,
+    getPartnerOverallStatus,
+    getPartnerStatusesProps,
 
     // Actions
     addFieldIssue,
-    verifyShareholderField,
+    verifyPartnerField,
     verifyAllFields,
     clearAllMarkers,
     markAllReviewed,

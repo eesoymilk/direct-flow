@@ -36,7 +36,7 @@
       <UFormField label="出生日期" name="dateOfBirth" required>
         <DatePicker
           v-model="formState.responsiblePerson.dateOfBirth"
-          format="YYYY/MM/DD"
+          date-format="yy/mm/dd"
           class="w-full h-8"
         />
       </UFormField>
@@ -102,7 +102,7 @@
       <UFormField label="出生日期" name="dateOfBirth" required>
         <DatePicker
           v-model="formState.contactPerson.dateOfBirth"
-          format="YYYY/MM/DD"
+          date-format="yy/mm/dd"
           class="w-full h-8"
         />
       </UFormField>

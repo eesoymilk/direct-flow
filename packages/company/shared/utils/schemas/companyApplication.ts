@@ -1,6 +1,6 @@
 import * as z from "zod";
 import { getFileField, responseBaseSchema } from "./helpers";
-import { personResponseSchema, shareholderResponseSchema } from "./person";
+import { personResponseSchema, partnerResponseSchema } from "./person";
 import { reviewRoundResponseSchema } from "./companyApplicationReview";
 import { ORGANIZATION_TYPES, COMPANY_APPLICATION_STATUS } from "../constants";
 
@@ -86,7 +86,7 @@ export const requiredDocumentsSchema = z.object({
   bankBookStamp: getFileField("公司存摺戳章頁"),
 
   // 2. 股東匯款資料
-  shareholderPayments: z.array(getFileField("股東匯款條或存摺資料")).min(1, {
+  partnerPayments: z.array(getFileField("股東匯款條或存摺資料")).min(1, {
     message: "請上傳至少一份股東匯款條或存摺資料",
   }),
 
@@ -97,7 +97,7 @@ export const requiredDocumentsSchema = z.object({
   houseUseAgreement: getFileField("房屋使用同意書"),
 
   // 6. 股東同意書
-  shareholderAgreement: getFileField("股東同意書"),
+  partnerAgreement: getFileField("股東同意書"),
 
   // 7. 董監事願任同意書
   directorConsent: getFileField("董監事願任同意書"),
@@ -120,7 +120,7 @@ export const companyApplicationResponseSchema = z.object({
   preferredSharesAmount: z.number().nullish(),
   responsiblePerson: personResponseSchema,
   contactPerson: personResponseSchema,
-  shareholders: shareholderResponseSchema.array(),
+  partners: partnerResponseSchema.array(),
   reviewRounds: reviewRoundResponseSchema.array(),
 });
 

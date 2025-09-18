@@ -68,15 +68,15 @@ interface Props {
     | "responsiblePerson"
     | "representative"
     | "contactPerson"
-    | "shareholder";
-  shareholderId?: number;
+    | "partner";
+  partnerId?: number;
 }
 
 interface Emits {
   verifyField: [
     personType: string,
     field: PersonDocumentField,
-    shareholderId?: number,
+    partnerId?: number,
   ];
   addIssue: [issue: any];
 }
@@ -92,12 +92,12 @@ const personDocumentFunctions = inject("personDocumentFunctions", {
   getPersonFieldStatus: (
     personType: string,
     field: PersonDocumentField,
-    shareholderId?: number
+    partnerId?: number
   ) => ({ isVerified: false, hasIssue: false }),
   getPersonFieldStatusProps: (
     personType: string,
     field: PersonDocumentField,
-    shareholderId?: number
+    partnerId?: number
   ) => ({}),
 });
 
@@ -106,62 +106,58 @@ const { getPersonFieldStatus, getPersonFieldStatusProps } =
 
 // Computed properties for front card
 const frontCardStatus = computed(() =>
-  getPersonFieldStatus(props.personType, "idCardFront", props.shareholderId)
+  getPersonFieldStatus(props.personType, "idCardFront", props.partnerId)
 );
 
 const frontCardStatusProps = computed(() =>
-  getPersonFieldStatusProps(
-    props.personType,
-    "idCardFront",
-    props.shareholderId
-  )
+  getPersonFieldStatusProps(props.personType, "idCardFront", props.partnerId)
 );
 
 const frontCardDocumentStatus = computed(() =>
-  getPersonDocumentStatus("idCardFront", props.personType, props.shareholderId)
+  getPersonDocumentStatus("idCardFront", props.personType, props.partnerId)
 );
 
 const frontCardFileUrl = computed(
-  () => getPersonDocuments(props.personType, props.shareholderId)?.idCardFront
+  () => getPersonDocuments(props.personType, props.partnerId)?.idCardFront
 );
 
 const frontCardFieldPath = computed(() => {
-  if (props.shareholderId) {
-    return `documents.shareholder[${props.shareholderId}].idCardFront`;
+  if (props.partnerId) {
+    return `documents.partner[${props.partnerId}].idCardFront`;
   }
   return `documents.${props.personType}.idCardFront`;
 });
 
 // Computed properties for back card
 const backCardStatus = computed(() =>
-  getPersonFieldStatus(props.personType, "idCardBack", props.shareholderId)
+  getPersonFieldStatus(props.personType, "idCardBack", props.partnerId)
 );
 
 const backCardStatusProps = computed(() =>
-  getPersonFieldStatusProps(props.personType, "idCardBack", props.shareholderId)
+  getPersonFieldStatusProps(props.personType, "idCardBack", props.partnerId)
 );
 
 const backCardDocumentStatus = computed(() =>
-  getPersonDocumentStatus("idCardBack", props.personType, props.shareholderId)
+  getPersonDocumentStatus("idCardBack", props.personType, props.partnerId)
 );
 
 const backCardFileUrl = computed(
-  () => getPersonDocuments(props.personType, props.shareholderId)?.idCardBack
+  () => getPersonDocuments(props.personType, props.partnerId)?.idCardBack
 );
 
 const backCardFieldPath = computed(() => {
-  if (props.shareholderId) {
-    return `documents.shareholder[${props.shareholderId}].idCardBack`;
+  if (props.partnerId) {
+    return `documents.partner[${props.partnerId}].idCardBack`;
   }
   return `documents.${props.personType}.idCardBack`;
 });
 
 // Event handlers
 const handleVerifyFront = () => {
-  emit("verifyField", props.personType, "idCardFront", props.shareholderId);
+  emit("verifyField", props.personType, "idCardFront", props.partnerId);
 };
 
 const handleVerifyBack = () => {
-  emit("verifyField", props.personType, "idCardBack", props.shareholderId);
+  emit("verifyField", props.personType, "idCardBack", props.partnerId);
 };
 </script>

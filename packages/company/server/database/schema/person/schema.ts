@@ -19,7 +19,7 @@ export const people = pgTable("people", {
   telephone: varchar("telephone"), // 電話 (optional, can choose phone OR cellphone)
   cellphone: varchar("cellphone"), // 手機 (optional, can choose phone OR cellphone)
   email: varchar("email"), // 電子郵件 (required for responsible/contact persons)
-  dateOfBirth: date("date_of_birth"), // 出生日期 (required for shareholders only)
+  dateOfBirth: date("date_of_birth"), // 出生日期 (required for partners only)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

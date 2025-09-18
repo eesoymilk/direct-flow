@@ -42,16 +42,16 @@
       @add-issue="addFieldIssue"
     />
 
-    <!-- Shareholders Documents -->
-    <div v-if="shareholders.length > 0" class="space-y-3">
+    <!-- Partners Documents -->
+    <div v-if="partners.length > 0" class="space-y-3">
       <h5 class="font-medium text-gray-800 flex items-center gap-2">
         <UIcon name="i-heroicons-users" class="w-4 h-4 text-orange-600" />
         股東身分證
       </h5>
 
       <div
-        v-for="(shareholder, index) in shareholders"
-        :key="shareholder.id"
+        v-for="(partner, index) in partners"
+        :key="partner.id"
         class="space-y-3 p-4 border border-gray-200 rounded-lg bg-gray-50"
       >
         <div class="flex items-center gap-3">
@@ -62,7 +62,7 @@
           </div>
           <div>
             <h6 class="font-medium text-gray-900">
-              {{ shareholder.person.name }}
+              {{ partner.person.name }}
             </h6>
             <p class="text-sm text-gray-600">股東身分證件</p>
           </div>
@@ -72,52 +72,33 @@
           <CompanyApplicationReviewUiFieldCard
             label="身分證正面"
             v-bind="
-              getPersonFieldStatusProps(
-                'shareholder',
-                'idCardFront',
-                shareholder.id
-              )
+              getPersonFieldStatusProps('partner', 'idCardFront', partner.id)
             "
           >
             <template #custom-display>
               <CompanyApplicationReviewDocumentsDocumentPreview
                 :document-status="
-                  getPersonDocumentStatus(
-                    'idCardFront',
-                    'shareholder',
-                    shareholder.id
-                  )
+                  getPersonDocumentStatus('idCardFront', 'partner', partner.id)
                 "
                 document-type="身分證正面"
                 :file-url="
-                  getPersonDocuments('shareholder', shareholder.id).idCardFront
+                  getPersonDocuments('partner', partner.id).idCardFront
                 "
               />
             </template>
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
                 :is-verified="
-                  getPersonFieldStatus(
-                    'shareholder',
-                    'idCardFront',
-                    shareholder.id
-                  ).isVerified
+                  getPersonFieldStatus('partner', 'idCardFront', partner.id)
+                    .isVerified
                 "
                 :has-issue="
-                  getPersonFieldStatus(
-                    'shareholder',
-                    'idCardFront',
-                    shareholder.id
-                  ).hasIssue
+                  getPersonFieldStatus('partner', 'idCardFront', partner.id)
+                    .hasIssue
                 "
-                :field-path="`documents.shareholder[${shareholder.id}].idCardFront`"
+                :field-path="`documents.partner[${partner.id}].idCardFront`"
                 @verify="
-                  () =>
-                    verifyPersonField(
-                      'shareholder',
-                      'idCardFront',
-                      shareholder.id
-                    )
+                  () => verifyPersonField('partner', 'idCardFront', partner.id)
                 "
                 @add-issue="addFieldIssue"
               />
@@ -127,52 +108,31 @@
           <CompanyApplicationReviewUiFieldCard
             label="身分證背面"
             v-bind="
-              getPersonFieldStatusProps(
-                'shareholder',
-                'idCardBack',
-                shareholder.id
-              )
+              getPersonFieldStatusProps('partner', 'idCardBack', partner.id)
             "
           >
             <template #custom-display>
               <CompanyApplicationReviewDocumentsDocumentPreview
                 :document-status="
-                  getPersonDocumentStatus(
-                    'idCardBack',
-                    'shareholder',
-                    shareholder.id
-                  )
+                  getPersonDocumentStatus('idCardBack', 'partner', partner.id)
                 "
                 document-type="身分證背面"
-                :file-url="
-                  getPersonDocuments('shareholder', shareholder.id).idCardBack
-                "
+                :file-url="getPersonDocuments('partner', partner.id).idCardBack"
               />
             </template>
             <template #actions>
               <CompanyApplicationReviewUiFieldActions
                 :is-verified="
-                  getPersonFieldStatus(
-                    'shareholder',
-                    'idCardBack',
-                    shareholder.id
-                  ).isVerified
+                  getPersonFieldStatus('partner', 'idCardBack', partner.id)
+                    .isVerified
                 "
                 :has-issue="
-                  getPersonFieldStatus(
-                    'shareholder',
-                    'idCardBack',
-                    shareholder.id
-                  ).hasIssue
+                  getPersonFieldStatus('partner', 'idCardBack', partner.id)
+                    .hasIssue
                 "
-                :field-path="`documents.shareholder[${shareholder.id}].idCardBack`"
+                :field-path="`documents.partner[${partner.id}].idCardBack`"
                 @verify="
-                  () =>
-                    verifyPersonField(
-                      'shareholder',
-                      'idCardBack',
-                      shareholder.id
-                    )
+                  () => verifyPersonField('partner', 'idCardBack', partner.id)
                 "
                 @add-issue="addFieldIssue"
               />
@@ -196,16 +156,16 @@ const { addIssue, addVerification, getSectionState } =
 const detailsStore = useCompanyApplicationDetailsStore();
 const { application } = storeToRefs(detailsStore);
 
-const shareholders = computed(() => application.value?.shareholders || []);
+const partners = computed(() => application.value?.partners || []);
 
 const getPersonFieldStatus = (
   personType: string,
   field: PersonDocumentField,
-  shareholderId?: number
+  partnerId?: number
 ) => {
   let fieldPath = `documents.${personType}.${field}`;
-  if (shareholderId) {
-    fieldPath = `documents.shareholder[${shareholderId}].${field}`;
+  if (partnerId) {
+    fieldPath = `documents.partner[${partnerId}].${field}`;
   }
 
   const documentsSection = getSectionState("documents");
@@ -225,9 +185,9 @@ const getPersonFieldStatus = (
 const getPersonFieldStatusProps = (
   personType: string,
   field: PersonDocumentField,
-  shareholderId?: number
+  partnerId?: number
 ) => {
-  const fieldStatus = getPersonFieldStatus(personType, field, shareholderId);
+  const fieldStatus = getPersonFieldStatus(personType, field, partnerId);
   return {
     isVerified: fieldStatus.isVerified,
     hasIssue: fieldStatus.hasIssue,
@@ -239,11 +199,11 @@ const getPersonFieldStatusProps = (
 const verifyPersonField = (
   personType: string,
   field: PersonDocumentField,
-  shareholderId?: number
+  partnerId?: number
 ) => {
   let fieldPath = `documents.${personType}.${field}`;
-  if (shareholderId) {
-    fieldPath = `documents.shareholder[${shareholderId}].${field}`;
+  if (partnerId) {
+    fieldPath = `documents.partner[${partnerId}].${field}`;
   }
   addVerification("documents", {
     fieldPath,

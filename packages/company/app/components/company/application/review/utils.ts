@@ -31,21 +31,21 @@ export const getPersonDocumentFieldInfos = (
     fieldCategory: "clientDocument" as const,
   }));
 
-export const getShareholderDocumentFieldInfos = (
-  shareholderCount: number
+export const getPartnerDocumentFieldInfos = (
+  partnerCount: number
 ): FieldInfo[] =>
-  Array.from({ length: shareholderCount }, (_, index) => [
+  Array.from({ length: partnerCount }, (_, index) => [
     ...PERSON_DOCUMENT_FIELDS.map((field) => ({
-      sectionKey: "shareholders" as const,
-      fieldPath: `shareholders[${index}].${field}`,
+      sectionKey: "partners" as const,
+      fieldPath: `partners[${index}].${field}`,
       fieldCategory: "clientDocument" as const,
     })),
   ]).flat();
 
 export const getAllFieldInfos = ({
-  shareholderCount,
+  partnerCount,
 }: {
-  shareholderCount: number;
+  partnerCount: number;
 }): {
   sectionKey: SectionKey;
   fieldPath: string;
@@ -70,39 +70,39 @@ export const getAllFieldInfos = ({
     ...getPersonDocumentFieldInfos(personType),
   ]);
 
-  const shareholderFieldPaths = [
-    ...Array.from({ length: shareholderCount }, (_, index) =>
+  const partnerFieldPaths = [
+    ...Array.from({ length: partnerCount }, (_, index) =>
       SHAREHOLDER_FIELDS.map((field) => ({
-        sectionKey: "shareholders" as const,
-        fieldPath: `shareholders[${index}].${field}`,
+        sectionKey: "partners" as const,
+        fieldPath: `partners[${index}].${field}`,
         fieldCategory: "reviewableField" as const,
       }))
     ).flat(),
-    ...getShareholderDocumentFieldInfos(shareholderCount),
+    ...getPartnerDocumentFieldInfos(partnerCount),
   ];
 
   return [
     ...companyFieldPaths,
     ...personFieldPaths,
-    ...shareholderFieldPaths,
+    ...partnerFieldPaths,
     ...getCompanyDocumentFieldInfos(),
   ];
 };
 
-export const getAllDocumentFields = (shareholderCount: number): FieldInfo[] => [
+export const getAllDocumentFields = (partnerCount: number): FieldInfo[] => [
   ...getCompanyDocumentFieldInfos(),
   ...PERSON_TYPES.flatMap((personType) =>
     getPersonDocumentFieldInfos(personType)
   ),
-  ...Array.from({ length: shareholderCount }, (_, index) => [
+  ...Array.from({ length: partnerCount }, (_, index) => [
     {
-      sectionKey: "shareholders" as const,
-      fieldPath: `shareholders[${index}].idCardFront`,
+      sectionKey: "partners" as const,
+      fieldPath: `partners[${index}].idCardFront`,
       fieldCategory: "clientDocument" as const,
     },
     {
-      sectionKey: "shareholders" as const,
-      fieldPath: `shareholders[${index}].idCardBack`,
+      sectionKey: "partners" as const,
+      fieldPath: `partners[${index}].idCardBack`,
       fieldCategory: "clientDocument" as const,
     },
   ]).flat(),
@@ -116,7 +116,7 @@ export const getInitalReviewSections = () => {
     responsiblePerson: { issues: [], verifications: [], isOpen: false },
     representative: { issues: [], verifications: [], isOpen: false },
     contactPerson: { issues: [], verifications: [], isOpen: false },
-    shareholders: { issues: [], verifications: [], isOpen: false },
+    partners: { issues: [], verifications: [], isOpen: false },
     documents: { issues: [], verifications: [], isOpen: false },
   };
 };

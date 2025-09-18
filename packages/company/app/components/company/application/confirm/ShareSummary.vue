@@ -116,23 +116,23 @@
           <div class="text-center">
             <div class="text-sm text-gray-600 mb-1">股東人數</div>
             <div class="text-xl font-bold text-gray-800">
-              {{ shareholders.length }} 人
+              {{ partners.length }} 人
             </div>
           </div>
         </div>
       </UCard>
 
-      <!-- Individual Shareholder Summary -->
+      <!-- Individual Partner Summary -->
       <div class="space-y-4">
         <h4 class="text-lg font-medium text-gray-800">股東持股明細</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            v-for="(shareholder, index) in shareholders"
+            v-for="(partner, index) in partners"
             :key="index"
             class="border rounded-lg p-4 bg-gray-50"
           >
             <div class="flex items-center justify-between mb-3">
-              <h5 class="font-medium text-gray-800">{{ shareholder.name }}</h5>
+              <h5 class="font-medium text-gray-800">{{ partner.name }}</h5>
               <UBadge
                 :label="String(index + 1)"
                 size="sm"
@@ -145,11 +145,7 @@
               <div class="flex justify-between text-sm">
                 <span class="text-gray-600">普通股：</span>
                 <span class="font-medium">
-                  {{
-                    formatNumber(
-                      getShareholderOrdinaryShares(shareholder).quantity
-                    )
-                  }}
+                  {{ formatNumber(getPartnerOrdinaryShares(partner).quantity) }}
                   股
                 </span>
               </div>
@@ -157,9 +153,7 @@
                 <span class="text-gray-600">特別股：</span>
                 <span class="font-medium">
                   {{
-                    formatNumber(
-                      getShareholderPreferredShares(shareholder).quantity
-                    )
+                    formatNumber(getPartnerPreferredShares(partner).quantity)
                   }}
                   股
                 </span>
@@ -170,7 +164,7 @@
                   >該股東總計：</span
                 >
                 <span class="font-bold text-gray-800">
-                  {{ formatCurrency(getShareholderTotal(shareholder)) }}
+                  {{ formatCurrency(getPartnerTotal(partner)) }}
                 </span>
               </div>
             </div>
@@ -183,7 +177,7 @@
 
 <script setup lang="ts">
 interface Props {
-  shareholders: ShareholderSchema[];
+  partners: PartnerSchema[];
   isCorporation: boolean;
 }
 

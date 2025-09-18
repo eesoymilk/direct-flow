@@ -9,12 +9,12 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-
 import { people } from "../person/schema";
 import { documents } from "../document/schema";
 import { organizationTypeEnum } from "../company/schema";
 import { reviewRounds } from "../companyApplicationReview/schema";
-import { COMPANY_APPLICATION_STATUS } from "../../../../shared/utils/constants";
+import { COMPANY_APPLICATION_STATUS } from "#shared/utils/constants";
+import { partnerTypeEnum } from "../partner/schema";
 
 // Application status enum
 export const applicationStatusEnum = pgEnum(
@@ -82,8 +82,8 @@ export const applicationDocuments = pgTable("application_documents", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Shareholders junction table
-export const applicationShareholders = pgTable("application_shareholders", {
+// Partners junction table
+export const applicationPartners = pgTable("application_partners", {
   id: uuid("id").primaryKey().defaultRandom(), // Changed to UUID for consistency
   applicationId: uuid("application_id")
     .notNull()
@@ -91,6 +91,7 @@ export const applicationShareholders = pgTable("application_shareholders", {
   personId: uuid("person_id")
     .notNull()
     .references(() => people.id, { onDelete: "cascade" }),
+  partnerType: partnerTypeEnum("partner_type").notNull(),
   // Removed shares field - now handled by applicationShareHoldings
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -110,7 +111,7 @@ export const companyApplicationsRelations = relations(
       relationName: "contactPerson",
     }),
     companyDocuments: many(applicationDocuments),
-    shareholders: many(applicationShareholders),
+    partners: many(applicationPartners),
     // shareHoldings relation will be handled after share schema is properly imported
     reviewRounds: many(reviewRounds),
   })
@@ -130,15 +131,15 @@ export const applicationDocumentsRelations = relations(
   })
 );
 
-export const applicationShareholdersRelations = relations(
-  applicationShareholders,
+export const applicationPartnersRelations = relations(
+  applicationPartners,
   ({ one }) => ({
     application: one(companyApplications, {
-      fields: [applicationShareholders.applicationId],
+      fields: [applicationPartners.applicationId],
       references: [companyApplications.id],
     }),
     person: one(people, {
-      fields: [applicationShareholders.personId],
+      fields: [applicationPartners.personId],
       references: [people.id],
     }),
     // shareHoldings relation commented out to fix circular dependency

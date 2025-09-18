@@ -91,10 +91,10 @@ CREATE TABLE contacts (
 );
 ```
 
-#### shareholders
+#### partners
 
 ```sql
-CREATE TABLE shareholders (
+CREATE TABLE partners (
     id SERIAL PRIMARY KEY,
     company_id INTEGER REFERENCES companies(id),
     name VARCHAR(255) NOT NULL,
@@ -172,14 +172,14 @@ CREATE TABLE users (
   - ID card (front/back)
   - Health insurance card
   - Property tax bill
-  - Shareholder documents
+  - Partner documents
   - Other required documents
 
 #### 3.1.3 Document Generation
 
 - PDF generation for:
   - Property use agreement
-  - Shareholder agreement
+  - Partner agreement
   - Director appointment agreement
   - Natural person declaration
   - Legal representative declaration

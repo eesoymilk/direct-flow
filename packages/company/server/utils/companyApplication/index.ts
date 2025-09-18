@@ -1,5 +1,5 @@
 import {
-  applicationShareholders,
+  applicationPartners,
   companyApplications,
   reviewRounds,
 } from "../../database/schema/index";
@@ -23,22 +23,22 @@ export const createCompanyApplication = async (
   return result;
 };
 
-export const createApplicationShareholderRelationships = async (
+export const createApplicationPartnerRelationships = async (
   db: DrizzleClient | DrizzleTransaction,
   applicationId: string,
-  shareholderData: { person: { id: string } }[] // Removed shares field
+  partnerData: { person: { id: string } }[] // Removed shares field
 ) => {
-  if (shareholderData.length === 0) {
+  if (partnerData.length === 0) {
     return;
   }
 
-  const shareholderRelationships = shareholderData.map(({ person }) => ({
+  const partnerRelationships = partnerData.map(({ person }) => ({
     applicationId,
     personId: person.id,
     // Removed shares field - now handled by share holdings system
   }));
 
-  await db.insert(applicationShareholders).values(shareholderRelationships);
+  await db.insert(applicationPartners).values(partnerRelationships);
 };
 
 export const fetchCompanyApplications = async (
@@ -89,7 +89,7 @@ export const fetchCompanyApplicationById = async (
     with: {
       responsiblePerson: true,
       contactPerson: true,
-      shareholders: {
+      partners: {
         with: {
           person: true,
         },

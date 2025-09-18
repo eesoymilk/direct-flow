@@ -48,7 +48,7 @@
           <CompanyApplicationReviewPersonSection person-type="representative" />
           <CompanyApplicationReviewPersonSection person-type="contactPerson" />
 
-          <CompanyApplicationReviewShareholdersSection />
+          <CompanyApplicationReviewPartnersSection />
 
           <CompanyApplicationReviewDocumentsSection />
         </div>

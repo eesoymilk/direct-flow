@@ -8,15 +8,15 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { SHARE_TYPES } from "../../../../shared/utils/constants";
+import { PARTNER_TYPES, SHARE_TYPES } from "#shared/utils/constants";
 import { people } from "../person/schema";
 import { companies } from "../company/schema";
 
-// Share type enum
+export const partnerTypeEnum = pgEnum("partner_type", PARTNER_TYPES);
 export const shareTypeEnum = pgEnum("share_type", SHARE_TYPES);
 
-// Shareholders junction table
-export const shareholders = pgTable("shareholders", {
+// Partners junction table
+export const partners = pgTable("partners", {
   id: serial("id").primaryKey(),
   companyId: uuid("company_id")
     .notNull()
@@ -24,17 +24,21 @@ export const shareholders = pgTable("shareholders", {
   personId: uuid("person_id")
     .notNull()
     .references(() => people.id, { onDelete: "cascade" }),
-  capitalContribution: decimal("capital_contribution", { precision: 12, scale: 2 }), // 出資額
+  partnerType: partnerTypeEnum("partner_type").notNull(),
+  capitalContribution: decimal("capital_contribution", {
+    precision: 12,
+    scale: 2,
+  }), // 出資額
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Shareholder shares table - tracks the number of shares each shareholder owns
-export const shareholderShares = pgTable("shareholder_shares", {
+// Partner shares table - tracks the number of shares each partner owns
+export const partnerShares = pgTable("partner_shares", {
   id: serial("id").primaryKey(),
-  shareholderId: integer("shareholder_id")
+  partnerId: integer("partner_id")
     .notNull()
-    .references(() => shareholders.id, { onDelete: "cascade" }),
+    .references(() => partners.id, { onDelete: "cascade" }),
   shareType: shareTypeEnum("code").notNull().default("ordinary"), // "ordinary" or "preferred_a"
   quantity: integer("quantity").notNull().default(0), // Number of shares owned
   pricePerShare: decimal("price_per_share", { precision: 10, scale: 2 }), // 每股價格
@@ -44,28 +48,22 @@ export const shareholderShares = pgTable("shareholder_shares", {
 });
 
 // Relations
-export const shareholdersRelations = relations(
-  shareholders,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [shareholders.companyId],
-      references: [companies.id],
-      relationName: "companyShareholders",
-    }),
-    person: one(people, {
-      fields: [shareholders.personId],
-      references: [people.id],
-    }),
-    shareholderShares: many(shareholderShares),
-  })
-);
+export const partnersRelations = relations(partners, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [partners.companyId],
+    references: [companies.id],
+    relationName: "companyPartners",
+  }),
+  person: one(people, {
+    fields: [partners.personId],
+    references: [people.id],
+  }),
+  partnerShares: many(partnerShares),
+}));
 
-export const shareholderSharesRelations = relations(
-  shareholderShares,
-  ({ one }) => ({
-    shareholder: one(shareholders, {
-      fields: [shareholderShares.shareholderId],
-      references: [shareholders.id],
-    }),
-  })
-);
+export const partnerSharesRelations = relations(partnerShares, ({ one }) => ({
+  partner: one(partners, {
+    fields: [partnerShares.partnerId],
+    references: [partners.id],
+  }),
+}));

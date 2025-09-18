@@ -11,23 +11,23 @@
           />
           <div>
             <h4 class="text-lg font-semibold text-gray-900">
-              {{ shareholder.name }}
+              {{ partner.name }}
             </h4>
             <p class="text-sm text-gray-500">
               {{
-                shareholder.referenceType
-                  ? getPersonLabel(shareholder.referenceType)
+                partner.referenceType
+                  ? getPersonLabel(partner.referenceType)
                   : "股東"
               }}
-              <span v-if="shareholder.isReadonly" class="text-primary ml-2">
+              <span v-if="partner.isReadonly" class="text-primary ml-2">
                 （僅可編輯持股）
               </span>
             </p>
           </div>
         </div>
         <UBadge
-          v-if="shareholder.referenceType"
-          :label="getPersonLabel(shareholder.referenceType)"
+          v-if="partner.referenceType"
+          :label="getPersonLabel(partner.referenceType)"
           color="primary"
           variant="soft"
         />
@@ -40,19 +40,19 @@
         <InfoDisplay
           label="身分證字號"
           icon="i-lucide-id-card"
-          :value="shareholder.idNumber"
+          :value="partner.idNumber"
         />
         <InfoDisplay
           label="戶籍地址"
           icon="i-lucide-map-pin"
-          :value="shareholder.address"
+          :value="partner.address"
         />
         <InfoDisplay
           label="出生日期"
           icon="i-lucide-calendar"
           :value="
-            shareholder.dateOfBirth
-              ? format(shareholder.dateOfBirth, 'yyyy/MM/dd')
+            partner.dateOfBirth
+              ? format(partner.dateOfBirth, 'yyyy/MM/dd')
               : '未填寫'
           "
         />
@@ -60,9 +60,9 @@
           label="出資額"
           icon="i-lucide-dollar-sign"
           :value="
-            shareholder.capitalContribution !== undefined &&
-            shareholder.capitalContribution !== null
-              ? `NT$ ${shareholder.capitalContribution.toLocaleString()}`
+            partner.capitalContribution !== undefined &&
+            partner.capitalContribution !== null
+              ? `NT$ ${partner.capitalContribution.toLocaleString()}`
               : '未填寫'
           "
         />
@@ -70,8 +70,8 @@
 
       <!-- Share Holdings (for stock companies) -->
       <CompanyApplicationConfirmShareHoldings
-        v-if="isCorporation && shareholder.shares"
-        :shares="shareholder.shares"
+        v-if="isCorporation && partner.shares"
+        :shares="partner.shares"
       />
     </div>
   </UCard>
@@ -79,15 +79,12 @@
 
 <script setup lang="ts">
 import { format } from "date-fns";
-import { getPersonLabel } from "~/utils/company/labels";
 
 interface Props {
-  shareholder: ShareholderSchema;
+  partner: PartnerSchema;
   index: number;
   isCorporation: boolean;
 }
 
 defineProps<Props>();
-
-// const { shareCount } = storeToRefs(useCompanyApplicationStore());
 </script>

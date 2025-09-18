@@ -43,8 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { getShareTypeLabel } from "~/utils/company/labels";
-
 interface Props {
   shares: {
     ordinary: { quantity: number; pricePerShare: number; totalPrice: number };

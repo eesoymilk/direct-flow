@@ -1,14 +1,14 @@
-export const useShareholderReview = () => {
+export const usePartnerReview = () => {
   const detailsStore = useCompanyApplicationDetailsStore();
 
-  const shareholders = computed(() => {
+  const partners = computed(() => {
     if (!detailsStore.application) {
       throw new Error("Application not found");
     }
-    return detailsStore.application.shareholders;
+    return detailsStore.application.partners;
   });
 
   return {
-    shareholders,
+    partners,
   };
 };

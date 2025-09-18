@@ -37,6 +37,15 @@ export const REVIEW_ISSUE_SEVERITY = [
   "critical",
 ] as const;
 
+// 董事長、副董事長、常務董事、董事、監察人
+export const PARTNER_TYPES = [
+  "chairman",
+  "vice_chairman",
+  "executive_director",
+  "director",
+  "supervisor",
+] as const;
+
 export const SHARE_TYPES = [
   "ordinary", // 普通股
   "preferred_a", // 甲種特別股
@@ -48,6 +57,7 @@ export const SHARE_TYPES = [
 
 export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
 export type PersonType = (typeof PERSON_TYPES)[number];
+export type PartnerType = (typeof PARTNER_TYPES)[number];
 export type ApplicationStatus = (typeof COMPANY_APPLICATION_STATUS)[number];
 export type ReviewRoundStatus = (typeof REVIEW_ROUND_STATUS)[number];
 export type ReviewIssueType = (typeof REVIEW_ISSUE_TYPE)[number];

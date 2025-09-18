@@ -19,20 +19,20 @@
     <!-- Company Basic Information -->
     <CompanyApplicationConfirmCompanyBasicInfo
       :form-state="formState"
-      :is-stock-company="applicationStore.isCorporation"
+      :is-corporation="applicationStore.isCorporation"
     />
 
     <!-- Person Information Grid -->
     <CompanyApplicationConfirmPersonInfoGrid :form-state="formState" />
 
-    <!-- Shareholders Information (only for corporation and limited_company) -->
-    <CompanyApplicationConfirmShareholdersInfo
+    <!-- Partners Information (only for corporation and limited_company) -->
+    <CompanyApplicationConfirmPartnersInfo
       v-if="
         formState.organizationType === 'corporation' ||
         formState.organizationType === 'limited_company'
       "
-      :shareholders="formState.shareholders"
-      :is-stock-company="applicationStore.isCorporation"
+      :partners="formState.partners"
+      :is-corporation="applicationStore.isCorporation"
     />
 
     <!-- Share Summary (only for corporation and limited_company) -->
@@ -41,8 +41,8 @@
         formState.organizationType === 'corporation' ||
         formState.organizationType === 'limited_company'
       "
-      :shareholders="formState.shareholders"
-      :is-stock-company="applicationStore.isCorporation"
+      :partners="formState.partners"
+      :is-corporation="applicationStore.isCorporation"
     />
 
     <!-- Final Summary Alert -->

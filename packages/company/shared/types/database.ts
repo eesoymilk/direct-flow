@@ -8,12 +8,12 @@ import type {
   documentTypes,
   companyApplications,
   applicationDocuments,
-  applicationShareholders,
+  applicationPartners,
   reviewRounds,
   reviewIssues,
   reviewVerifications,
-  shareholders,
-  shareholderShares,
+  partners,
+  partnerShares,
   companyDocuments,
   personDocuments,
 } from "../../server/database/schema";
@@ -25,14 +25,12 @@ export type Document = InferSelectModel<typeof documents>;
 export type DocumentType = InferSelectModel<typeof documentTypes>;
 export type CompanyApplication = InferSelectModel<typeof companyApplications>;
 export type ApplicationDocument = InferSelectModel<typeof applicationDocuments>;
-export type ApplicationShareholder = InferSelectModel<
-  typeof applicationShareholders
->;
+export type ApplicationPartner = InferSelectModel<typeof applicationPartners>;
 export type ReviewRound = InferSelectModel<typeof reviewRounds>;
 export type ReviewIssue = InferSelectModel<typeof reviewIssues>;
 export type ReviewVerification = InferSelectModel<typeof reviewVerifications>;
-export type Shareholder = InferSelectModel<typeof shareholders>;
-export type ShareholderShare = InferSelectModel<typeof shareholderShares>;
+export type Partner = InferSelectModel<typeof partners>;
+export type PartnerShare = InferSelectModel<typeof partnerShares>;
 export type CompanyDocument = InferSelectModel<typeof companyDocuments>;
 export type PersonDocument = InferSelectModel<typeof personDocuments>;
 
@@ -47,25 +45,25 @@ export type CompanyApplicationInsert = InferInsertModel<
 export type ApplicationDocumentInsert = InferInsertModel<
   typeof applicationDocuments
 >;
-export type ApplicationShareholderInsert = InferInsertModel<
-  typeof applicationShareholders
+export type ApplicationPartnerInsert = InferInsertModel<
+  typeof applicationPartners
 >;
 export type ReviewRoundInsert = InferInsertModel<typeof reviewRounds>;
 export type ReviewIssueInsert = InferInsertModel<typeof reviewIssues>;
 export type ReviewVerificationInsert = InferInsertModel<
   typeof reviewVerifications
 >;
-export type ShareholderInsert = InferInsertModel<typeof shareholders>;
-export type ShareholderShareInsert = InferInsertModel<typeof shareholderShares>;
+export type PartnerInsert = InferInsertModel<typeof partners>;
+export type PartnerShareInsert = InferInsertModel<typeof partnerShares>;
 export type CompanyDocumentInsert = InferInsertModel<typeof companyDocuments>;
 export type PersonDocumentInsert = InferInsertModel<typeof personDocuments>;
 
-// Composite types for shareholders with shares
-export type ShareholderWithDetails = Shareholder & {
+// Composite types for partners with shares
+export type PartnerWithDetails = Partner & {
   person: Person;
-  shareholderShares: ShareholderShare[];
+  partnerShares: PartnerShare[];
 };
 
-export type CompanyWithShareholders = Company & {
-  shareholders: ShareholderWithDetails[];
+export type CompanyWithPartners = Company & {
+  partners: PartnerWithDetails[];
 };

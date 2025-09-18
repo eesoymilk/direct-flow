@@ -97,7 +97,7 @@
         <UAlert
           v-if="isCorporation && formState.isForeignInvestment"
           icon="i-lucide-globe"
-          color="purple"
+          color="primary"
           variant="soft"
           title="僑外投資事業"
           description="已申報為僑外投資事業"
@@ -106,7 +106,7 @@
         <UAlert
           v-if="isCorporation && formState.isChineseInvestment"
           icon="i-lucide-flag"
-          color="orange"
+          color="warning"
           variant="soft"
           title="陸資投資"
           description="涉及大陸地區投資"
@@ -118,7 +118,7 @@
             isCorporation && formState.hasMultipleVotingRightsPreferredShares
           "
           icon="i-lucide-vote"
-          color="blue"
+          color="primary"
           variant="soft"
           title="複數表決權特別股"
           description="具有複數表決權的特別股"
@@ -127,7 +127,7 @@
         <UAlert
           v-if="isCorporation && formState.hasVetoRightsPreferredShares"
           icon="i-lucide-x-circle"
-          color="red"
+          color="error"
           variant="soft"
           title="否決權特別股"
           description="對特定事項具否決權的特別股"
@@ -136,7 +136,7 @@
         <UAlert
           v-if="isCorporation && formState.hasPreferredSharesBoardRights"
           icon="i-lucide-crown"
-          color="yellow"
+          color="warning"
           variant="soft"
           title="董事選任權特別股"
           description="特別股股東董事、監察人選任權利"
@@ -146,7 +146,7 @@
         <UAlert
           v-if="isLimitedCompany && formState.isSoleProprietorshipLLC"
           icon="i-lucide-user"
-          color="indigo"
+          color="secondary"
           variant="soft"
           title="一人有限公司"
           description="單一股東的有限公司"
@@ -155,7 +155,7 @@
         <UAlert
           v-if="isLimitedCompany && formState.isForeignInvestment"
           icon="i-lucide-globe"
-          color="purple"
+          color="primary"
           variant="soft"
           title="僑外投資事業"
           description="已申報為僑外投資事業"
@@ -164,7 +164,7 @@
         <UAlert
           v-if="isLimitedCompany && formState.isChineseInvestment"
           icon="i-lucide-flag"
-          color="orange"
+          color="warning"
           variant="soft"
           title="陸資投資"
           description="涉及大陸地區投資"
@@ -260,17 +260,14 @@
 </template>
 
 <script setup lang="ts">
-import { getOrganizationTypeLabel } from "~/utils/company/labels";
-
 interface Props {
   formState: CompanyApplicationFormSchema & {
     readonly chosenName?: string;
     readonly ordinarySharesAmount?: number | null;
     readonly preferredSharesAmount?: number | null;
     readonly responsiblePerson: PersonSchema;
-    readonly representative: PersonSchema;
     readonly contactPerson: PersonSchema;
-    readonly shareholders: readonly ShareholderSchema[];
+    readonly partners: readonly PartnerSchema[];
   };
   readonly isCorporation: boolean;
 }

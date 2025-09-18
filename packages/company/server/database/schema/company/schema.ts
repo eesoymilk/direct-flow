@@ -11,7 +11,7 @@ import {
 import { relations } from "drizzle-orm";
 import { people } from "../person/schema";
 import { documents } from "../document/schema";
-import { shareholders } from "../shareholder/schema";
+import { partners } from "../partner/schema";
 import { ORGANIZATION_TYPES } from "../../../../shared/utils/constants";
 
 // Organization type enum
@@ -93,8 +93,8 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     relationName: "contactPerson",
   }),
   companyDocuments: many(companyDocuments),
-  shareholders: many(shareholders, {
-    relationName: "companyShareholders",
+  partners: many(partners, {
+    relationName: "companyPartners",
   }),
 }));
 

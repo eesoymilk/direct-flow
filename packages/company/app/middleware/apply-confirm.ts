@@ -58,17 +58,6 @@ export default defineNuxtRouteMiddleware(() => {
     return navigateTo("/apply");
   }
 
-  if (!applicationStore.formState.representative?.name) {
-    const toast = useToast();
-    toast.add({
-      title: "表單資料不完整",
-      description: "請填寫代表人資料",
-      color: "warning",
-      icon: "i-lucide-alert-triangle",
-    });
-    return navigateTo("/apply");
-  }
-
   if (!applicationStore.formState.contactPerson?.name) {
     const toast = useToast();
     toast.add({
@@ -97,11 +86,11 @@ export default defineNuxtRouteMiddleware(() => {
     }
   }
 
-  // Check shareholders for corporations and limited companies
+  // Check partners for corporations and limited companies
   if (
     (applicationStore.formState.organizationType === "corporation" ||
       applicationStore.formState.organizationType === "limited_company") &&
-    !applicationStore.formState.shareholders?.length
+    !applicationStore.formState.partners?.length
   ) {
     const toast = useToast();
     toast.add({

@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { getBasePersonSchema, getShareSchema, idNumberSchema } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
+import { PARTNER_TYPES } from "../constants";
 
 export const personSchema = getBasePersonSchema("人員");
 
@@ -8,10 +9,11 @@ export const responsiblePersonSchema = getBasePersonSchema("負責人");
 
 export const contactPersonSchema = getBasePersonSchema("聯絡人");
 
-export const shareholderSchema = z.object(
+export const partnerSchema = z.object(
   {
     name: z.string().min(1, { message: "股東姓名不能為空" }),
     idNumber: idNumberSchema,
+    partnerType: z.enum(PARTNER_TYPES).optional(),
     address: z
       .string()
       .min(1, { message: "股東戶籍地址不能為空" })
@@ -44,13 +46,13 @@ export const shareholderSchema = z.object(
   }
 );
 
-export const shareholderArraySchema = z
-  .array(shareholderSchema)
+export const partnerArraySchema = z
+  .array(partnerSchema)
   .refine(
-    (shareholders) => {
-      if (shareholders.length <= 1) return true;
+    (partners) => {
+      if (partners.length <= 1) return true;
 
-      const idNumbers = shareholders
+      const idNumbers = partners
         .map((s) => s.idNumber)
         .filter((id) => id && id.trim() !== "");
 
@@ -58,14 +60,14 @@ export const shareholderArraySchema = z
       return uniqueIdNumbers.size === idNumbers.length;
     },
     {
-      message: "股東身分證字號不能重複",
+      message: "人員身分證字號不能重複",
     }
   )
   .refine(
-    (shareholders) => {
-      if (shareholders.length <= 1) return true;
+    (partners) => {
+      if (partners.length <= 1) return true;
 
-      const names = shareholders
+      const names = partners
         .map((s) => s.name?.trim().toLowerCase())
         .filter((name) => name && name !== "");
 
@@ -73,7 +75,7 @@ export const shareholderArraySchema = z
       return uniqueNames.size === names.length;
     },
     {
-      message: "股東姓名不能重複",
+      message: "人員姓名不能重複",
     }
   );
 
@@ -82,7 +84,7 @@ export const personResponseSchema = z.object({
   ...responseBaseSchema.shape,
 });
 
-export const shareholderResponseSchema = responseBaseSchema
+export const partnerResponseSchema = responseBaseSchema
   .omit({ id: true })
   .extend({
     id: z.string().uuid(), // Changed to UUID to match new schema
@@ -94,8 +96,8 @@ export const shareholderResponseSchema = responseBaseSchema
 
 // Note that this is general type for all 3 person schemas
 export type PersonSchema = z.infer<typeof personSchema>;
-export type ShareholderSchema = z.infer<typeof shareholderSchema>;
-export type ShareholderArraySchema = z.infer<typeof shareholderArraySchema>;
+export type PartnerSchema = z.infer<typeof partnerSchema>;
+export type PartnerArraySchema = z.infer<typeof partnerArraySchema>;
 
 export type PersonResponse = z.infer<typeof personResponseSchema>;
-export type ShareholderResponse = z.infer<typeof shareholderResponseSchema>;
+export type PartnerResponse = z.infer<typeof partnerResponseSchema>;

@@ -9,19 +9,19 @@ export interface ShareTotals {
   totalPrice: number;
 }
 
-export interface ShareholderShareData {
+export interface PartnerShareData {
   ordinary: ShareTotals;
   preferred: ShareTotals;
   total: number;
 }
 
 /**
- * Get ordinary shares data for a shareholder
+ * Get ordinary shares data for a partner
  */
-export const getShareholderOrdinaryShares = (
-  shareholder: ShareholderSchema
+export const getPartnerOrdinaryShares = (
+  partner: PartnerSchema
 ): ShareTotals => {
-  const ordinary = shareholder.shares?.ordinary;
+  const ordinary = partner.shares?.ordinary;
   return ordinary
     ? {
         quantity: ordinary.quantity,
@@ -31,15 +31,15 @@ export const getShareholderOrdinaryShares = (
 };
 
 /**
- * Get preferred shares data for a shareholder
+ * Get preferred shares data for a partner
  */
-export const getShareholderPreferredShares = (
-  shareholder: ShareholderSchema
+export const getPartnerPreferredShares = (
+  partner: PartnerSchema
 ): ShareTotals => {
   let totalQuantity = 0;
   let totalPrice = 0;
 
-  if (shareholder.shares) {
+  if (partner.shares) {
     // Sum all preferred share types (preferred_a through preferred_e)
     const preferredTypes = [
       "preferred_a",
@@ -50,7 +50,7 @@ export const getShareholderPreferredShares = (
     ] as const;
 
     for (const shareType of preferredTypes) {
-      const share = shareholder.shares?.[shareType];
+      const share = partner.shares?.[shareType];
       if (share) {
         totalQuantity += share.quantity;
         totalPrice += share.totalPrice;
@@ -65,10 +65,10 @@ export const getShareholderPreferredShares = (
 };
 
 /**
- * Get total share value for a shareholder
+ * Get total share value for a partner
  */
-export const getShareholderTotal = (shareholder: ShareholderSchema): number => {
-  const ordinary = getShareholderOrdinaryShares(shareholder);
-  const preferred = getShareholderPreferredShares(shareholder);
+export const getPartnerTotal = (partner: PartnerSchema): number => {
+  const ordinary = getPartnerOrdinaryShares(partner);
+  const preferred = getPartnerPreferredShares(partner);
   return ordinary.totalPrice + preferred.totalPrice;
 };

@@ -32,7 +32,7 @@ interface Props {
   formState: CompanyApplicationFormSchema & {
     responsiblePerson: PersonSchema;
     contactPerson: PersonSchema;
-    shareholders: ShareholderSchema[];
+    partners: PartnerSchema[];
   };
 }
 

@@ -8,13 +8,12 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-
 import { companyApplications } from "../companyApplication/schema";
 import {
   REVIEW_ROUND_STATUS,
   REVIEW_ISSUE_TYPE,
   REVIEW_ISSUE_SEVERITY,
-} from "../../../../shared/utils/constants";
+} from "#shared/utils/constants";
 
 // One “round” per staff pass over an application
 export const reviewRoundStatusEnum = pgEnum(
