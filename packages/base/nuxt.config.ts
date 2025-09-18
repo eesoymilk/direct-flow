@@ -72,6 +72,10 @@ export default defineNuxtConfig({
         },
       },
     },
+    composables: {
+      // Avoid conflicts with Nuxt UI composables
+      exclude: ["useToast"],
+    },
   },
 
   imports: {
@@ -79,10 +83,6 @@ export default defineNuxtConfig({
       {
         from: "primevue/usetoast",
         imports: [{ name: "useToast", as: "usePrimeToast" }],
-      },
-      {
-        from: "@nuxt/ui/composables/useToast.js",
-        imports: [{ name: "useToast", as: "useNuxtUiToast" }],
       },
     ],
   },

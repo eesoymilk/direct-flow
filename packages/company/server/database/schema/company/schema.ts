@@ -46,7 +46,6 @@ export const companies = pgTable("companies", {
 
   // Corporation-specific fields
   isPublicOffering: boolean("is_public_offering").default(false), // 公開發行
-  closelyHeldShareholderCount: integer("closely_held_shareholder_count"), // 閉鎖性股份有限公司股東人數
   hasMultipleVotingRightsPreferredShares: boolean(
     "has_multiple_voting_rights_preferred_shares"
   ).default(false), // 複數表決權特別股
@@ -66,9 +65,6 @@ export const companies = pgTable("companies", {
   contactPersonId: uuid("contact_person_id")
     .notNull()
     .references(() => people.id, { onDelete: "restrict" }), // 聯絡人ID
-  representativeId: uuid("representative_id")
-    .notNull()
-    .references(() => people.id, { onDelete: "restrict" }), // 代表人ID
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -95,11 +91,6 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
     fields: [companies.contactPersonId],
     references: [people.id],
     relationName: "contactPerson",
-  }),
-  representative: one(people, {
-    fields: [companies.representativeId],
-    references: [people.id],
-    relationName: "representative",
   }),
   companyDocuments: many(companyDocuments),
   shareholders: many(shareholders, {

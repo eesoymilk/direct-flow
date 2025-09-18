@@ -84,21 +84,6 @@
                 label="特別股董監事權利"
                 required
               />
-              <!-- Closely held shareholder count -->
-              <UFormField
-                v-if="formState.isCloselyHeld"
-                label="閉鎖性股份有限公司股東人數"
-                name="closelyHeldShareholderCount"
-                class="col-span-full"
-                required
-              >
-                <UInputNumber
-                  v-model="formState.closelyHeldShareholderCount"
-                  :min="1"
-                  placeholder="請輸入股東人數"
-                  class="w-full"
-                />
-              </UFormField>
             </div>
           </div>
 
@@ -188,7 +173,11 @@
         v-model="formState.parValue"
         :disabled="formState.hasParValueFreeShares"
         :min="0"
-        placeholder="請輸入每股票面金額（新台幣）"
+        :placeholder="
+          formState.hasParValueFreeShares
+            ? 'NT$ 10.00 (無票面金額)'
+            : '請輸入每股票面金額（新台幣）'
+        "
         class="w-full"
         :format-options="{
           style: 'currency',
@@ -223,7 +212,34 @@
 </template>
 
 <script setup lang="ts">
-import { organizationTypeItems } from "../../helpers";
+import type { RadioGroupItem } from "@nuxt/ui";
+
+const organizationTypeItems = [
+  {
+    label: "股份有限公司",
+    description: "適合大型企業和需要募集資本的公司",
+    value: "corporation",
+    id: "corporation",
+  },
+  {
+    label: "有限公司",
+    description: "適合中小型企業，股東責任有限",
+    value: "limited_company",
+    id: "limited_company",
+  },
+  {
+    label: "獨資",
+    description: "個人經營的事業，無須合夥人",
+    value: "sole_proprietorship",
+    id: "sole_proprietorship",
+  },
+  {
+    label: "合夥",
+    description: "兩人以上合作經營的事業",
+    value: "partnership",
+    id: "partnership",
+  },
+] satisfies RadioGroupItem[];
 
 const applicationStore = useCompanyApplicationStore();
 const { formState } = storeToRefs(applicationStore);

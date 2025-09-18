@@ -1,7 +1,4 @@
-export type PersonType =
-  | "responsiblePerson"
-  | "contactPerson"
-  | "representative";
+export type PersonType = "responsiblePerson" | "contactPerson";
 
 export type PersonFieldPath = `${PersonType}.${string}`;
 

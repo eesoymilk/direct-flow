@@ -65,9 +65,7 @@ export const createInitialForm = () => ({
   paidInCapital: undefined,
   // Removed ordinaryShares and preferredShares - now calculated from share holdings
   hasParValueFreeShares: false,
-  isRepresentativeSameAsResponsiblePerson: false,
   isContactPersonSameAsResponsiblePerson: false,
-  isContactPersonSameAsRepresentative: false,
 
   // Shared fields for corporation and limited company
   isForeignInvestment: false,
@@ -75,7 +73,6 @@ export const createInitialForm = () => ({
 
   // Corporation-specific fields
   isPublicOffering: false,
-  closelyHeldShareholderCount: undefined,
   hasMultipleVotingRightsPreferredShares: false,
   hasVetoRightsPreferredShares: false,
   hasPreferredSharesBoardRights: false,
@@ -84,7 +81,6 @@ export const createInitialForm = () => ({
   isSoleProprietorshipLLC: false,
 
   responsiblePerson: createEmptyPerson(),
-  representative: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
   shareholders: [createEmptyShareholder()],
   // TODO: Add documents when file storage is ready

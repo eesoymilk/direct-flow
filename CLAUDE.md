@@ -23,11 +23,12 @@ This is a TypeScript-first, Nuxt 4-based monorepo using PNPM workspaces with a s
 - Focus development efforts primarily on the company application and audit system
 
 **Current Development Status:**
+
 - `packages/company/` - **Production Ready** - Full company registration system with review workflow
 - `packages/audit/` - **In Development** - Audit 財報 system for CPA workflow optimization
-  - ✅ Homepage with consistent styling 
+  - ✅ Homepage with consistent styling
   - ✅ Header/layout structure with navigation
-  - ✅ Priority 1 components moved to base (InfoDisplay, DatePicker, SuccessIcon, Formed/* components)
+  - ✅ Priority 1 components moved to base (InfoDisplay, DatePicker, SuccessIcon, Formed/\* components)
   - ✅ Essential utilities moved to base (cn.ts, formatting.ts)
   - 🔄 Currently working on: Nuxt layer configuration and basic routing
   - 🔄 Next: "Sandwich builder" interface for modular 財報 construction
@@ -64,7 +65,7 @@ pnpm dev:base
 # Build for production (company app)
 pnpm build:company
 
-# Build for production (audit app) 
+# Build for production (audit app)
 # Note: Use full command as shorthand not available yet
 pnpm --filter=@direct-flow/audit build
 
@@ -106,7 +107,7 @@ pnpm --filter=@direct-flow/audit lint
 # Fix ESLint issues (company)
 pnpm --filter=@direct-flow/company lint:fix
 
-# Fix ESLint issues (audit)  
+# Fix ESLint issues (audit)
 pnpm --filter=@direct-flow/audit lint:fix
 
 # Format with Prettier (company)
@@ -152,7 +153,7 @@ pnpm lint
 The application uses Drizzle ORM with PostgreSQL. Database schemas are located in `packages/company/server/database/schema/` and organized by domain:
 
 - `company/` - Company entity schemas
-- `person/` - Person and representative schemas
+- `person/` - Person schemas
 - `document/` - Document management schemas
 - `companyApplication/` - Application workflow schemas
 - `companyApplicationReview/` - Review process schemas

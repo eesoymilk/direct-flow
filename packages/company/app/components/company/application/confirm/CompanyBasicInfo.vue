@@ -87,23 +87,10 @@
         <UAlert
           v-if="isCorporation && formState.isPublicOffering"
           icon="i-lucide-trending-up"
-          color="green"
+          color="success"
           variant="soft"
           title="公開發行"
           description="公開發行股份有限公司"
-        />
-
-        <!-- Corporation Additional Details -->
-        <InfoDisplay
-          v-if="
-            isCorporation &&
-            formState.isCloselyHeld &&
-            formState.closelyHeldShareholderCount
-          "
-          label="閉鎖型股東人數"
-          icon="i-lucide-users"
-          :value="formState.closelyHeldShareholderCount"
-          :formatter="(val) => `${val} 人`"
         />
 
         <!-- Corporation Investment Flags -->
@@ -206,7 +193,7 @@
 
         <!-- Total Shares (for stock companies) -->
         <InfoDisplay
-          v-if="formState.totalShares && isStockCompany"
+          v-if="formState.totalShares && isCorporation"
           label="股份總數"
           icon="i-lucide-hash"
           variant="highlighted"
@@ -216,7 +203,7 @@
 
         <!-- Par Value (for stock companies) -->
         <InfoDisplay
-          v-if="formState.parValue && isStockCompany"
+          v-if="formState.parValue && isCorporation"
           label="票面金額"
           icon="i-lucide-coins"
           variant="highlighted"
@@ -226,7 +213,7 @@
 
         <!-- Paid-in Capital (for stock companies) -->
         <InfoDisplay
-          v-if="formState.paidInCapital && isStockCompany"
+          v-if="formState.paidInCapital && isCorporation"
           label="實收資本額"
           icon="i-lucide-wallet"
           :value="formState.paidInCapital"
@@ -236,7 +223,7 @@
 
         <!-- Ordinary Shares Amount -->
         <InfoDisplay
-          v-if="formState.ordinarySharesAmount && isStockCompany"
+          v-if="formState.ordinarySharesAmount && isCorporation"
           label="普通股股款總額"
           icon="i-lucide-circle-dollar-sign"
           :value="formState.ordinarySharesAmount"
@@ -246,7 +233,7 @@
 
         <!-- Preferred Shares Amount -->
         <InfoDisplay
-          v-if="formState.preferredSharesAmount && isStockCompany"
+          v-if="formState.preferredSharesAmount && isCorporation"
           label="特別股股款總額"
           icon="i-lucide-star"
           :value="formState.preferredSharesAmount"
@@ -257,7 +244,7 @@
 
       <!-- Share information for stock companies -->
       <CompanyApplicationConfirmShareStructureInfo
-        v-if="isStockCompany"
+        v-if="isCorporation"
         :form-state="formState"
       />
 
@@ -285,7 +272,7 @@ interface Props {
     readonly contactPerson: PersonSchema;
     readonly shareholders: readonly ShareholderSchema[];
   };
-  readonly isStockCompany: boolean;
+  readonly isCorporation: boolean;
 }
 
 const props = defineProps<Props>();

@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-4 mb-6">
-      <h2 class="text-xl font-semibold text-text">股東資料</h2>
+      <h2 class="text-xl font-semibold text-text">{{ personTypeLabel }}資料</h2>
       <UButton
         icon="i-lucide-plus"
-        label="新增股東"
+        :label="`新增${personTypeLabel}`"
         variant="soft"
         class="rounded-full"
         @click="addShareholder"
@@ -67,7 +67,9 @@
                 class="absolute top-2 right-2 flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full"
               >
                 <UIcon name="i-lucide-link" class="w-3 h-3" />
-                {{ getPersonLabel(shareholder.referenceType) }}（僅可編輯持股）
+                {{
+                  getPersonLabel(shareholder.referenceType)
+                }}（僅可編輯出資額{{ isCorporation ? "以及持股" : "" }}）
               </div>
               <div class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="姓名" name="name" class="w-full">
@@ -75,7 +77,7 @@
                     v-model="shareholder.name"
                     :readonly="shareholder.isReadonly"
                     :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東姓名"
+                    :placeholder="`請輸入${personTypeLabel}姓名`"
                     class="w-full"
                     :class="{ 'opacity-60': shareholder.isReadonly }"
                   />
@@ -86,7 +88,7 @@
                     v-model="shareholder.idNumber"
                     :readonly="shareholder.isReadonly"
                     :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東身分證字號"
+                    :placeholder="`請輸入${personTypeLabel}身分證字號`"
                     class="w-full"
                     :class="{ 'opacity-60': shareholder.isReadonly }"
                   />
@@ -97,7 +99,7 @@
                     v-model="shareholder.address"
                     :readonly="shareholder.isReadonly"
                     :disabled="shareholder.isReadonly"
-                    placeholder="請輸入股東戶籍地址"
+                    :placeholder="`請輸入${personTypeLabel}戶籍地址`"
                     class="w-full"
                     :class="{ 'opacity-60': shareholder.isReadonly }"
                   />
@@ -105,8 +107,9 @@
 
                 <UFormField label="出生日期" name="dateOfBirth" required>
                   <DatePicker
-                    :value="shareholder.dateOfBirth"
-                    @select-date="(date) => (shareholder.dateOfBirth = date)"
+                    v-model="shareholder.dateOfBirth"
+                    format="YYYY/MM/DD"
+                    class="w-full h-8"
                   />
                 </UFormField>
 
@@ -119,7 +122,7 @@
                   <UInputNumber
                     v-model="shareholder.capitalContribution"
                     :min="0"
-                    placeholder="請輸入出資額"
+                    :placeholder="`請輸入${personTypeLabel}出資額`"
                     class="w-full"
                     :format-options="{
                       style: 'currency',
@@ -131,104 +134,105 @@
                 </UFormField>
 
                 <USeparator
-                  v-if="isStockCompany && shareholder.shares"
+                  v-if="isCorporation && shareholder.shares"
                   class="col-span-full"
                 />
 
                 <!-- Stock company shares -->
-                <div class="col-span-full space-y-4">
+                <div
+                  v-if="isCorporation && shareholder.shares"
+                  class="col-span-full space-y-4"
+                >
                   <h4 class="text-md font-medium text-text">持股資料</h4>
-                  <template v-if="isStockCompany && shareholder.shares">
-                    <UForm
-                      v-for="[shareType, share] in Object.entries(
-                        shareholder.shares
-                      ).slice(0, shareCount)"
-                      :key="shareType"
-                      :state="share"
-                      :schema="getShareSchema(shareType as ShareType)"
+                  <UForm
+                    v-for="[shareType, share] in Object.entries(
+                      shareholder.shares
+                    ).slice(0, shareCount)"
+                    :key="shareType"
+                    :state="share"
+                    :schema="getShareSchema(shareType as ShareType)"
+                  >
+                    <UCard
+                      class="bg-primary/5 rounded-lg border border-primary/20"
                     >
-                      <UCard
-                        class="bg-primary/5 rounded-lg border border-primary/20"
-                      >
-                        <template #header>
-                          <h5 class="text-sm font-medium text-primary">
-                            {{ getShareTypeLabel(shareType as ShareType) }}
-                          </h5>
-                        </template>
+                      <template #header>
+                        <h5 class="text-sm font-medium text-primary">
+                          {{ getShareTypeLabel(shareType as ShareType) }}
+                        </h5>
+                      </template>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <UFormField label="股數">
-                            <UInputNumber
-                              v-model="share.quantity"
-                              :min="0"
-                              placeholder="請輸入股數"
-                              class="w-full"
-                              :format-options="{
-                                style: 'decimal',
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0,
-                              }"
-                              @update:model-value="
-                                updateQuantity(
-                                  shareholder,
-                                  shareType as ShareType,
-                                  $event
-                                )
-                              "
-                            />
-                          </UFormField>
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <UFormField label="股數">
+                          <UInputNumber
+                            v-model="share.quantity"
+                            :min="0"
+                            placeholder="請輸入股數"
+                            class="w-full"
+                            :format-options="{
+                              style: 'decimal',
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }"
+                            @update:model-value="
+                              updateQuantity(
+                                shareholder,
+                                shareType as ShareType,
+                                $event
+                              )
+                            "
+                          />
+                        </UFormField>
 
-                          <UFormField label="每股金額">
-                            <UInputNumber
-                              v-model="share.pricePerShare"
-                              :min="0"
-                              :step="0.01"
-                              :disabled="formState.hasParValueFreeShares"
-                              :placeholder="
-                                formState.hasParValueFreeShares
-                                  ? 'NT$ 10.00 (無票面金額)'
-                                  : '請輸入每股金額'
-                              "
-                              class="w-full"
-                              :class="{
-                                'opacity-60': formState.hasParValueFreeShares,
-                              }"
-                              :format-options="{
-                                style: 'currency',
-                                currency: 'TWD',
-                                currencyDisplay: 'code',
-                                currencySign: 'accounting',
-                              }"
-                              @update:model-value="
-                                updatePricePerShare(
-                                  shareholder,
-                                  shareType as ShareType,
-                                  $event
-                                )
-                              "
-                            />
-                          </UFormField>
+                        <UFormField label="每股金額">
+                          <UInputNumber
+                            v-model="share.pricePerShare"
+                            :min="0"
+                            :step="0.01"
+                            :disabled="formState.hasParValueFreeShares"
+                            :placeholder="
+                              formState.hasParValueFreeShares
+                                ? 'NT$ 10.00 (無票面金額)'
+                                : '請輸入每股金額'
+                            "
+                            class="w-full"
+                            :class="{
+                              'opacity-60': formState.hasParValueFreeShares,
+                            }"
+                            :format-options="{
+                              style: 'currency',
+                              currency: 'TWD',
+                              currencyDisplay: 'code',
+                              currencySign: 'accounting',
+                            }"
+                            @update:model-value="
+                              updatePricePerShare(
+                                shareholder,
+                                shareType as ShareType,
+                                $event
+                              )
+                            "
+                          />
+                        </UFormField>
 
-                          <UFormField label="總金額">
-                            <UInputNumber
-                              v-model="share.totalPrice"
-                              :min="0"
-                              :step="0.01"
-                              disabled
-                              placeholder="自動計算"
-                              class="w-full opacity-60"
-                              :format-options="{
-                                style: 'currency',
-                                currency: 'TWD',
-                                currencyDisplay: 'code',
-                                currencySign: 'accounting',
-                              }"
-                            />
-                          </UFormField>
-                        </div>
-                      </UCard>
-                    </UForm>
-                  </template>
+                        <UFormField label="總金額">
+                          <UInputNumber
+                            v-model="share.totalPrice"
+                            :min="0"
+                            :step="0.01"
+                            disabled
+                            placeholder="自動計算"
+                            class="w-full opacity-60"
+                            :format-options="{
+                              style: 'currency',
+                              currency: 'TWD',
+                              currencyDisplay: 'code',
+                              currencySign: 'accounting',
+                            }"
+                          />
+                        </UFormField>
+                      </div>
+                    </UCard>
+                  </UForm>
                 </div>
               </div>
 
@@ -265,7 +269,7 @@ import type { DropdownMenuItem } from "@nuxt/ui";
 import * as z from "zod";
 
 const applicationStore = useCompanyApplicationStore();
-const { formState, shareTypes, isStockCompany, shareCount } =
+const { formState, shareTypes, isCorporation, shareCount } =
   storeToRefs(applicationStore);
 const {
   addShareholder,
@@ -275,13 +279,18 @@ const {
   addPersonAsShareholder,
 } = applicationStore;
 
-const canAddShareType = computed(
-  () => shareTypes.value.length < SHARE_TYPES.length
+const personTypeLabel = computed(() =>
+  formState.value.organizationType === "partnership" ? "合夥人" : "股東"
 );
 
-const canRemoveShareType = computed(() => shareTypes.value.length > 1);
+const canAddShareType = computed(
+  () => isCorporation.value && shareTypes.value.length < SHARE_TYPES.length
+);
 
-// Function to update total price (computed property for each shareholder share type)
+const canRemoveShareType = computed(
+  () => isCorporation.value && shareTypes.value.length > 1
+);
+
 const updateQuantity = (
   shareholder: ShareholderSchema,
   shareType: ShareType,
@@ -304,7 +313,6 @@ const updatePricePerShare = (
   }
 };
 
-// Watch for hasParValueFreeShares changes and set pricePerShare to 10 when true
 watch(
   () => formState.value.hasParValueFreeShares,
   (hasParValueFreeShares) => {
@@ -328,7 +336,6 @@ watch(
   { immediate: true }
 );
 
-// Generate dropdown menu items for adding persons
 const exsitingPeopleMenuItems = computed(() => {
   const items: DropdownMenuItem[] = [];
 
@@ -338,18 +345,7 @@ const exsitingPeopleMenuItems = computed(() => {
     onSelect: () => addPersonAsShareholder("responsiblePerson"),
   });
 
-  if (!formState.value.isRepresentativeSameAsResponsiblePerson) {
-    items.push({
-      label: `加入代表人 (${formState.value.representative.name})`,
-      icon: "i-lucide-briefcase",
-      onSelect: () => addPersonAsShareholder("representative"),
-    });
-  }
-
-  if (
-    !formState.value.isContactPersonSameAsResponsiblePerson &&
-    !formState.value.isContactPersonSameAsRepresentative
-  ) {
+  if (!formState.value.isContactPersonSameAsResponsiblePerson) {
     items.push({
       label: `加入聯絡人 (${formState.value.contactPerson.name})`,
       icon: "i-lucide-phone",

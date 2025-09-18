@@ -16,8 +16,6 @@ type ReviewRound = {
   status: string;
 };
 
-import { PERSON_TYPES } from "./constants";
-
 export const useCompanyApplicationReviewStore = defineStore(
   "companyApplicationReview",
   () => {
@@ -267,7 +265,6 @@ export const useCompanyApplicationReviewStore = defineStore(
         companyBusinessItems: { issues: [], verifications: [], isOpen: false },
         companyMonetaryInfo: { issues: [], verifications: [], isOpen: false },
         responsiblePerson: { issues: [], verifications: [], isOpen: false },
-        representative: { issues: [], verifications: [], isOpen: false },
         contactPerson: { issues: [], verifications: [], isOpen: false },
         shareholders: { issues: [], verifications: [], isOpen: false },
         documents: { issues: [], verifications: [], isOpen: false },

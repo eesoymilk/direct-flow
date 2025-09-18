@@ -18,7 +18,7 @@ export const people = pgTable("people", {
   address: varchar("address"), // 戶籍地址 (always required)
   telephone: varchar("telephone"), // 電話 (optional, can choose phone OR cellphone)
   cellphone: varchar("cellphone"), // 手機 (optional, can choose phone OR cellphone)
-  email: varchar("email"), // 電子郵件 (required for responsible/contact/representative persons)
+  email: varchar("email"), // 電子郵件 (required for responsible/contact persons)
   dateOfBirth: date("date_of_birth"), // 出生日期 (required for shareholders only)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -39,7 +39,6 @@ export const personDocuments = pgTable("person_documents", {
 export const peopleRelations = relations(people, ({ many }) => ({
   responsibleCompanies: many(companies, { relationName: "responsiblePerson" }),
   contactPersonCompanies: many(companies, { relationName: "contactPerson" }),
-  representativeCompanies: many(companies, { relationName: "representative" }),
   personDocuments: many(personDocuments),
 }));
 

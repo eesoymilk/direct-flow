@@ -9,7 +9,7 @@ const generateTaiwaneseIdNumber = (): string => {
   return `${letter}${oneOrTwo}${numbers}`;
 };
 
-// Generate mock person data for contact/responsible/representative (includes email, cellphone, dateOfBirth required)
+// Generate mock person data for contact/responsible (includes email, cellphone, dateOfBirth required)
 export const generateMockPerson = (): PersonSchema => ({
   name: faker.person.fullName(),
   idNumber: generateTaiwaneseIdNumber(),
@@ -136,19 +136,17 @@ export const generateMockFormData = ({
   const organizationType =
     _organizationType || faker.helpers.arrayElement(ORGANIZATION_TYPES);
 
-  const isStockCompany = organizationType === "corporation";
+  const isCorporation = organizationType === "corporation";
 
-  const isCloselyHeld = isStockCompany ? faker.datatype.boolean() : false;
-  const hasParValueFree = isStockCompany ? faker.datatype.boolean() : false;
+  const isCloselyHeld = isCorporation ? faker.datatype.boolean() : false;
+  const hasParValueFree = isCorporation ? faker.datatype.boolean() : false;
 
   const mockFormData: CompanyApplicationFormSchema = {
     candidateNames: generateMockCompanyNames(),
     organizationType,
     businessItemsDescription: generateMockBusinessDescription(),
     address: faker.location.streetAddress(true), // Full address with city, state, zip
-    isRepresentativeSameAsResponsiblePerson: faker.datatype.boolean(),
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
-    isContactPersonSameAsRepresentative: false, // For simplicity
 
     // Shared fields for corporation and limited company
     ...(organizationType === "corporation" ||
@@ -183,9 +181,6 @@ export const generateMockFormData = ({
               : faker.number.int({ min: 10, max: 1000 }),
             totalShares: faker.number.int({ min: 1000, max: 1000000 }),
             isPublicOffering: faker.datatype.boolean(),
-            closelyHeldShareholderCount: isCloselyHeld
-              ? faker.number.int({ min: 1, max: 50 })
-              : undefined,
             hasMultipleVotingRightsPreferredShares: faker.datatype.boolean(),
             hasVetoRightsPreferredShares: faker.datatype.boolean(),
             hasPreferredSharesBoardRights: faker.datatype.boolean(),
@@ -204,7 +199,6 @@ export const generateMockFormData = ({
           parValue: undefined,
           totalShares: undefined,
           isPublicOffering: false,
-          closelyHeldShareholderCount: undefined,
           hasMultipleVotingRightsPreferredShares: false,
           hasVetoRightsPreferredShares: false,
           hasPreferredSharesBoardRights: false,
@@ -223,7 +217,6 @@ export const generateMockFormData = ({
           parValue: undefined,
           totalShares: undefined,
           isPublicOffering: false,
-          closelyHeldShareholderCount: undefined,
           hasMultipleVotingRightsPreferredShares: false,
           hasVetoRightsPreferredShares: false,
           hasPreferredSharesBoardRights: false,
@@ -234,15 +227,12 @@ export const generateMockFormData = ({
 
   // Generate person data
   form.responsiblePerson = generateMockPerson();
-  form.representative = mockFormData.isRepresentativeSameAsResponsiblePerson
-    ? form.responsiblePerson
-    : generateMockPerson();
   form.contactPerson = mockFormData.isContactPersonSameAsResponsiblePerson
     ? form.responsiblePerson
     : generateMockPerson();
 
   const shareholderCount = faker.number.int({ min: 3, max: 7 });
-  const shareTypeCount = isStockCompany
+  const shareTypeCount = isCorporation
     ? faker.number.int({ min: 1, max: 6 })
     : 1;
 
@@ -253,7 +243,6 @@ export const generateMockFormData = ({
   return {
     ...mockFormData,
     responsiblePerson: form.responsiblePerson,
-    representative: form.representative,
     contactPerson: form.contactPerson,
     shareholders: form.shareholders,
     shareTypeCount,

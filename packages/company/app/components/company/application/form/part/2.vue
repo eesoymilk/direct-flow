@@ -35,10 +35,9 @@
 
       <UFormField label="出生日期" name="dateOfBirth" required>
         <DatePicker
-          :value="formState.responsiblePerson.dateOfBirth"
-          @select-date="
-            (date) => (formState.responsiblePerson.dateOfBirth = date)
-          "
+          v-model="formState.responsiblePerson.dateOfBirth"
+          format="YYYY/MM/DD"
+          class="w-full h-8"
         />
       </UFormField>
 
@@ -62,105 +61,16 @@
     <USeparator class="my-6" />
 
     <div class="flex items-center gap-4">
-      <h3 class="text-lg font-semibold text-text">董事資料</h3>
-      <UCheckbox
-        v-model="formState.isRepresentativeSameAsResponsiblePerson"
-        label="同負責人"
-        size="lg"
-        @update:model-value="
-          (value) => {
-            if (value && formState.isContactPersonSameAsRepresentative) {
-              formState.isContactPersonSameAsRepresentative = false;
-              formState.isContactPersonSameAsResponsiblePerson = true;
-            }
-          }
-        "
-      />
-    </div>
-
-    <UForm
-      v-if="!formState.isRepresentativeSameAsResponsiblePerson"
-      :state="formState.representative"
-      :schema="representativeSchema"
-      attach
-      class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
-    >
-      <UFormField label="姓名" name="name" required>
-        <UInput
-          v-model="formState.representative.name"
-          placeholder="請輸入代表人姓名"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="身分證字號" name="idNumber" required>
-        <UInput
-          v-model="formState.representative.idNumber"
-          placeholder="請輸入代表人身分證字號"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="戶籍地址" name="address" required>
-        <UInput
-          v-model="formState.representative.address"
-          placeholder="請輸入代表人戶籍地址"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="出生日期" name="dateOfBirth" required>
-        <DatePicker
-          :value="formState.representative.dateOfBirth"
-          @select-date="(date) => (formState.representative.dateOfBirth = date)"
-        />
-      </UFormField>
-
-      <UFormField label="手機" name="cellphone" required>
-        <UInput
-          v-model="formState.representative.cellphone"
-          placeholder="請輸入董事手機 (09XXXXXXXX)"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UFormField label="電子郵件" name="email" required>
-        <UInput
-          v-model="formState.representative.email"
-          placeholder="請輸入董事電子郵件"
-          class="w-full"
-        />
-      </UFormField>
-    </UForm>
-
-    <USeparator class="my-6" />
-
-    <div class="flex items-center gap-4">
       <h3 class="text-lg font-semibold text-text">聯絡人資料</h3>
       <UCheckbox
         v-model="formState.isContactPersonSameAsResponsiblePerson"
         label="同負責人"
         size="lg"
-        @update:model-value="
-          () => (formState.isContactPersonSameAsRepresentative = false)
-        "
-      />
-      <UCheckbox
-        v-if="!formState.isRepresentativeSameAsResponsiblePerson"
-        v-model="formState.isContactPersonSameAsRepresentative"
-        label="同董事"
-        size="lg"
-        @update:model-value="
-          () => (formState.isContactPersonSameAsResponsiblePerson = false)
-        "
       />
     </div>
 
     <UForm
-      v-if="
-        !formState.isContactPersonSameAsResponsiblePerson &&
-        !formState.isContactPersonSameAsRepresentative
-      "
+      v-if="!formState.isContactPersonSameAsResponsiblePerson"
       :state="formState.contactPerson"
       :schema="contactPersonSchema"
       class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -191,8 +101,9 @@
 
       <UFormField label="出生日期" name="dateOfBirth" required>
         <DatePicker
-          :value="formState.contactPerson.dateOfBirth"
-          @select-date="(date) => (formState.contactPerson.dateOfBirth = date)"
+          v-model="formState.contactPerson.dateOfBirth"
+          format="YYYY/MM/DD"
+          class="w-full h-8"
         />
       </UFormField>
 

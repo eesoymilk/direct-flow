@@ -22,12 +22,6 @@
       </div>
     </template>
 
-    <template #representative>
-      <div class="space-y-6">
-        <CompanyApplicationReviewPersonSection person-type="representative" />
-      </div>
-    </template>
-
     <template #shareholders>
       <div class="space-y-6">
         <CompanyApplicationReviewShareholdersSection />

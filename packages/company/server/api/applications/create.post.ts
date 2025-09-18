@@ -1,7 +1,6 @@
 const bodySchema = companyApplicationBaseSchema.extend({
   responsiblePerson: responsiblePersonSchema,
   contactPerson: contactPersonSchema,
-  director: representativeSchema,
   shareholders: shareholderSchema.array(),
 });
 
@@ -23,29 +22,17 @@ export default eventHandler(async (event) => {
     const {
       responsiblePerson,
       contactPerson,
-      director,
       shareholders,
-      isRepresentativeSameAsResponsiblePerson,
       isContactPersonSameAsResponsiblePerson,
-      isContactPersonSameAsRepresentative,
       ...data
     } = body.data;
 
     return await db.transaction(async (tx) => {
       const responsiblePersonResult = await createPerson(tx, responsiblePerson);
 
-      let directorResult: Person;
-      if (isRepresentativeSameAsResponsiblePerson) {
-        directorResult = responsiblePersonResult;
-      } else {
-        directorResult = await createPerson(tx, director);
-      }
-
       let contactPersonResult: Person;
       if (isContactPersonSameAsResponsiblePerson) {
         contactPersonResult = responsiblePersonResult;
-      } else if (isContactPersonSameAsRepresentative) {
-        contactPersonResult = directorResult;
       } else {
         contactPersonResult = await createPerson(tx, contactPerson);
       }
@@ -54,7 +41,6 @@ export default eventHandler(async (event) => {
         ...data,
         responsiblePersonId: responsiblePersonResult.id,
         contactPersonId: contactPersonResult.id,
-        representativeId: directorResult.id,
       });
 
       const shareholderData: { person: Person }[] = [];
@@ -64,8 +50,6 @@ export default eventHandler(async (event) => {
 
           if (shareholder.referenceType === "responsiblePerson") {
             shareholderResult = responsiblePersonResult;
-          } else if (shareholder.referenceType === "representative") {
-            shareholderResult = directorResult;
           } else if (shareholder.referenceType === "contactPerson") {
             shareholderResult = contactPersonResult;
           } else {
@@ -96,7 +80,6 @@ export default eventHandler(async (event) => {
         application,
         responsiblePerson: responsiblePersonResult,
         contactPerson: contactPersonResult,
-        director: directorResult,
         shareholders: shareholderData.map((s) => s.person),
       };
     });

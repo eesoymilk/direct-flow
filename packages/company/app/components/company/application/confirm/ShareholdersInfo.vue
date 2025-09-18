@@ -28,7 +28,7 @@
         :key="index"
         :shareholder="shareholder"
         :index="index"
-        :is-stock-company="isStockCompany"
+        :is-stock-company="isCorporation"
       />
     </div>
   </UCard>
@@ -39,7 +39,7 @@ import ShareholderCard from "./ShareholderCard.vue";
 
 interface Props {
   shareholders: ShareholderSchema[];
-  isStockCompany: boolean;
+  isCorporation: boolean;
 }
 
 defineProps<Props>();

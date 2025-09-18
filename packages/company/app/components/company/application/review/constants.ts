@@ -5,7 +5,6 @@ export const SECTION_KEYS = [
   "companyBusinessItems",
   "companyMonetaryInfo",
   "responsiblePerson",
-  "representative",
   "contactPerson",
   "shareholders",
   "documents",
@@ -33,12 +32,6 @@ export const COMPANY_MONETARY_INFO_FIELDS = [
   "preferredShares",
 ] as const;
 
-export const PERSON_TYPES = [
-  "responsiblePerson",
-  "representative",
-  "contactPerson",
-] as const;
-
 export const PERSON_FIELDS = [
   "name",
   "idNumber",
@@ -48,7 +41,11 @@ export const PERSON_FIELDS = [
   "dateOfBirth",
 ] as const;
 
-export const SHAREHOLDER_FIELDS = [...PERSON_FIELDS, "shares", "capitalContribution"] as const;
+export const SHAREHOLDER_FIELDS = [
+  ...PERSON_FIELDS,
+  "shares",
+  "capitalContribution",
+] as const;
 
 export const COMPANY_DOCUMENT_FIELDS = [
   "bankBookFront",

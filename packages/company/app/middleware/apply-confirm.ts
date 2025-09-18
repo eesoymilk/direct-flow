@@ -16,7 +16,7 @@ export default defineNuxtRouteMiddleware(() => {
   if (!applicationStore.formState.organizationType) {
     const toast = useToast();
     toast.add({
-      title: "表單資料不完整", 
+      title: "表單資料不完整",
       description: "請選擇組織類型",
       color: "warning",
       icon: "i-lucide-alert-triangle",
@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(() => {
     const toast = useToast();
     toast.add({
       title: "表單資料不完整",
-      description: "請填寫營業項目描述", 
+      description: "請填寫營業項目描述",
       color: "warning",
       icon: "i-lucide-alert-triangle",
     });
@@ -40,7 +40,7 @@ export default defineNuxtRouteMiddleware(() => {
     toast.add({
       title: "表單資料不完整",
       description: "請填寫公司地址",
-      color: "warning", 
+      color: "warning",
       icon: "i-lucide-alert-triangle",
     });
     return navigateTo("/apply");
@@ -53,7 +53,7 @@ export default defineNuxtRouteMiddleware(() => {
       title: "表單資料不完整",
       description: "請填寫負責人資料",
       color: "warning",
-      icon: "i-lucide-alert-triangle", 
+      icon: "i-lucide-alert-triangle",
     });
     return navigateTo("/apply");
   }
@@ -62,7 +62,7 @@ export default defineNuxtRouteMiddleware(() => {
     const toast = useToast();
     toast.add({
       title: "表單資料不完整",
-      description: "請填寫代表人資料", 
+      description: "請填寫代表人資料",
       color: "warning",
       icon: "i-lucide-alert-triangle",
     });
@@ -81,24 +81,16 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   // Check organization-specific required fields
-  if (applicationStore.formState.organizationType === 'corporation') {
-    if (applicationStore.formState.isCloselyHeld && !applicationStore.formState.closelyHeldShareholderCount) {
-      const toast = useToast();
-      toast.add({
-        title: "表單資料不完整", 
-        description: "閉鎖型股份有限公司請填寫股東人數",
-        color: "warning",
-        icon: "i-lucide-alert-triangle",
-      });
-      return navigateTo("/apply");
-    }
-
-    if (!applicationStore.formState.hasParValueFreeShares && !applicationStore.formState.parValue) {
+  if (applicationStore.formState.organizationType === "corporation") {
+    if (
+      !applicationStore.formState.hasParValueFreeShares &&
+      !applicationStore.formState.parValue
+    ) {
       const toast = useToast();
       toast.add({
         title: "表單資料不完整",
         description: "請填寫票面金額或選擇無票面金額股份",
-        color: "warning", 
+        color: "warning",
         icon: "i-lucide-alert-triangle",
       });
       return navigateTo("/apply");
@@ -106,12 +98,15 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   // Check shareholders for corporations and limited companies
-  if ((applicationStore.formState.organizationType === 'corporation' || applicationStore.formState.organizationType === 'limited_company') && 
-      !applicationStore.formState.shareholders?.length) {
+  if (
+    (applicationStore.formState.organizationType === "corporation" ||
+      applicationStore.formState.organizationType === "limited_company") &&
+    !applicationStore.formState.shareholders?.length
+  ) {
     const toast = useToast();
     toast.add({
       title: "表單資料不完整",
-      description: "請添加至少一名股東", 
+      description: "請添加至少一名股東",
       color: "warning",
       icon: "i-lucide-alert-triangle",
     });

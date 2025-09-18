@@ -7,7 +7,6 @@ const organizationTypeLabelMap: Record<OrganizationType, string> = {
 
 const personLabelMap: Record<PersonType, string> = {
   responsiblePerson: "負責人",
-  representative: "代表人",
   contactPerson: "聯絡人",
 };
 

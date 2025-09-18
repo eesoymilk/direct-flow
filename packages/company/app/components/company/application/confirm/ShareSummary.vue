@@ -1,6 +1,6 @@
 <template>
   <UCard
-    v-if="isStockCompany"
+    v-if="isCorporation"
     class="ring-1 ring-gray-200/50 shadow-lg hover:shadow-xl transition-shadow duration-300"
   >
     <template #header>
@@ -184,7 +184,7 @@
 <script setup lang="ts">
 interface Props {
   shareholders: ShareholderSchema[];
-  isStockCompany: boolean;
+  isCorporation: boolean;
 }
 
 defineProps<Props>();

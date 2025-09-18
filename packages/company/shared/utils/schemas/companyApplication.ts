@@ -32,9 +32,7 @@ export const companyApplicationBaseSchema = z.object({
   totalShares: z.number().positive("股份總數必須大於0").nullish(),
   paidInCapital: z.number().positive("實收資本額股數必須大於0").nullish(),
   address: z.string().min(1, "公司地址為必填"),
-  isRepresentativeSameAsResponsiblePerson: z.boolean(),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
-  isContactPersonSameAsRepresentative: z.boolean(),
 
   // Shared fields for corporation and limited company
   isForeignInvestment: z.boolean().optional(),
@@ -42,7 +40,6 @@ export const companyApplicationBaseSchema = z.object({
 
   // Corporation-specific fields
   isPublicOffering: z.boolean().optional(),
-  closelyHeldShareholderCount: z.number().int().positive().optional(),
   hasMultipleVotingRightsPreferredShares: z.boolean().optional(),
   hasVetoRightsPreferredShares: z.boolean().optional(),
   hasPreferredSharesBoardRights: z.boolean().optional(),
@@ -52,22 +49,6 @@ export const companyApplicationBaseSchema = z.object({
 });
 
 export const companyApplicationFormSchema = companyApplicationBaseSchema
-  .refine(
-    (data) => {
-      // Conditional validation for closelyHeldShareholderCount
-      if (data.organizationType === "corporation" && data.isCloselyHeld) {
-        return (
-          data.closelyHeldShareholderCount != null &&
-          data.closelyHeldShareholderCount > 0
-        );
-      }
-      return true;
-    },
-    {
-      message: "閉鎖性股份有限公司必須填寫股東人數",
-      path: ["closelyHeldShareholderCount"],
-    }
-  )
   .refine(
     (data) => {
       // Conditional validation for parValue when hasParValueFreeShares is false
@@ -130,9 +111,7 @@ export const requiredDocumentsSchema = z.object({
 
 export const companyApplicationResponseSchema = z.object({
   ...companyApplicationBaseSchema.omit({
-    isContactPersonSameAsRepresentative: true,
     isContactPersonSameAsResponsiblePerson: true,
-    isRepresentativeSameAsResponsiblePerson: true,
   }).shape,
   ...responseBaseSchema.shape,
   status: z.enum(COMPANY_APPLICATION_STATUS),
@@ -140,7 +119,6 @@ export const companyApplicationResponseSchema = z.object({
   ordinarySharesAmount: z.number().nullish(),
   preferredSharesAmount: z.number().nullish(),
   responsiblePerson: personResponseSchema,
-  representative: personResponseSchema,
   contactPerson: personResponseSchema,
   shareholders: shareholderResponseSchema.array(),
   reviewRounds: reviewRoundResponseSchema.array(),

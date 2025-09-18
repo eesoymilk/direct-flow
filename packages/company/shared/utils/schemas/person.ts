@@ -6,8 +6,6 @@ export const personSchema = getBasePersonSchema("人員");
 
 export const responsiblePersonSchema = getBasePersonSchema("負責人");
 
-export const representativeSchema = getBasePersonSchema("代表人");
-
 export const contactPersonSchema = getBasePersonSchema("聯絡人");
 
 export const shareholderSchema = z.object(

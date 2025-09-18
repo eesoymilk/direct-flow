@@ -60,7 +60,8 @@
           label="出資額"
           icon="i-lucide-dollar-sign"
           :value="
-            shareholder.capitalContribution !== undefined && shareholder.capitalContribution !== null
+            shareholder.capitalContribution !== undefined &&
+            shareholder.capitalContribution !== null
               ? `NT$ ${shareholder.capitalContribution.toLocaleString()}`
               : '未填寫'
           "
@@ -69,7 +70,7 @@
 
       <!-- Share Holdings (for stock companies) -->
       <CompanyApplicationConfirmShareHoldings
-        v-if="isStockCompany && shareholder.shares"
+        v-if="isCorporation && shareholder.shares"
         :shares="shareholder.shares"
       />
     </div>
@@ -83,7 +84,7 @@ import { getPersonLabel } from "~/utils/company/labels";
 interface Props {
   shareholder: ShareholderSchema;
   index: number;
-  isStockCompany: boolean;
+  isCorporation: boolean;
 }
 
 defineProps<Props>();

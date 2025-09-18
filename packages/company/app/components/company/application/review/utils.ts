@@ -1,4 +1,3 @@
-import type { PersonType } from "~/types/companyApplicationReview";
 import {
   COMPANY_BASIC_INFO_FIELDS,
   COMPANY_BUSINESS_ITEMS_FIELDS,
@@ -6,7 +5,6 @@ import {
   COMPANY_MONETARY_INFO_FIELDS,
   PERSON_DOCUMENT_FIELDS,
   PERSON_FIELDS,
-  PERSON_TYPES,
   SHAREHOLDER_FIELDS,
 } from "./constants";
 import type { FieldClassification, FieldStatus, SectionKey } from "./types";

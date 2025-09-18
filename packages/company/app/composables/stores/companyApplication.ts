@@ -5,7 +5,6 @@ export const useCompanyApplicationStore = defineStore(
     const formState = ref<
       CompanyApplicationFormSchema & {
         responsiblePerson: PersonSchema;
-        representative: PersonSchema;
         contactPerson: PersonSchema;
         shareholders: ShareholderSchema[];
       }
@@ -33,7 +32,7 @@ export const useCompanyApplicationStore = defineStore(
       })
     );
 
-    const isStockCompany = computed(
+    const isCorporation = computed(
       () => formState.value.organizationType === "corporation"
     );
 
@@ -118,14 +117,10 @@ export const useCompanyApplicationStore = defineStore(
       formState.value.shareholders.push(newShareholder);
     };
 
-    const addPersonAsShareholder = (
-      personType: "responsiblePerson" | "representative" | "contactPerson"
-    ) => {
+    const addPersonAsShareholder = (personType: PersonType) => {
       let sourcePerson;
       if (personType === "responsiblePerson") {
         sourcePerson = formState.value.responsiblePerson;
-      } else if (personType === "representative") {
-        sourcePerson = formState.value.representative;
       } else {
         sourcePerson = formState.value.contactPerson;
       }
@@ -255,7 +250,6 @@ export const useCompanyApplicationStore = defineStore(
           if (newType !== "corporation") {
             // Clear corporation-specific fields
             formState.value.isPublicOffering = false;
-            formState.value.closelyHeldShareholderCount = undefined;
             formState.value.hasMultipleVotingRightsPreferredShares = false;
             formState.value.hasVetoRightsPreferredShares = false;
             formState.value.hasPreferredSharesBoardRights = false;
@@ -286,17 +280,6 @@ export const useCompanyApplicationStore = defineStore(
       { immediate: true }
     );
 
-    // Watch closely held status and clear shareholder count when not applicable
-    watch(
-      () => formState.value.isCloselyHeld,
-      (isCloselyHeld) => {
-        if (!isCloselyHeld) {
-          formState.value.closelyHeldShareholderCount = undefined;
-        }
-      },
-      { immediate: true }
-    );
-
     // Watch par value free shares and clear parValue when applicable
     watch(
       () => formState.value.hasParValueFreeShares,
@@ -312,7 +295,7 @@ export const useCompanyApplicationStore = defineStore(
       submissionState: readonly(submissionState),
       shareCount: readonly(shareCount),
       shareTypes: readonly(shareTypes),
-      isStockCompany,
+      isCorporation,
       // Share calculations
       ordinarySharesTotal: readonly(ordinarySharesTotal),
       preferredSharesTotal: readonly(preferredSharesTotal),

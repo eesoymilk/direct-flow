@@ -5,11 +5,7 @@ export const ORGANIZATION_TYPES = [
   "partnership",
 ] as const;
 
-export const PERSON_TYPES = [
-  "responsiblePerson",
-  "representative",
-  "contactPerson",
-] as const;
+export const PERSON_TYPES = ["responsiblePerson", "contactPerson"] as const;
 
 export const COMPANY_APPLICATION_STATUS = [
   "submitted",

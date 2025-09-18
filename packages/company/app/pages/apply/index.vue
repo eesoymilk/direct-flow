@@ -8,27 +8,24 @@
     <!-- Development helper: Generate fake data button -->
     <div v-if="isDev" class="flex gap-2 justify-center">
       <UButton
+        label="生成股份有限公司測試資料"
         variant="outline"
         leading-icon="i-lucide-wand-2"
         @click="() => handleGenerateMockData('corporation')"
-      >
-        生成股份有限公司測試資料
-      </UButton>
+      />
       <UButton
+        label="生成隨機測試資料"
         variant="outline"
         leading-icon="i-lucide-building-2"
         @click="() => handleGenerateMockData()"
-      >
-        生成隨機測試資料
-      </UButton>
+      />
       <UButton
+        label="重置表單"
         color="neutral"
         variant="outline"
         leading-icon="i-lucide-rotate-ccw"
         @click="handleResetForm"
-      >
-        重置表單
-      </UButton>
+      />
     </div>
 
     <!-- TODO: 
@@ -56,17 +53,15 @@
         <template
           v-if="
             formState.organizationType === 'corporation' ||
-            formState.organizationType === 'limited_company'
+            formState.organizationType === 'limited_company' ||
+            formState.organizationType === 'partnership'
           "
           #form-part-3
         >
           <CompanyApplicationFormPart3 />
         </template>
         <template
-          v-if="
-            formState.organizationType === 'corporation' ||
-            formState.organizationType === 'limited_company'
-          "
+          v-if="formState.organizationType === 'corporation'"
           #form-part-4
         >
           <CompanyApplicationFormPart4 />
@@ -121,30 +116,34 @@ const stepperItems = computed((): StepperItem[] => {
     },
     {
       slot: "form-part-2",
-      title: "相關負責人資料",
-      description: "請填寫負責人、董事與聯絡人資料",
+      title: "相關人資料",
+      description: "請填寫負責人與聯絡人資料",
       icon: "i-lucide-user",
     },
   ];
 
   if (
     formState.value.organizationType === "corporation" ||
-    formState.value.organizationType === "limited_company"
+    formState.value.organizationType === "limited_company" ||
+    formState.value.organizationType === "partnership"
   ) {
-    basicItems.push(
-      {
-        slot: "form-part-3",
-        title: "董事與股東資料",
-        description: "請填寫董事與股東資料",
-        icon: "i-lucide-users",
-      },
-      {
-        slot: "form-part-4",
-        title: "股份資料",
-        description: "請填寫股份資料",
-        icon: "i-lucide-share",
-      }
-    );
+    const personType =
+      formState.value.organizationType === "partnership" ? "合夥人" : "股東";
+    basicItems.push({
+      slot: "form-part-3",
+      title: `${personType}資料`,
+      description: `請填寫${personType}資料`,
+      icon: "i-lucide-users",
+    });
+  }
+
+  if (formState.value.organizationType === "corporation") {
+    basicItems.push({
+      slot: "form-part-4",
+      title: "股份資料",
+      description: "請填寫股份資料",
+      icon: "i-lucide-share",
+    });
   }
 
   return basicItems;

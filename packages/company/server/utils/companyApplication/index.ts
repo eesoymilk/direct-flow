@@ -62,7 +62,6 @@ export const fetchCompanyApplications = async (
     with: {
       responsiblePerson: true,
       contactPerson: true,
-      representative: true,
     },
     where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
     orderBy,
@@ -90,7 +89,6 @@ export const fetchCompanyApplicationById = async (
     with: {
       responsiblePerson: true,
       contactPerson: true,
-      representative: true,
       shareholders: {
         with: {
           person: true,

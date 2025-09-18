@@ -1,32 +1,3 @@
-import type { RadioGroupItem } from "@nuxt/ui";
-
-export const organizationTypeItems = ref([
-  {
-    label: "股份有限公司",
-    description: "適合大型企業和需要募集資本的公司",
-    value: "corporation",
-    id: "corporation",
-  },
-  {
-    label: "有限公司",
-    description: "適合中小型企業，股東責任有限",
-    value: "limited_company",
-    id: "limited_company",
-  },
-  {
-    label: "獨資",
-    description: "個人經營的事業，無須合夥人",
-    value: "sole_proprietorship",
-    id: "sole_proprietorship",
-  },
-  {
-    label: "合夥",
-    description: "兩人以上合作經營的事業",
-    value: "partnership",
-    id: "partnership",
-  },
-] satisfies RadioGroupItem[]);
-
 // Review section name mappings
 export const getSectionName = (sectionKey: string): string => {
   const sectionNames: Record<string, string> = {
@@ -34,7 +5,6 @@ export const getSectionName = (sectionKey: string): string => {
     companyBusinessItems: "營業項目",
     companyMonetaryInfo: "資本額資料",
     responsiblePerson: "負責人",
-    representative: "代表人",
     contactPerson: "聯絡人",
     shareholders: "股東",
     documents: "必要文件",
@@ -65,15 +35,6 @@ export const getFieldDisplayName = (fieldPath: string): string => {
     "responsiblePerson.email": "負責人電子郵件",
     "responsiblePerson.idCardFront": "負責人身分證正面",
     "responsiblePerson.idCardBack": "負責人身分證背面",
-
-    // Representative nested fields
-    "representative.name": "代表人姓名",
-    "representative.idNumber": "代表人身分證字號",
-    "representative.birthDate": "代表人出生日期",
-    "representative.phone": "代表人電話",
-    "representative.email": "代表人電子郵件",
-    "representative.idCardFront": "代表人身分證正面",
-    "representative.idCardBack": "代表人身分證背面",
 
     // Contact person nested fields
     "contactPerson.name": "聯絡人姓名",
