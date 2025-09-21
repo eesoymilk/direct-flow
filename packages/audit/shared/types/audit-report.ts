@@ -24,7 +24,18 @@ export interface AuditOpinionInfo {
   opinionType: OpinionType;
   reason?: string;
   materialAmount?: number;
-  otherMatterOption?: { type: OtherMatterType; previousAuditReportDate?: Date };
+  otherMatterOption?:
+    | {
+        type: "missingPreviousAuditReport";
+      }
+    | {
+        type: "previousReportHandledByOtherAuditor";
+        previousAuditReportDate: Date;
+      }
+    | {
+        type: "custom";
+        customDescription: string;
+      };
 }
 
 export interface AuditReportData {

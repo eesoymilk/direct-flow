@@ -1,5 +1,6 @@
 export interface ParagraphText {
   text: string;
+  color?: string;
   bold?: boolean;
   italic?: boolean;
   // TODO: implement the detailed version of underline according to the docx library

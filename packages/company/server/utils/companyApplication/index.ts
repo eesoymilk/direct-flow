@@ -26,7 +26,7 @@ export const createCompanyApplication = async (
 export const createApplicationPartnerRelationships = async (
   db: DrizzleClient | DrizzleTransaction,
   applicationId: string,
-  partnerData: { person: { id: string } }[] // Removed shares field
+  partnerData: { person: { id: string; partnerType: PartnerType } }[]
 ) => {
   if (partnerData.length === 0) {
     return;
@@ -35,7 +35,7 @@ export const createApplicationPartnerRelationships = async (
   const partnerRelationships = partnerData.map(({ person }) => ({
     applicationId,
     personId: person.id,
-    // Removed shares field - now handled by share holdings system
+    partnerType: person.partnerType,
   }));
 
   await db.insert(applicationPartners).values(partnerRelationships);

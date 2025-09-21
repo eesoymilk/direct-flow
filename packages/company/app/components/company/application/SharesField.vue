@@ -5,6 +5,14 @@
     <div class="grid grid-cols-1 gap-4">
       <UForm
         v-for="shareType in shareTypes"
+        :schema="
+          z.object({
+            quantity: z.number().min(0),
+            pricePerShare: z.number().min(0),
+            totalPrice: z.number().min(0),
+          })
+        "
+        :state="shareValue?.[shareType]"
         :key="shareType"
         class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-primary/5 rounded-lg border border-primary/20"
       >
@@ -68,6 +76,8 @@
 </template>
 
 <script setup lang="ts">
+import * as z from "zod";
+
 interface Props {
   shareTypes: readonly ShareType[];
   shareValue: PartnerSchema["shares"];

@@ -6,11 +6,13 @@ interface OpinionParagraphOptions {
   rocYearText: string;
   framework?: AccountingFramework;
   opinionType?: OpinionType;
+  highlightVariable?: boolean;
 }
 
 const opinionSectionTitleMap: Record<OpinionType, string> = {
   unqualified: "查核意見",
-  qualified: "保留意見",
+  qualifiedDisclaimer: "保留意見",
+  qualifiedAdverse: "保留意見",
   adverse: "否定意見",
   disclaimer: "無法表示意見",
 };
@@ -59,15 +61,49 @@ export const getRocYearsText = (
 const generateOpinionSectionParagraph1 = ({
   entity,
   rocYearText,
-}: Pick<OpinionParagraphOptions, "entity" | "rocYearText">) =>
-  joinSentences([
-    [
-      `${entity}${rocYearText}十二月三十一日之資產負債表`,
-      `暨${rocYearText}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表`,
-      `以及財務報表附註（包括重大會計政策彙總）`,
-      `業經本會計師查核竣事`,
-    ],
-  ]);
+  highlightVariable,
+}: Pick<
+  OpinionParagraphOptions,
+  "entity" | "rocYearText" | "highlightVariable"
+>): DocumentParagraph =>
+  highlightVariable
+    ? {
+        type: "children",
+        children: [
+          {
+            text: entity,
+            bold: true,
+            color: "blue",
+          },
+          {
+            text: rocYearText,
+            bold: true,
+            color: "blue",
+          },
+          {
+            text: "十二月三十一日之資產負債表，暨",
+          },
+          {
+            text: rocYearText,
+            bold: true,
+            color: "blue",
+          },
+          {
+            text: "一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表，以及財務報表附註（包括重大會計政策彙總），業經本會計師查核竣事。",
+          },
+        ],
+      }
+    : {
+        type: "text",
+        text: joinSentences([
+          [
+            `${entity}${rocYearText}十二月三十一日之資產負債表`,
+            `暨${rocYearText}一月一日至十二月三十一日之綜合損益表、權益變動表及現金流量表`,
+            `以及財務報表附註（包括重大會計政策彙總）`,
+            `業經本會計師查核竣事`,
+          ],
+        ]),
+      };
 
 const generateOpinionSectionParagraph2 = ({
   entity,
@@ -111,8 +147,12 @@ const generateOpinionSectionParagraph2 = ({
     lawDescription,
   ];
 
-  if (opinionType === "qualified") {
+  if (opinionType === "qualifiedDisclaimer") {
     sentences.splice(1, 0, "除保留意見之基礎段所述事項之影響外");
+  }
+
+  if (opinionType === "qualifiedAdverse") {
+    sentences.splice(1, 0, "除保留意見之基礎段所述事項之可能影響外");
   }
 
   // 無保留意見、保留意見
@@ -142,13 +182,18 @@ export const generateOpinionSection = (
           },
         ],
       },
-      {
-        type: "text",
-        text: generateOpinionSectionParagraph1({
-          entity: entityLabel,
-          rocYearText: rocYearsText,
-        }),
-      },
+      generateOpinionSectionParagraph1({
+        entity: entityLabel,
+        rocYearText: rocYearsText,
+        highlightVariable: true,
+      }),
+      // {
+      //   type: "text",
+      //   text: generateOpinionSectionParagraph1({
+      //     entity: entityLabel,
+      //     rocYearText: rocYearsText,
+      //   }),
+      // },
       {
         type: "text",
         text: generateOpinionSectionParagraph2({
@@ -237,9 +282,11 @@ const generateOtherMatterSectionParagraph = ({
   rocYearText,
   matterType,
   previousAuditReportDate,
+  customDescription,
 }: Pick<OpinionParagraphOptions, "entity" | "rocYearText"> & {
   matterType?: OtherMatterType;
   previousAuditReportDate?: Date;
+  customDescription?: string;
 }) => {
   if (!matterType) {
     return "[[空白的其他事項段]]";
@@ -251,7 +298,16 @@ const generateOtherMatterSectionParagraph = ({
       : "[[空白日期]]";
     return `${entity}${rocYearText}年度之財務報表係由其他會計師查核，並於${reportDateText}出具查核意見。`;
   }
-  return `${entity}${rocYearText}年度之財務報表，並未經會計師查核，其附列之目的僅供參考。`;
+
+  if (matterType === "custom") {
+    return customDescription || "[[空白的其他事項段]]";
+  }
+
+  if (matterType === "missingPreviousAuditReport") {
+    return `${entity}${rocYearText}年度之財務報表，並未經會計師查核，其附列之目的僅供參考。`;
+  }
+
+  return "[[空白的其他事項段]]";
 };
 
 export const generateOtherMatterSection = (
@@ -280,7 +336,14 @@ export const generateOtherMatterSection = (
         ),
         matterType: opinionInfo.otherMatterOption?.type,
         previousAuditReportDate:
-          opinionInfo.otherMatterOption?.previousAuditReportDate,
+          opinionInfo.otherMatterOption?.type ===
+          "previousReportHandledByOtherAuditor"
+            ? opinionInfo.otherMatterOption.previousAuditReportDate
+            : undefined,
+        customDescription:
+          opinionInfo.otherMatterOption?.type === "custom"
+            ? opinionInfo.otherMatterOption.customDescription
+            : undefined,
       }),
     },
   ],

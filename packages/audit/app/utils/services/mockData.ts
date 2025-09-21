@@ -37,20 +37,32 @@ export const generateOpinionInfo = (): Partial<AuditOpinionInfo> => {
     opinionType,
   };
 
-  // Add other matter option occasionally
-  if (faker.datatype.boolean({ probability: 0.3 })) {
-    opinionInfo.otherMatterOption = {
-      type: faker.helpers.arrayElement([
-        "previousReportHandledByOtherAuditor",
-        "missingPreviousAuditReport",
-      ]),
-    };
+  if (opinionType !== "unqualified") {
+    opinionInfo.reason = faker.lorem.sentence();
+  }
 
-    if (
-      opinionInfo.otherMatterOption.type ===
-      "previousReportHandledByOtherAuditor"
-    ) {
-      opinionInfo.otherMatterOption.previousAuditReportDate = faker.date.past();
+  // Add other matter option occasionally
+  if (faker.datatype.boolean({ probability: 0.5 })) {
+    const otherMatterOptionType = faker.helpers.arrayElement([
+      "previousReportHandledByOtherAuditor",
+      "missingPreviousAuditReport",
+      "custom",
+    ]);
+
+    if (otherMatterOptionType === "previousReportHandledByOtherAuditor") {
+      opinionInfo.otherMatterOption = {
+        type: otherMatterOptionType,
+        previousAuditReportDate: faker.date.past(),
+      };
+    } else if (otherMatterOptionType === "missingPreviousAuditReport") {
+      opinionInfo.otherMatterOption = {
+        type: otherMatterOptionType,
+      };
+    } else if (otherMatterOptionType === "custom") {
+      opinionInfo.otherMatterOption = {
+        type: otherMatterOptionType,
+        customDescription: faker.lorem.sentence(),
+      };
     }
   }
 

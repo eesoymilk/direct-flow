@@ -43,44 +43,46 @@ export default eventHandler(async (event) => {
         contactPersonId: contactPersonResult.id,
       });
 
-      const partnerData: { person: Person }[] = [];
-      if (partners) {
-        for (const partner of partners) {
-          let partnerResult: Person;
+      // const partnerData: { person: Person }[] = [];
+      // if (partners) {
+      //   for (const partner of partners) {
+      //     let partnerResult: Person;
 
-          if (partner.referenceType === "responsiblePerson") {
-            partnerResult = responsiblePersonResult;
-          } else if (partner.referenceType === "contactPerson") {
-            partnerResult = contactPersonResult;
-          } else {
-            // Ensure email is provided for new partners
-            const partnerPersonData = {
-              ...partner,
-              email: partner.email || "", // Provide default empty string if email is not provided
-            };
-            partnerResult = await createPerson(tx, partnerPersonData);
-          }
+      //     if (partner.referenceType === "responsiblePerson") {
+      //       partnerResult = responsiblePersonResult;
+      //     } else if (partner.referenceType === "contactPerson") {
+      //       partnerResult = contactPersonResult;
+      //     } else {
+      //       // Ensure email is provided for new partners
+      //       const partnerPersonData = {
+      //         ...partner,
+      //         email: partner.email || "", // Provide default empty string if email is not provided
+      //       };
+      //       partnerResult = await createPerson(tx, partnerPersonData);
+      //     }
 
-          partnerData.push({
-            person: partnerResult,
-            // Removed shares field - now handled by share holdings system
-          });
-        }
-      }
+      //     partnerData.push({
+      //       person: {
+      //         ...partnerResult,
+      //         partnerType: partner.partnerType,
+      //       },
+      //     });
+      //   }
+      // }
 
-      if (partnerData.length > 0) {
-        await createApplicationPartnerRelationships(
-          tx,
-          application.id,
-          partnerData
-        );
-      }
+      // if (partnerData.length > 0) {
+      //   await createApplicationPartnerRelationships(
+      //     tx,
+      //     application.id,
+      //     partnerData
+      //   );
+      // }
 
       return {
         application,
         responsiblePerson: responsiblePersonResult,
         contactPerson: contactPersonResult,
-        partners: partnerData.map((s) => s.person),
+        // partners: partnerData.map((s) => s.person),
       };
     });
   } catch (error: any) {

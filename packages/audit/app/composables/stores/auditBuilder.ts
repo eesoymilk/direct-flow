@@ -71,7 +71,7 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   watch(includeOtherMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.otherMatterOption) {
       opinionInfo.value.otherMatterOption = {
-        type: "previousReportHandledByOtherAuditor",
+        type: "missingPreviousAuditReport",
       };
     } else if (!newVal) {
       const { otherMatterOption, ...rest } = opinionInfo.value;

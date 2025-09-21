@@ -4,6 +4,7 @@
     :key="index"
     :class="{
       'font-bold': child.bold,
+      'text-blue-500': child.color === 'blue',
       italic: child.italic,
       underline: child.underline,
       strike: child.strike,

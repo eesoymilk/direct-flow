@@ -1,86 +1,27 @@
 <template>
-  <UCard>
-    <template #header>
-      <div class="space-y-2">
-        <h3 class="text-xl font-bold text-gray-900">查核意見選擇</h3>
-        <div class="text-sm text-gray-500">請選擇適當的查核意見類型</div>
+  <OrganizationChart
+    v-model:selection-keys="selectionKeys"
+    :value="opinionOrgChartData"
+    selection-mode="single"
+    class="w-full"
+    @update:selection-keys="onUpdateSelectionKeys"
+  >
+    <template #default="{ node }">
+      <div
+        :class="
+          cn(
+            'px-3 py-1 text-xs font-semibold text-md',
+            getOpinionTypeLabelClass(node.key)
+          )
+        "
+      >
+        {{ getOpinionTypeLabel(node.key) }}
       </div>
+      <p class="text-xs text-gray-700 leading-relaxed">
+        {{ getOpinionTypeDescription(node.key) }}
+      </p>
     </template>
-
-    <OrganizationChart
-      v-model:selection-keys="selectionKeys"
-      :value="opinionOrgChartData"
-      selection-mode="single"
-      class="w-full"
-      @update:selection-keys="onUpdateSelectionKeys"
-    >
-      <template #default="{ node }">
-        <div
-          :class="
-            cn(
-              'px-3 py-1 text-xs font-semibold text-md',
-              getOpinionTypeLabelClass(node.data.opinionType)
-            )
-          "
-        >
-          {{ getOpinionTypeLabel(node.data.opinionType) }}
-        </div>
-        <p class="text-xs text-gray-700 leading-relaxed">
-          {{ node.data.description }}
-        </p>
-      </template>
-    </OrganizationChart>
-
-    <!-- Legend -->
-    <template #footer>
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <h4 class="text-sm font-semibold text-gray-900 mb-4 flex items-center">
-          <Icon name="i-lucide-info" class="w-4 h-4 mr-2" />
-          圖例說明
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-4 h-4 bg-green-100 border-2 border-green-400 rounded-full flex items-center justify-center"
-            >
-              <div class="w-2 h-2 bg-green-500 rounded-full" />
-            </div>
-            <span class="text-gray-700">無保留意見</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-4 h-4 bg-amber-100 border-2 border-amber-400 rounded-full flex items-center justify-center"
-            >
-              <div class="w-2 h-2 bg-amber-500 rounded-full" />
-            </div>
-            <span class="text-gray-700">保留意見</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-4 h-4 bg-red-100 border-2 border-red-400 rounded-full flex items-center justify-center"
-            >
-              <div class="w-2 h-2 bg-red-500 rounded-full" />
-            </div>
-            <span class="text-gray-700">否定意見</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-4 h-4 bg-gray-100 border-2 border-gray-400 rounded-full flex items-center justify-center"
-            >
-              <div class="w-2 h-2 bg-gray-500 rounded-full" />
-            </div>
-            <span class="text-gray-700">無法表示意見</span>
-          </div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-gray-200">
-          <div class="flex items-center text-xs text-gray-500">
-            <Icon name="i-lucide-arrow-down" class="w-3 h-3 mr-2" />
-            <span>嚴重程度遞增</span>
-          </div>
-        </div>
-      </div>
-    </template>
-  </UCard>
+  </OrganizationChart>
 </template>
 
 <script setup lang="ts">
@@ -88,45 +29,23 @@ import OrganizationChart, {
   type OrganizationChartNode,
 } from "primevue/organizationchart";
 
-interface OpinionNodeData {
-  opinionType: OpinionType;
-  description: string;
-  reason?: string;
-  branchType?: "errors" | "evidence";
-}
-
-type OpinionNodeKey =
-  | "unqualified"
-  | "qualified-branch-1"
-  | "qualified-branch-2"
-  | "adverse"
-  | "disclaimer";
-
 interface OpinionNode {
-  key: OpinionNodeKey;
+  key: OpinionType;
   styleClass?: string;
   selectable: boolean;
-  data: OpinionNodeData;
   children?: OpinionNode[];
 }
 
-defineEmits<{
-  opinionSelected: [opinionType: OpinionType];
-}>();
-
 const store = useAuditBuilderStore();
-
 const { opinionInfo } = storeToRefs(store);
 
-// TODO: make this 2-way dynamic wrt to the opinion types in the store
 const selectionKeys = ref<Record<string, boolean>>({});
-
 const selectedKey = computed(() => {
   const keys = Object.keys(selectionKeys.value);
   if (keys.length === 0) {
     return null;
   }
-  return Object.keys(selectionKeys.value)[0] as OpinionNodeKey;
+  return Object.keys(selectionKeys.value)[0] as OpinionType;
 });
 
 const nodeBaseClass =
@@ -143,26 +62,16 @@ const opinionOrgChartData = computed<OpinionNode>(
           : "hover:bg-green-100"
       ),
       selectable: true,
-      data: {
-        opinionType: "unqualified",
-        description: "財務報表在所有重大方面均依照適用之財務報導架構編製",
-      },
       children: [
         {
-          key: "qualified-branch-1",
+          key: "qualifiedAdverse",
           styleClass: cn(
             nodeBaseClass,
-            selectedKey.value === "qualified-branch-1"
+            selectedKey.value === "qualifiedAdverse"
               ? "bg-amber-200 hover:bg-amber-300"
               : "hover:bg-amber-100"
           ),
           selectable: true,
-          data: {
-            opinionType: "qualified",
-            description: "除特定事項外，財務報表在所有重大方面均適當表達",
-            reason: "財務報表有錯誤但不足以構成否定意見",
-            branchType: "errors",
-          },
           children: [
             {
               key: "adverse",
@@ -173,29 +82,18 @@ const opinionOrgChartData = computed<OpinionNode>(
                   : "hover:bg-red-100"
               ),
               selectable: true,
-              data: {
-                opinionType: "adverse",
-                description: "財務報表整體而言並未適當表達",
-                reason: "錯誤過於重大且廣泛",
-              },
             },
           ],
         },
         {
-          key: "qualified-branch-2",
+          key: "qualifiedDisclaimer",
           styleClass: cn(
             nodeBaseClass,
-            selectedKey.value === "qualified-branch-2"
+            selectedKey.value === "qualifiedDisclaimer"
               ? "bg-amber-200 hover:bg-amber-300"
               : "hover:bg-amber-100"
           ),
           selectable: true,
-          data: {
-            opinionType: "qualified",
-            description: "除特定事項外，財務報表在所有重大方面均適當表達",
-            reason: "查核證據不足但不足以構成無法表示意見",
-            branchType: "evidence",
-          },
           children: [
             {
               key: "disclaimer",
@@ -206,11 +104,6 @@ const opinionOrgChartData = computed<OpinionNode>(
                   : "hover:bg-gray-100"
               ),
               selectable: true,
-              data: {
-                opinionType: "disclaimer",
-                description: "無法取得充分適切之查核證據作為查核意見之基礎",
-                reason: "查核範圍限制過於重大且廣泛",
-              },
             },
           ],
         },
@@ -219,18 +112,20 @@ const opinionOrgChartData = computed<OpinionNode>(
 );
 
 const onUpdateSelectionKeys = (newSelectionKeys: Record<string, boolean>) => {
+  console.log("newSelectionKeys", newSelectionKeys);
   const keys = Object.keys(newSelectionKeys);
   if (keys.length === 0) {
     return;
   }
-  opinionInfo.value.opinionType = keys[0]?.split("-")[0] as OpinionType;
+  opinionInfo.value.opinionType = keys[0] as OpinionType;
 };
 
 const getOpinionTypeLabelClass = (opinionType: OpinionType) => {
   switch (opinionType) {
     case "unqualified":
       return "text-green-800";
-    case "qualified":
+    case "qualifiedDisclaimer":
+    case "qualifiedAdverse":
       return "text-amber-800";
     case "adverse":
       return "text-red-800";
@@ -240,4 +135,13 @@ const getOpinionTypeLabelClass = (opinionType: OpinionType) => {
       return "text-gray-800";
   }
 };
+
+watch(
+  () => store.opinionInfo,
+  (newVal) => {
+    const newType = newVal.opinionType;
+    // TODO: Update selection keys
+  },
+  { deep: true, immediate: true }
+);
 </script>
