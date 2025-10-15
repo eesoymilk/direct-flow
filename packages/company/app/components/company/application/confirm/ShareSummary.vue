@@ -114,7 +114,7 @@
             </div>
           </div>
           <div class="text-center">
-            <div class="text-sm text-gray-600 mb-1">股東人數</div>
+            <div class="text-sm text-gray-600 mb-1">{{ holderLabel }}人數</div>
             <div class="text-xl font-bold text-gray-800">
               {{ partners.length }} 人
             </div>
@@ -124,7 +124,9 @@
 
       <!-- Individual Partner Summary -->
       <div class="space-y-4">
-        <h4 class="text-lg font-medium text-gray-800">股東持股明細</h4>
+        <h4 class="text-lg font-medium text-gray-800">
+          {{ holderLabel }}持股明細
+        </h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
             v-for="(partner, index) in partners"
@@ -134,10 +136,10 @@
             <div class="flex items-center justify-between mb-3">
               <h5 class="font-medium text-gray-800">{{ partner.name }}</h5>
               <UBadge
-                :label="String(index + 1)"
-                size="sm"
-                color="secondary"
-                class="rounded-full"
+                v-if="partner.partnerType"
+                :label="getPartnerTypeLabel(partner.partnerType)"
+                color="primary"
+                variant="soft"
               />
             </div>
 
@@ -161,7 +163,7 @@
               <USeparator class="my-2" />
               <div class="flex justify-between items-center">
                 <span class="text-sm font-medium text-gray-700"
-                  >該股東總計：</span
+                  >該{{ holderLabel }}總計：</span
                 >
                 <span class="font-bold text-gray-800">
                   {{ formatCurrency(getPartnerTotal(partner)) }}
@@ -178,12 +180,26 @@
 <script setup lang="ts">
 interface Props {
   partners: PartnerSchema[];
-  isCorporation: boolean;
+  organizationType: OrganizationType;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const applicationStore = useCompanyApplicationStore();
 const { ordinarySharesTotal, preferredSharesTotal, totalShares } =
   storeToRefs(applicationStore);
+
+// Organization-aware labels
+const holderLabel = computed(() => {
+  switch (props.organizationType) {
+    case "corporation":
+      return "股東";
+    case "limited_company":
+      return "股東";
+    default:
+      return "成員";
+  }
+});
+
+const isCorporation = computed(() => props.organizationType === "corporation");
 </script>

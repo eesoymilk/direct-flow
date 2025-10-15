@@ -1,5 +1,5 @@
 const opinionTypeLabelMap: Record<OpinionType, string> = {
-  unqualified: "不保留意見",
+  unqualified: "無保留意見",
   qualifiedDisclaimer: "保留意見",
   qualifiedAdverse: "保留意見",
   adverse: "否定意見",

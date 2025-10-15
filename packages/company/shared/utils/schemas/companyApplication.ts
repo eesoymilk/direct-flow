@@ -21,6 +21,7 @@ export const companyApplicationBaseSchema = z.object({
         message: "公司名稱不能重複",
       }
     ),
+  foreignName: z.string().optional(),
   organizationType: z.enum(ORGANIZATION_TYPES, {
     message: "請選擇有效的組織類型",
   }),
@@ -34,6 +35,10 @@ export const companyApplicationBaseSchema = z.object({
   address: z.string().min(1, "公司地址為必填"),
   isContactPersonSameAsResponsiblePerson: z.boolean(),
 
+  // Sole proprietorship-specific fields
+  hasManagerialOfficer: z.boolean().optional(),
+  isManagerialOfficerSameAsResponsiblePerson: z.boolean().optional(),
+
   // Shared fields for corporation and limited company
   isForeignInvestment: z.boolean().optional(),
   isChineseInvestment: z.boolean().optional(),
@@ -46,6 +51,10 @@ export const companyApplicationBaseSchema = z.object({
 
   // Limited company-specific fields
   isSoleProprietorshipLLC: z.boolean().optional(),
+
+  // Partnership-specific fields
+  hasForeignPartner: z.boolean().optional(),
+  hasChinesePartner: z.boolean().optional(),
 });
 
 export const companyApplicationFormSchema = companyApplicationBaseSchema
@@ -112,6 +121,8 @@ export const requiredDocumentsSchema = z.object({
 export const companyApplicationResponseSchema = z.object({
   ...companyApplicationBaseSchema.omit({
     isContactPersonSameAsResponsiblePerson: true,
+    hasManagerialOfficer: true,
+    isManagerialOfficerSameAsResponsiblePerson: true,
   }).shape,
   ...responseBaseSchema.shape,
   status: z.enum(COMPANY_APPLICATION_STATUS),
@@ -120,6 +131,7 @@ export const companyApplicationResponseSchema = z.object({
   preferredSharesAmount: z.number().nullish(),
   responsiblePerson: personResponseSchema,
   contactPerson: personResponseSchema,
+  managerialOfficer: personResponseSchema.optional(),
   partners: partnerResponseSchema.array(),
   reviewRounds: reviewRoundResponseSchema.array(),
 });

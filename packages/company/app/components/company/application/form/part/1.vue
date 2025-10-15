@@ -19,6 +19,22 @@
     </UFormField>
 
     <UFormField
+      v-if="
+        formState.organizationType === 'corporation' ||
+        formState.organizationType === 'limited_company'
+      "
+      label="外文名稱"
+      name="foreignName"
+      class="col-span-full"
+    >
+      <UInput
+        v-model="formState.foreignName"
+        placeholder="請輸入外文名稱（選填）"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
       label="公司組織"
       name="organizationType"
       class="col-span-full"
@@ -47,42 +63,31 @@
               <UCheckbox
                 v-model="formState.isCloselyHeld"
                 label="閉鎖型股份有限公司"
-                required
               />
               <UCheckbox
                 v-model="formState.hasParValueFreeShares"
                 label="無票面金額股份"
-                required
               />
               <UCheckbox
                 v-model="formState.isPublicOffering"
                 label="公開發行公司"
-                required
               />
               <UCheckbox
                 v-model="formState.isForeignInvestment"
                 label="僑外投資事業"
-                required
               />
-              <UCheckbox
-                v-model="formState.isChineseInvestment"
-                label="涉及中國大陸地區投資"
-                required
-              />
+              <UCheckbox v-model="formState.isChineseInvestment" label="陸資" />
               <UCheckbox
                 v-model="formState.hasMultipleVotingRightsPreferredShares"
                 label="複數表決權特別股"
-                required
               />
               <UCheckbox
                 v-model="formState.hasVetoRightsPreferredShares"
                 label="否決權特別股"
-                required
               />
               <UCheckbox
                 v-model="formState.hasPreferredSharesBoardRights"
                 label="特別股董監事權利"
-                required
               />
             </div>
           </div>
@@ -102,17 +107,34 @@
               <UCheckbox
                 v-model="formState.isSoleProprietorshipLLC"
                 label="一人有限公司"
-                required
               />
               <UCheckbox
                 v-model="formState.isForeignInvestment"
                 label="僑外投資事業"
-                required
+              />
+              <UCheckbox v-model="formState.isChineseInvestment" label="陸資" />
+            </div>
+          </div>
+
+          <!-- Partnership-specific options -->
+          <div
+            v-else-if="
+              (item.value === 'partnership' &&
+                formState.organizationType === 'partnership') ||
+              (item.value === 'sole_proprietorship' &&
+                formState.organizationType === 'sole_proprietorship')
+            "
+            class="flex justify-between items-start w-full flex-col gap-3"
+          >
+            <div class="text-sm text-gray-500 mt-1">{{ item.description }}</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full text-sm">
+              <UCheckbox
+                v-model="formState.hasForeignPartner"
+                label="有僑外投資"
               />
               <UCheckbox
-                v-model="formState.isChineseInvestment"
-                label="涉及中國大陸地區投資"
-                required
+                v-model="formState.hasChinesePartner"
+                label="有陸資投資"
               />
             </div>
           </div>
@@ -141,8 +163,6 @@
         :format-options="{
           style: 'currency',
           currency: 'TWD',
-          currencyDisplay: 'code',
-          currencySign: 'accounting',
         }"
       />
     </UFormField>
@@ -175,15 +195,13 @@
         :min="0"
         :placeholder="
           formState.hasParValueFreeShares
-            ? 'NT$ 10.00 (無票面金額)'
+            ? 'NT$ 0.00 (無票面金額)'
             : '請輸入每股票面金額（新台幣）'
         "
         class="w-full"
         :format-options="{
           style: 'currency',
           currency: 'TWD',
-          currencyDisplay: 'code',
-          currencySign: 'accounting',
         }"
       />
     </UFormField>

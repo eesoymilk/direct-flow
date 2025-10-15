@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: "Invalid form data",
         data: {
-          errors: error.errors,
+          errors: error,
         },
       });
     }

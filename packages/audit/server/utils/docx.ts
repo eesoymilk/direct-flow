@@ -10,6 +10,25 @@ import {
   Footer,
 } from "docx";
 
+// Temporary types until server implementation is complete
+interface AuditReportTemplate {
+  header: {
+    title: string;
+    entity: string;
+  };
+  sections: AuditReportSection[];
+  footer: {
+    firmName: string;
+    auditorNames: string[];
+    date: string;
+  };
+}
+
+interface AuditReportSection {
+  title: string;
+  paragraphs: string[];
+}
+
 export function createAuditDocument(
   auditReportTemplate: AuditReportTemplate
 ): Document {
@@ -42,16 +61,18 @@ export function estimatePageCount(template: AuditReportTemplate): number {
   totalWords += countWords(template.header.entity);
 
   // Count words in all sections
-  template.sections.forEach((section) => {
+  template.sections.forEach((section: AuditReportSection) => {
     totalWords += countWords(section.title);
-    section.paragraphs.forEach((paragraph) => {
+    section.paragraphs.forEach((paragraph: string) => {
       totalWords += countWords(paragraph);
     });
   });
 
   // Count words in footer
   totalWords += countWords(template.footer.firmName);
-  totalWords += countWords(template.footer.auditorName);
+  template.footer.auditorNames.forEach((name: string) => {
+    totalWords += countWords(name);
+  });
   totalWords += countWords(template.footer.date);
 
   // Estimate pages (assuming ~300 words per page for Chinese text with spacing)
@@ -86,7 +107,7 @@ function generateDocxDocument(template: AuditReportTemplate): Document {
   children.push(...createEntityInfo(template));
 
   // Add all sections
-  template.sections.forEach((section) => {
+  template.sections.forEach((section: AuditReportSection) => {
     children.push(...createSection(section));
   });
 
@@ -240,14 +261,18 @@ function createSection(section: AuditReportSection): Paragraph[] {
 }
 
 function createFooter(template: AuditReportTemplate): Paragraph[] {
-  return [
-    // Spacing before footer
+  const paragraphs: Paragraph[] = [];
+
+  // Spacing before footer
+  paragraphs.push(
     new Paragraph({
       children: [new TextRun("")],
       spacing: { before: 800 },
-    }),
+    })
+  );
 
-    // Firm name
+  // Firm name
+  paragraphs.push(
     new Paragraph({
       children: [
         new TextRun({
@@ -258,22 +283,30 @@ function createFooter(template: AuditReportTemplate): Paragraph[] {
       ],
       alignment: AlignmentType.RIGHT,
       spacing: { after: 300 },
-    }),
+    })
+  );
 
-    // Auditor signature line
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: `會計師：${template.footer.auditorName}`,
-          size: 22,
-          font: "Times New Roman",
-        }),
-      ],
-      alignment: AlignmentType.RIGHT,
-      spacing: { after: 300 },
-    }),
+  // Auditor signature lines (iterate over all auditors)
+  template.footer.auditorNames.forEach((auditorName: string, index: number) => {
+    paragraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `會計師：${auditorName}`,
+            size: 22,
+            font: "Times New Roman",
+          }),
+        ],
+        alignment: AlignmentType.RIGHT,
+        spacing: {
+          after: index === template.footer.auditorNames.length - 1 ? 300 : 100,
+        },
+      })
+    );
+  });
 
-    // Date
+  // Date
+  paragraphs.push(
     new Paragraph({
       children: [
         new TextRun({
@@ -283,6 +316,8 @@ function createFooter(template: AuditReportTemplate): Paragraph[] {
         }),
       ],
       alignment: AlignmentType.RIGHT,
-    }),
-  ];
+    })
+  );
+
+  return paragraphs;
 }

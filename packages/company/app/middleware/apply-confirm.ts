@@ -1,9 +1,20 @@
 export default defineNuxtRouteMiddleware(() => {
   const applicationStore = useCompanyApplicationStore();
+  const toast = useToast();
+
+  console.log("[Middleware] Checking form state:", {
+    candidateNames: applicationStore.formState.candidateNames,
+    organizationType: applicationStore.formState.organizationType,
+    businessItemsDescription:
+      applicationStore.formState.businessItemsDescription,
+    address: applicationStore.formState.address,
+    responsiblePerson: applicationStore.formState.responsiblePerson?.name,
+    contactPerson: applicationStore.formState.contactPerson?.name,
+    partners: applicationStore.formState.partners?.length,
+  });
 
   // Check basic required fields first
   if (!applicationStore.formState.candidateNames?.length) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請填寫候選公司名稱",
@@ -14,7 +25,6 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   if (!applicationStore.formState.organizationType) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請選擇組織類型",
@@ -25,7 +35,6 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   if (!applicationStore.formState.businessItemsDescription) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請填寫營業項目描述",
@@ -36,7 +45,6 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   if (!applicationStore.formState.address) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請填寫公司地址",
@@ -48,7 +56,6 @@ export default defineNuxtRouteMiddleware(() => {
 
   // Check person data
   if (!applicationStore.formState.responsiblePerson?.name) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請填寫負責人資料",
@@ -59,10 +66,25 @@ export default defineNuxtRouteMiddleware(() => {
   }
 
   if (!applicationStore.formState.contactPerson?.name) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請填寫聯絡人資料",
+      color: "warning",
+      icon: "i-lucide-alert-triangle",
+    });
+    return navigateTo("/apply");
+  }
+
+  // Check managerial officer for sole proprietorship if enabled
+  if (
+    applicationStore.formState.organizationType === "sole_proprietorship" &&
+    applicationStore.formState.hasManagerialOfficer &&
+    !applicationStore.formState.isManagerialOfficerSameAsResponsiblePerson &&
+    !applicationStore.formState.managerialOfficer?.name
+  ) {
+    toast.add({
+      title: "表單資料不完整",
+      description: "請填寫經理人資料",
       color: "warning",
       icon: "i-lucide-alert-triangle",
     });
@@ -75,7 +97,6 @@ export default defineNuxtRouteMiddleware(() => {
       !applicationStore.formState.hasParValueFreeShares &&
       !applicationStore.formState.parValue
     ) {
-      const toast = useToast();
       toast.add({
         title: "表單資料不完整",
         description: "請填寫票面金額或選擇無票面金額股份",
@@ -92,7 +113,6 @@ export default defineNuxtRouteMiddleware(() => {
       applicationStore.formState.organizationType === "limited_company") &&
     !applicationStore.formState.partners?.length
   ) {
-    const toast = useToast();
     toast.add({
       title: "表單資料不完整",
       description: "請添加至少一名股東",
@@ -101,4 +121,6 @@ export default defineNuxtRouteMiddleware(() => {
     });
     return navigateTo("/apply");
   }
+
+  console.log("[Middleware] All checks passed!");
 });

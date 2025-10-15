@@ -25,24 +25,23 @@
     <!-- Person Information Grid -->
     <CompanyApplicationConfirmPersonInfoGrid :form-state="formState" />
 
-    <!-- Partners Information (only for corporation and limited_company) -->
+    <!-- Partners Information -->
     <CompanyApplicationConfirmPartnersInfo
-      v-if="
-        formState.organizationType === 'corporation' ||
-        formState.organizationType === 'limited_company'
-      "
+      v-if="formState.partners && formState.partners.length > 0"
       :partners="formState.partners"
-      :is-corporation="applicationStore.isCorporation"
+      :organization-type="formState.organizationType"
     />
 
     <!-- Share Summary (only for corporation and limited_company) -->
     <CompanyApplicationConfirmShareSummary
       v-if="
-        formState.organizationType === 'corporation' ||
-        formState.organizationType === 'limited_company'
+        (formState.organizationType === 'corporation' ||
+          formState.organizationType === 'limited_company') &&
+        formState.partners &&
+        formState.partners.length > 0
       "
       :partners="formState.partners"
-      :is-corporation="applicationStore.isCorporation"
+      :organization-type="formState.organizationType"
     />
 
     <!-- Final Summary Alert -->

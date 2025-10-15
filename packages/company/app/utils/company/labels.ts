@@ -8,18 +8,27 @@ const organizationTypeLabelMap: Record<OrganizationType, string> = {
 const personLabelMap: Record<PersonType, string> = {
   responsiblePerson: "負責人",
   contactPerson: "聯絡人",
+  managerialOfficer: "經理人",
 };
 
 const partnerTypeLabelMap: Record<PartnerType, string> = {
   chairman: "董事長",
-  vice_chairman: "副董事長",
-  executive_director: "常務董事",
+  viceChairman: "副董事長",
+  executiveDirector: "常務董事",
   director: "董事",
   supervisor: "監察人",
+  shareholder: "股東",
+  partner: "合夥人",
+  manager: "經理人",
+  legalRepresentative: "法定代理人",
+  corporateShareholder: "法人股東",
+  corporateDirectorRepresentative: "法人董事代表人",
+  corporateRepresentativeDirector: "法人代表人董事",
 };
 
 const shareTypeLabelMap: Record<ShareType, string> = {
   ordinary: "普通股",
+  preferred: "特別股",
   preferred_a: "甲種特別股",
   preferred_b: "乙種特別股",
   preferred_c: "丙種特別股",
@@ -38,5 +47,12 @@ export const getPersonLabel = (personType?: PersonType) =>
 export const getPartnerTypeLabel = (partnerType?: PartnerType) =>
   partnerType ? partnerTypeLabelMap[partnerType] : "未選擇";
 
-export const getShareTypeLabel = (shareType?: ShareType) =>
-  shareType ? shareTypeLabelMap[shareType] : "未選擇";
+export const getShareTypeLabel = (
+  shareType?: ShareType,
+  shareCount?: number
+) => {
+  if (shareType === "preferred_a" && shareCount === 2) {
+    return "特別股";
+  }
+  return shareType ? shareTypeLabelMap[shareType] : "未選擇";
+};

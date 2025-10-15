@@ -32,14 +32,15 @@
     - Better trigger button to indicate if the form is valid
     -->
     <UForm
-      ref="registrationForm"
-      :state="formState"
+      ref="form"
       :schema="companyApplicationFormSchema"
+      :state="formState"
       @error="handleFormError"
       @submit="handleFormSubmit"
     >
       <UStepper
         ref="stepper"
+        :linear="false"
         :items="stepperItems"
         :ui="{ trigger: '' }"
         class="w-full"
@@ -85,7 +86,8 @@
         <UButton
           v-if="!stepper?.hasNext"
           label="確認資料"
-          type="submit"
+          type="button"
+          @click="form?.submit()"
           class="ml-auto"
           color="primary"
           trailing-icon="i-lucide-check-square"
@@ -97,6 +99,8 @@
 
 <script setup lang="ts">
 import type { StepperItem, FormErrorEvent, FormSubmitEvent } from "@nuxt/ui";
+
+const form = useTemplateRef("form");
 
 const toast = useToast();
 

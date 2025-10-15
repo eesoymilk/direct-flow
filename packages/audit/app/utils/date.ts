@@ -1,6 +1,9 @@
 export const AcToRocYear = (year: number): number => year - 1911;
 
-export const formatRocDate = (date?: Date): string => {
+export const formatRocDate = (
+  date?: Date,
+  { includeFullRocText = false }: { includeFullRocText?: boolean } = {}
+): string => {
   try {
     if (!date) throw new Error("無效的日期");
 
@@ -14,7 +17,7 @@ export const formatRocDate = (date?: Date): string => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
 
-    return `民國${yearStr}年${month}月${day}日`;
+    return `${includeFullRocText ? "中華民國" : "民國"}${yearStr}年${month}月${day}日`;
   } catch (error) {
     console.error(error);
     return "[無效的日期]";

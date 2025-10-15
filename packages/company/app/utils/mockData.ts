@@ -48,9 +48,51 @@ export const generateMockShares = () =>
     >
   );
 
+// Helper function to get valid partner types for an organization type
+const getValidPartnerTypes = (
+  organizationType?: OrganizationType
+): PartnerType[] => {
+  switch (organizationType) {
+    case "limited_company":
+      return [
+        "director",
+        "shareholder",
+        "manager",
+        "corporateShareholder",
+        "corporateDirectorRepresentative",
+        "corporateRepresentativeDirector",
+      ];
+    case "corporation":
+      return [
+        "chairman",
+        "viceChairman",
+        "executiveDirector",
+        "director",
+        "supervisor",
+        "corporateShareholder",
+        "corporateDirectorRepresentative",
+        "corporateRepresentativeDirector",
+      ];
+    case "partnership":
+      return ["partner", "manager", "legalRepresentative"];
+    default:
+      return ["shareholder"]; // Default fallback
+  }
+};
+
 // Generate mock partner data including shares (dateOfBirth required, contact info not displayed)
-export const generateMockPartner = (): PartnerSchema => {
+export const generateMockPartner = (
+  organizationType?: OrganizationType
+): PartnerSchema => {
   const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
+  const validPartnerTypes = getValidPartnerTypes(organizationType);
+  const partnerType = faker.helpers.arrayElement(validPartnerTypes);
+
+  const isCorporatePartner =
+    partnerType === "corporateShareholder" ||
+    partnerType === "corporateDirectorRepresentative" ||
+    partnerType === "corporateRepresentativeDirector";
+
   return {
     name: faker.person.fullName(),
     idNumber: generateTaiwaneseIdNumber(),
@@ -63,7 +105,15 @@ export const generateMockPartner = (): PartnerSchema => {
       fractionDigits: 2,
     }),
     isReadonly: false,
+    partnerType,
     shares: generateMockShares(),
+    // Corporate partner fields
+    corporateUnifiedNumber: isCorporatePartner
+      ? faker.string.numeric(8)
+      : undefined,
+    corporateAddress: isCorporatePartner
+      ? faker.location.streetAddress(true)
+      : undefined,
   };
 };
 
@@ -143,10 +193,18 @@ export const generateMockFormData = ({
 
   const mockFormData: CompanyApplicationFormSchema = {
     candidateNames: generateMockCompanyNames(),
+    foreignName: faker.datatype.boolean() ? faker.company.name() : undefined,
     organizationType,
     businessItemsDescription: generateMockBusinessDescription(),
     address: faker.location.streetAddress(true), // Full address with city, state, zip
     isContactPersonSameAsResponsiblePerson: faker.datatype.boolean(),
+
+    // Sole proprietorship-specific fields
+    hasManagerialOfficer:
+      organizationType === "sole_proprietorship"
+        ? faker.datatype.boolean()
+        : false,
+    isManagerialOfficerSameAsResponsiblePerson: faker.datatype.boolean(),
 
     // Shared fields for corporation and limited company
     ...(organizationType === "corporation" ||
@@ -206,7 +264,7 @@ export const generateMockFormData = ({
         }
       : {}),
 
-    // Other organization types
+    // Other organization types (sole proprietorship and partnership)
     ...(organizationType !== "corporation" &&
     organizationType !== "limited_company"
       ? {
@@ -221,6 +279,14 @@ export const generateMockFormData = ({
           hasVetoRightsPreferredShares: false,
           hasPreferredSharesBoardRights: false,
           isSoleProprietorshipLLC: false,
+          hasForeignPartner:
+            organizationType === "partnership"
+              ? faker.datatype.boolean()
+              : false,
+          hasChinesePartner:
+            organizationType === "partnership"
+              ? faker.datatype.boolean()
+              : false,
         }
       : {}),
   };
@@ -231,19 +297,31 @@ export const generateMockFormData = ({
     ? form.responsiblePerson
     : generateMockPerson();
 
+  // Generate managerial officer for sole proprietorship if needed
+  if (
+    organizationType === "sole_proprietorship" &&
+    mockFormData.hasManagerialOfficer
+  ) {
+    form.managerialOfficer =
+      mockFormData.isManagerialOfficerSameAsResponsiblePerson
+        ? form.responsiblePerson
+        : generateMockPerson();
+  }
+
   const partnerCount = faker.number.int({ min: 3, max: 7 });
   const shareTypeCount = isCorporation
     ? faker.number.int({ min: 1, max: 6 })
     : 1;
 
   form.partners = Array.from({ length: partnerCount }, (_, index) =>
-    generateMockPartner()
+    generateMockPartner(organizationType)
   );
 
   return {
     ...mockFormData,
     responsiblePerson: form.responsiblePerson,
     contactPerson: form.contactPerson,
+    managerialOfficer: form.managerialOfficer || createEmptyPerson(),
     partners: form.partners,
     shareTypeCount,
   };

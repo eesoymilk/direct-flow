@@ -55,7 +55,7 @@
           <template #content>
             <UCard class="mt-2 md:mt-4">
               <UForm
-                class="grid grid-cols-2 gap-4"
+                class="grid grid-cols-2 md:grid-cols-6 gap-4"
                 :state="basicInfo"
                 :schema="basicInfoSchema"
               >
@@ -72,10 +72,73 @@
                   />
                 </UFormField>
 
-                <UFormField name="hasComparativePeriod" class="col-span-full">
+                <UFormField
+                  label="適用會計架構"
+                  name="accountingFramework"
+                  class="col-span-full"
+                  required
+                >
+                  <USelect
+                    v-model="basicInfo.accountingFramework"
+                    :items="frameworkItems"
+                    placeholder="選擇適用的會計架構"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  name="isComparativeReport"
+                  :class="
+                    basicInfo.accountingFramework ===
+                    'businessAccountingGuidelines'
+                      ? 'col-span-2'
+                      : 'col-span-4'
+                  "
+                >
                   <UCheckbox
-                    v-model="hasComparativePeriod"
+                    v-model="basicInfo.isComparativeReport"
                     label="包含比較年份"
+                  />
+                </UFormField>
+
+                <UFormField
+                  name="isConsolidatedReport"
+                  :class="
+                    basicInfo.accountingFramework ===
+                    'businessAccountingGuidelines'
+                      ? 'col-span-2'
+                      : 'col-span-4'
+                  "
+                >
+                  <UCheckbox
+                    v-model="basicInfo.isConsolidatedReport"
+                    label="合併財報"
+                  />
+                </UFormField>
+
+                <UFormField
+                  name="useEquityMethodInvestment"
+                  :class="
+                    basicInfo.accountingFramework ===
+                    'businessAccountingGuidelines'
+                      ? 'col-span-2'
+                      : 'col-span-4'
+                  "
+                >
+                  <UCheckbox
+                    v-model="basicInfo.useEquityMethodInvestment"
+                    label="使用權益法投資"
+                  />
+                </UFormField>
+
+                <UFormField
+                  v-if="basicInfo.accountingFramework === 'IFRS'"
+                  name="includeEmphasisOfMatterSection"
+                  class="col-span-3"
+                >
+                  <UCheckbox
+                    v-model="includeEmphasisOfMatterSection"
+                    label="包含強調事項段"
                   />
                 </UFormField>
 
@@ -84,29 +147,11 @@
                   name="periodEnd"
                   required
                   class="col-span-full"
-                  :class="{ 'md:col-span-1': hasComparativePeriod }"
                 >
                   <div class="gap-2 md:gap-4 flex justify-between items-center">
                     <span>民國</span>
                     <UInputNumber
                       v-model="basicInfo.currentRocYear"
-                      class="flex-1"
-                    />
-                    <span>年</span>
-                  </div>
-                </UFormField>
-
-                <UFormField
-                  v-if="hasComparativePeriod"
-                  label="比較年份"
-                  name="comparativeRocYear"
-                  class="col-span-full"
-                  :class="{ 'md:col-span-1': hasComparativePeriod }"
-                >
-                  <div class="gap-2 md:gap-4 flex justify-between items-center">
-                    <span>民國</span>
-                    <UInputNumber
-                      v-model="basicInfo.comparativeRocYear"
                       class="flex-1"
                     />
                     <span>年</span>
@@ -127,29 +172,58 @@
                 </UFormField>
 
                 <UFormField
-                  label="會計師姓名"
-                  name="auditorName"
+                  label="會計師事務所地址"
+                  name="firmAddress"
+                  class="col-span-full"
+                >
+                  <UInput
+                    v-model="basicInfo.firmAddress"
+                    placeholder="請輸入會計師事務所地址（選填）"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="
+                    basicInfo.accountingFramework === 'IFRS'
+                      ? '會計師姓名（一）'
+                      : '會計師姓名'
+                  "
+                  name="auditorNames.0"
                   class="col-span-full"
                   required
                 >
                   <UInput
-                    v-model="basicInfo.auditorName"
+                    v-model="basicInfo.auditorNames![0]"
                     placeholder="請輸入會計師姓名"
                     class="w-full"
                   />
                 </UFormField>
 
                 <UFormField
-                  label="適用會計架構"
-                  name="accountingFramework"
+                  v-if="basicInfo.accountingFramework === 'IFRS'"
+                  label="會計師姓名（二）"
+                  name="auditorNames.1"
                   class="col-span-full"
                   required
                 >
-                  <USelect
-                    v-model="basicInfo.accountingFramework"
-                    :items="frameworkItems"
-                    placeholder="選擇適用的會計架構"
+                  <UInput
+                    v-model="basicInfo.auditorNames![1]"
+                    placeholder="請輸入第二位會計師姓名"
                     class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  label="報告日期"
+                  name="reportDate"
+                  class="col-span-full"
+                  required
+                >
+                  <DatePicker
+                    v-model="basicInfo.reportDate"
+                    placeholder="請選擇報告日期"
+                    class="w-full h-8"
                   />
                 </UFormField>
               </UForm>
@@ -238,6 +312,40 @@
                 <UFormField
                   v-if="
                     includeOtherMatterSection &&
+                    opinionInfo.otherMatterOption?.type ===
+                      'previousReportHandledByOtherAuditor'
+                  "
+                  label="前次查核意見類型"
+                  required
+                >
+                  <USelect
+                    v-model="opinionInfo.otherMatterOption.previousOpinionType"
+                    placeholder="請選擇前次查核意見類型"
+                    class="w-full"
+                    :items="[
+                      {
+                        label: '無保留意見',
+                        value: 'unqualified',
+                      },
+                      {
+                        label: '保留意見',
+                        value: 'qualified',
+                      },
+                      {
+                        label: '否定意見',
+                        value: 'adverse',
+                      },
+                      {
+                        label: '無法表示意見',
+                        value: 'disclaimer',
+                      },
+                    ]"
+                  />
+                </UFormField>
+
+                <UFormField
+                  v-if="
+                    includeOtherMatterSection &&
                     opinionInfo.otherMatterOption?.type === 'custom'
                   "
                   label="自定義其他事項"
@@ -246,6 +354,37 @@
                   <UTextarea
                     v-model="opinionInfo.otherMatterOption.customDescription"
                     placeholder="請輸入自定義其他事項"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  v-if="
+                    basicInfo.accountingFramework === 'IFRS' &&
+                    opinionInfo.keyAuditMatterOption
+                  "
+                  label="關鍵查核事項段"
+                  required
+                >
+                  <UTextarea
+                    v-model="opinionInfo.keyAuditMatterOption.description"
+                    placeholder="請輸入關鍵查核事項段"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  v-if="
+                    basicInfo.accountingFramework === 'IFRS' &&
+                    includeEmphasisOfMatterSection &&
+                    opinionInfo.emphasisOfMatterOption
+                  "
+                  label="強調事項段"
+                  required
+                >
+                  <UTextarea
+                    v-model="opinionInfo.emphasisOfMatterOption.description"
+                    placeholder="請輸入強調事項段"
                     class="w-full"
                   />
                 </UFormField>
@@ -265,6 +404,7 @@
               <UIcon name="i-lucide-eye" size="20" />
               財報預覽
             </h2>
+            <USwitch v-model="highlightVariable" label="審查模式" />
           </div>
         </template>
 
@@ -273,7 +413,7 @@
             class="bg-white border-2 border-gray-200 rounded-lg p-6 min-h-96"
           >
             <!-- <AuditReportPreview :report-template="store.reportTemplate" /> -->
-            <DocumentPreview :sections="sections" />
+            <DocumentPreview :sections="sections" document-size="A4" />
           </div>
         </div>
 
@@ -316,8 +456,9 @@ const store = useAuditBuilderStore();
 const {
   basicInfo,
   opinionInfo,
-  hasComparativePeriod,
   includeOtherMatterSection,
+  includeEmphasisOfMatterSection,
+  highlightVariable,
 } = storeToRefs(store);
 const { generateMockData } = store;
 
@@ -336,7 +477,7 @@ const frameworkItems: SelectItem[] = [
 
 const otherMatterOptions = computed((): RadioGroupItem[] => [
   {
-    label: "缺漏前次查核報告",
+    label: "前年度未經查核",
     value: "missingPreviousAuditReport",
   },
   {

@@ -17,10 +17,10 @@
               {{
                 partner.referenceType
                   ? getPersonLabel(partner.referenceType)
-                  : "股東"
+                  : partnerLabel
               }}
               <span v-if="partner.isReadonly" class="text-primary ml-2">
-                （僅可編輯持股）
+                （{{ hasShares ? "僅可編輯持股及出資額" : "僅可編輯出資額" }}）
               </span>
             </p>
           </div>
@@ -35,6 +35,12 @@
     </template>
 
     <div class="space-y-4">
+      <!-- Partner Role/Type -->
+      <CompanyApplicationConfirmPartnerRoles
+        :partner="partner"
+        :organization-type="organizationType"
+      />
+
       <!-- Basic Information -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InfoDisplay
@@ -48,6 +54,11 @@
           :value="partner.address"
         />
         <InfoDisplay
+          label="手機號碼"
+          icon="i-lucide-phone"
+          :value="partner.cellphone"
+        />
+        <InfoDisplay
           label="出生日期"
           icon="i-lucide-calendar"
           :value="
@@ -56,8 +67,25 @@
               : '未填寫'
           "
         />
+
+        <!-- Corporate partner fields -->
+        <template v-if="isCorporatePartner">
+          <InfoDisplay
+            label="統一編號"
+            icon="i-lucide-building"
+            :value="partner.corporateUnifiedNumber || '未填寫'"
+            class="col-span-full border border-blue-200 bg-blue-50"
+          />
+          <InfoDisplay
+            label="法人所在地"
+            icon="i-lucide-map-pin"
+            :value="partner.corporateAddress || '未填寫'"
+            class="col-span-full border border-blue-200 bg-blue-50"
+          />
+        </template>
+
         <InfoDisplay
-          label="出資額"
+          :label="capitalLabel"
           icon="i-lucide-dollar-sign"
           :value="
             partner.capitalContribution !== undefined &&
@@ -65,12 +93,14 @@
               ? `NT$ ${partner.capitalContribution.toLocaleString()}`
               : '未填寫'
           "
+          variant="highlighted"
+          class="col-span-full border border-green-200 bg-green-50"
         />
       </div>
 
       <!-- Share Holdings (for stock companies) -->
       <CompanyApplicationConfirmShareHoldings
-        v-if="isCorporation && partner.shares"
+        v-if="hasShares && partner.shares"
         :shares="partner.shares"
       />
     </div>
@@ -83,8 +113,54 @@ import { format } from "date-fns";
 interface Props {
   partner: PartnerSchema;
   index: number;
-  isCorporation: boolean;
+  organizationType: OrganizationType;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+// Organization-aware labels
+const partnerLabel = computed(() => {
+  switch (props.organizationType) {
+    case "corporation":
+    case "limited_company":
+      return "股東";
+    case "partnership":
+      return "合夥人";
+    case "sole_proprietorship":
+      return "負責人";
+    default:
+      return "成員";
+  }
+});
+
+const capitalLabel = computed(() => {
+  switch (props.organizationType) {
+    case "corporation":
+    case "limited_company":
+      return "出資額";
+    case "partnership":
+      return "合夥出資額";
+    case "sole_proprietorship":
+      return "資本額";
+    default:
+      return "出資額";
+  }
+});
+
+// Only corporations and limited companies have shares
+const hasShares = computed(() => {
+  return (
+    props.organizationType === "corporation" ||
+    props.organizationType === "limited_company"
+  );
+});
+
+// Check if this is a corporate partner
+const isCorporatePartner = computed(() => {
+  return (
+    props.partner.partnerType === "corporateShareholder" ||
+    props.partner.partnerType === "corporateDirectorRepresentative" ||
+    props.partner.partnerType === "corporateRepresentativeDirector"
+  );
+});
 </script>

@@ -1,6 +1,7 @@
 const bodySchema = companyApplicationBaseSchema.extend({
   responsiblePerson: responsiblePersonSchema,
   contactPerson: contactPersonSchema,
+  managerialOfficer: managerialOfficerSchema.optional(),
   partners: partnerSchema.array(),
 });
 
@@ -22,8 +23,11 @@ export default eventHandler(async (event) => {
     const {
       responsiblePerson,
       contactPerson,
+      managerialOfficer,
       partners,
       isContactPersonSameAsResponsiblePerson,
+      hasManagerialOfficer,
+      isManagerialOfficerSameAsResponsiblePerson,
       ...data
     } = body.data;
 
@@ -37,10 +41,20 @@ export default eventHandler(async (event) => {
         contactPersonResult = await createPerson(tx, contactPerson);
       }
 
+      let managerialOfficerResult: Person | undefined;
+      if (hasManagerialOfficer) {
+        if (isManagerialOfficerSameAsResponsiblePerson) {
+          managerialOfficerResult = responsiblePersonResult;
+        } else if (managerialOfficer) {
+          managerialOfficerResult = await createPerson(tx, managerialOfficer);
+        }
+      }
+
       const application = await createCompanyApplication(tx, {
         ...data,
         responsiblePersonId: responsiblePersonResult.id,
         contactPersonId: contactPersonResult.id,
+        managerialOfficerId: managerialOfficerResult?.id,
       });
 
       // const partnerData: { person: Person }[] = [];
@@ -82,6 +96,7 @@ export default eventHandler(async (event) => {
         application,
         responsiblePerson: responsiblePersonResult,
         contactPerson: contactPersonResult,
+        managerialOfficer: managerialOfficerResult,
         // partners: partnerData.map((s) => s.person),
       };
     });

@@ -40,9 +40,7 @@ export const createEmptyShares = (
   );
 };
 
-export const createEmptyPartner = (
-  hasParValueFreeShares: boolean = false
-): PartnerSchema => ({
+export const createEmptyPartner = (): PartnerSchema => ({
   name: "",
   idNumber: "",
   address: "",
@@ -50,11 +48,14 @@ export const createEmptyPartner = (
   dateOfBirth: createDefaultAdultBirthDate(),
   capitalContribution: undefined,
   isReadonly: false,
-  shares: createEmptyShares(hasParValueFreeShares ? 10 : 0),
+  shares: createEmptyShares(0), // Always 0 for pricePerShare; user enters totalPrice manually for par value free shares
+  corporateUnifiedNumber: undefined,
+  corporateAddress: undefined,
 });
 
 export const createInitialForm = () => ({
   candidateNames: [],
+  foreignName: undefined,
   organizationType: "corporation" as const, // Updated to new organization type
   isCloselyHeld: false,
   businessItemsDescription: "",
@@ -66,6 +67,10 @@ export const createInitialForm = () => ({
   // Removed ordinaryShares and preferredShares - now calculated from share holdings
   hasParValueFreeShares: false,
   isContactPersonSameAsResponsiblePerson: false,
+
+  // Sole proprietorship-specific fields
+  hasManagerialOfficer: false,
+  isManagerialOfficerSameAsResponsiblePerson: false,
 
   // Shared fields for corporation and limited company
   isForeignInvestment: false,
@@ -80,8 +85,13 @@ export const createInitialForm = () => ({
   // Limited company-specific fields
   isSoleProprietorshipLLC: false,
 
+  // Partnership-specific fields
+  hasForeignPartner: false,
+  hasChinesePartner: false,
+
   responsiblePerson: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
+  managerialOfficer: createEmptyPerson(),
   partners: [createEmptyPartner()],
   // TODO: Add documents when file storage is ready
   // documents: createInitialDocuments(),

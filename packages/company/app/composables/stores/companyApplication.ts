@@ -6,6 +6,7 @@ export const useCompanyApplicationStore = defineStore(
       CompanyApplicationFormSchema & {
         responsiblePerson: PersonSchema;
         contactPerson: PersonSchema;
+        managerialOfficer: PersonSchema;
         partners: PartnerSchema[];
       }
     >(createInitialForm());
@@ -69,9 +70,9 @@ export const useCompanyApplicationStore = defineStore(
 
       for (const partner of formState.value.partners) {
         if (partner.shares) {
-          // Sum all preferred share types (preferred_a through preferred_e)
-          const preferredTypes = SHARE_TYPES.filter((type) =>
-            type.startsWith("preferred_")
+          // Sum all preferred share types (preferred, preferred_a through preferred_e)
+          const preferredTypes = SHARE_TYPES.filter(
+            (type) => type === "preferred" || type.startsWith("preferred_")
           ) as ShareType[];
 
           for (const shareType of preferredTypes) {
@@ -109,9 +110,7 @@ export const useCompanyApplicationStore = defineStore(
     });
 
     const addPartner = () => {
-      const newPartner = createEmptyPartner(
-        formState.value.hasParValueFreeShares
-      );
+      const newPartner = createEmptyPartner();
       formState.value.partners.push(newPartner);
     };
 
@@ -144,9 +143,7 @@ export const useCompanyApplicationStore = defineStore(
         capitalContribution: undefined,
         isReadonly: true,
         referenceType: personType,
-        shares: createEmptyShares(
-          formState.value.hasParValueFreeShares ? 10 : 0
-        ),
+        shares: createEmptyShares(0), // Always 0 for pricePerShare
       };
 
       formState.value.partners.push(newPartner);

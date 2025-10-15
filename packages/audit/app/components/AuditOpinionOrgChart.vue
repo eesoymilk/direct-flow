@@ -17,7 +17,11 @@
       >
         {{ getOpinionTypeLabel(node.key) }}
       </div>
-      <p class="text-xs text-gray-700 leading-relaxed">
+      <!-- We don't need to show the description for unqualified -->
+      <p
+        v-if="node.key != 'unqualified'"
+        class="text-xs text-gray-700 leading-relaxed"
+      >
         {{ getOpinionTypeDescription(node.key) }}
       </p>
     </template>
@@ -137,11 +141,14 @@ const getOpinionTypeLabelClass = (opinionType: OpinionType) => {
 };
 
 watch(
-  () => store.opinionInfo,
-  (newVal) => {
-    const newType = newVal.opinionType;
-    // TODO: Update selection keys
+  () => opinionInfo.value.opinionType,
+  (newType) => {
+    if (newType) {
+      selectionKeys.value = { [newType]: true };
+    } else {
+      selectionKeys.value = {};
+    }
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
 </script>

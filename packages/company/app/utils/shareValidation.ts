@@ -40,8 +40,9 @@ export const getPartnerPreferredShares = (
   let totalPrice = 0;
 
   if (partner.shares) {
-    // Sum all preferred share types (preferred_a through preferred_e)
+    // Sum all preferred share types (preferred, preferred_a through preferred_e)
     const preferredTypes = [
+      "preferred",
       "preferred_a",
       "preferred_b",
       "preferred_c",

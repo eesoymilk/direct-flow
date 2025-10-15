@@ -47,8 +47,6 @@
             :format-options="{
               style: 'currency',
               currency: 'TWD',
-              currencyDisplay: 'code',
-              currencySign: 'accounting',
             }"
             @update:model-value="handleUpdatePricePerShare(shareType, $event)"
           />
@@ -65,8 +63,6 @@
             :format-options="{
               style: 'currency',
               currency: 'TWD',
-              currencyDisplay: 'code',
-              currencySign: 'accounting',
             }"
           />
         </UFormField>

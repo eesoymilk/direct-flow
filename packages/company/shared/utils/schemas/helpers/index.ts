@@ -32,6 +32,10 @@ export const idNumberSchema = z.string().regex(/^[A-Z][1-2][0-9]{8}$/, {
   message: "身份證字號格式錯誤",
 });
 
+export const unifiedBusinessNumberSchema = z.string().regex(/^[0-9]{8}$/, {
+  message: "統一編號格式錯誤（須為8位數字）",
+});
+
 export const documentSchema = z.object({
   documentType: z.string().min(1, "文件類型為必填"),
   documentDescription: z.string(),

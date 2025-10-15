@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import tailwindcss from "@tailwindcss/vite";
 import { DirectFlowTheme } from "./themes/directFlow";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,10 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
     strict: true,
+  },
+
+  vite: {
+    plugins: [tailwindcss()],
   },
 
   css: [join(currentDir, "./app/assets/css/tailwind.css")],

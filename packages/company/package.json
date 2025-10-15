@@ -21,7 +21,9 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate --config=drizzle-dev.config.ts",
-    "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts"
+    "db:migrate": "drizzle-kit migrate --config=drizzle-dev.config.ts",
+    "deploy": "pnpm dlx vercel deploy --prebuilt --prod",
+    "deploy:preview": "pnpm dlx vercel deploy --prebuilt"
   },
   "dependencies": {
     "@internationalized/date": "^3.9.0",
@@ -29,9 +31,10 @@
     "@nuxt/fonts": "0.11.4",
     "@nuxt/icon": "2.0.0",
     "@nuxt/image": "1.11.0",
-    "@nuxt/ui": "^3.3.4",
+    "@nuxt/ui": "^4.0.0",
     "@pinia/nuxt": "0.11.2",
     "@primeuix/themes": "^1.2.3",
+    "@tailwindcss/vite": "^4.1.13",
     "@vueuse/nuxt": "13.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -46,7 +49,7 @@
     "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.5.21",
     "vue-router": "^4.5.1",
-    "zod": "^3.25.64"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@direct-flow/base": "workspace:*",

@@ -2,36 +2,51 @@ import { generateCompleteData } from "../../utils/services/mockData";
 
 export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   // Form state
-  const basicInfo = ref<Partial<AuditBasicInfo>>({});
-  const opinionInfo = ref<Partial<AuditOpinionInfo>>({});
-  const hasComparativePeriod = ref(false);
+  const basicInfo = ref<Partial<BasicInfoForm>>({
+    isComparativeReport: false,
+    isConsolidatedReport: false,
+    useEquityMethodInvestment: false,
+    auditorNames: [""],
+  });
+  const opinionInfo = ref<Partial<OpinionInfoForm>>({});
   const includeOtherMatterSection = ref(false);
+  const includeEmphasisOfMatterSection = ref(false);
+
+  const highlightVariable = ref(false);
 
   // Store-specific state
   const isSaving = ref(false);
   const lastSaved = ref<Date | null>(null);
+
+  const toggleHighlightVariable = () => {
+    highlightVariable.value = !highlightVariable.value;
+  };
 
   // Form actions
   const generateMockData = () => {
     const mockData = generateCompleteData();
     basicInfo.value = mockData.basicInfo;
     opinionInfo.value = mockData.opinionInfo;
-    hasComparativePeriod.value = !!mockData.basicInfo.comparativeRocYear;
     includeOtherMatterSection.value = !!mockData.opinionInfo.otherMatterOption;
   };
 
   const resetForm = () => {
-    basicInfo.value = {};
+    basicInfo.value = {
+      isComparativeReport: false,
+      isConsolidatedReport: false,
+      useEquityMethodInvestment: false,
+      auditorNames: [""],
+    };
     opinionInfo.value = {};
-    hasComparativePeriod.value = false;
     includeOtherMatterSection.value = false;
+    includeEmphasisOfMatterSection.value = false;
   };
 
-  const updateBasicInfo = (updates: Partial<AuditBasicInfo>) => {
+  const updateBasicInfo = (updates: Partial<BasicInfoForm>) => {
     basicInfo.value = { ...basicInfo.value, ...updates };
   };
 
-  const updateOpinionInfo = (updates: Partial<AuditOpinionInfo>) => {
+  const updateOpinionInfo = (updates: Partial<OpinionInfoForm>) => {
     opinionInfo.value = { ...opinionInfo.value, ...updates };
   };
 
@@ -79,19 +94,58 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     }
   });
 
-  watch(hasComparativePeriod, (newVal) => {
-    if (!newVal) {
-      const { comparativeRocYear, ...rest } = basicInfo.value;
-      basicInfo.value = rest;
+  watch(includeEmphasisOfMatterSection, (newVal) => {
+    if (newVal && !opinionInfo.value.emphasisOfMatterOption) {
+      opinionInfo.value.emphasisOfMatterOption = {
+        description: "",
+      };
+    } else if (!newVal) {
+      const { emphasisOfMatterOption, ...rest } = opinionInfo.value;
+      opinionInfo.value = rest;
     }
   });
+
+  // Auto-initialize Key Audit Matters for IFRS framework
+  watch(
+    () => basicInfo.value.accountingFramework,
+    (newFramework, oldFramework) => {
+      if (newFramework === "IFRS") {
+        opinionInfo.value.keyAuditMatterOption = {
+          description: "",
+        };
+        opinionInfo.value.emphasisOfMatterOption = {
+          description: "",
+        };
+        // Initialize second auditor slot if not exists
+        if (!basicInfo.value.auditorNames) {
+          basicInfo.value.auditorNames = ["", ""];
+        } else if (basicInfo.value.auditorNames.length === 1) {
+          basicInfo.value.auditorNames.push("");
+        }
+      } else {
+        opinionInfo.value.keyAuditMatterOption = undefined;
+        opinionInfo.value.emphasisOfMatterOption = undefined;
+        // Trim to single auditor when switching away from IFRS
+        if (
+          oldFramework === "IFRS" &&
+          basicInfo.value.auditorNames &&
+          basicInfo.value.auditorNames.length > 1
+        ) {
+          basicInfo.value.auditorNames = [
+            basicInfo.value.auditorNames[0] || "",
+          ];
+        }
+      }
+    }
+  );
 
   return {
     // Form state
     basicInfo,
     opinionInfo,
-    hasComparativePeriod,
     includeOtherMatterSection,
+    includeEmphasisOfMatterSection,
+    highlightVariable,
 
     // Store-specific state
     isSaving: readonly(isSaving),
@@ -102,6 +156,7 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     resetForm,
     updateBasicInfo,
     updateOpinionInfo,
+    toggleHighlightVariable,
 
     // Store-specific actions
     saveTemplate,

@@ -24,6 +24,30 @@
       title="聯絡人"
       description="與負責人相同"
     />
+
+    <!-- Managerial Officer Information - Only for Sole Proprietorship -->
+    <template
+      v-if="
+        formState.organizationType === 'sole_proprietorship' &&
+        formState.hasManagerialOfficer
+      "
+    >
+      <PersonCard
+        v-if="!formState.isManagerialOfficerSameAsResponsiblePerson"
+        :person="formState.managerialOfficer as PersonSchema"
+        title="經理人"
+        subtitle="法定代理人經營"
+        icon="i-lucide-briefcase"
+      />
+      <UAlert
+        v-else
+        icon="i-lucide-briefcase"
+        color="primary"
+        variant="soft"
+        title="經理人"
+        description="與負責人相同"
+      />
+    </template>
   </div>
 </template>
 
@@ -32,6 +56,7 @@ interface Props {
   formState: CompanyApplicationFormSchema & {
     responsiblePerson: PersonSchema;
     contactPerson: PersonSchema;
+    managerialOfficer?: PersonSchema;
     partners: PartnerSchema[];
   };
 }
