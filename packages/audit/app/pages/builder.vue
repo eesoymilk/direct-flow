@@ -256,24 +256,136 @@
           </UButton>
           <template #content>
             <UCard class="mt-2 md:mt-4">
-              <div class="space-y-4">
-                <AuditOpinionOrgChart />
-                <UFormField
-                  v-if="
-                    opinionInfo.opinionType &&
-                    opinionInfo.opinionType !== 'unqualified'
-                  "
-                  label="查核意見理由"
-                  name="opinionType"
-                  class="col-span-full"
-                  required
+              <div class="space-y-6">
+                <!-- Opinion Mode Toggle (only for comparative reports) -->
+                <div
+                  v-if="basicInfo.isComparativeReport"
+                  class="border-b pb-4"
                 >
-                  <UTextarea
-                    v-model="opinionInfo.reason"
-                    placeholder="請輸入查核意見理由"
-                    class="w-full"
+                  <label class="block text-sm font-medium mb-2">
+                    查核意見模式
+                  </label>
+                  <URadioGroup
+                    v-model="opinionMode"
+                    :items="[
+                      { label: '相同意見（兩年度相同）', value: 'single' },
+                      { label: '不同意見（兩年度不同）', value: 'dual' },
+                    ]"
                   />
-                </UFormField>
+                </div>
+
+                <!-- Single Opinion Mode -->
+                <template v-if="opinionMode === 'single'">
+                  <AuditOpinionOrgChart />
+                  <UFormField
+                    v-if="
+                      opinionInfo.mode === 'single' &&
+                      opinionInfo.opinion.opinionType &&
+                      opinionInfo.opinion.opinionType !== 'unqualified'
+                    "
+                    label="查核意見理由"
+                    name="opinion.reason"
+                    class="col-span-full"
+                    required
+                  >
+                    <UTextarea
+                      v-model="opinionInfo.opinion.reason"
+                      placeholder="請輸入查核意見理由"
+                      class="w-full"
+                      :rows="4"
+                    />
+                  </UFormField>
+                </template>
+
+                <!-- Dual Opinion Mode -->
+                <template v-else>
+                  <!-- Year Tabs -->
+                  <UTabs v-model="selectedYearTab" :items="yearTabs" />
+
+                  <!-- Tab Content -->
+                  <div v-if="selectedYearTab === 'current'" class="space-y-4">
+                    <AuditOpinionOrgChart year-mode="current" />
+
+                    <UFormField
+                      v-if="
+                        opinionInfo.mode === 'dual' &&
+                        opinionInfo.currentYearOpinion.opinionType !==
+                          'unqualified'
+                      "
+                      label="查核意見理由"
+                      name="currentYearOpinion.reason"
+                      required
+                    >
+                      <UTextarea
+                        v-model="opinionInfo.currentYearOpinion.reason"
+                        placeholder="請輸入當期查核意見理由"
+                        class="w-full"
+                        :rows="4"
+                      />
+                    </UFormField>
+                  </div>
+
+                  <div v-else class="space-y-4">
+                    <AuditOpinionOrgChart year-mode="comparative" />
+
+                    <UFormField
+                      v-if="
+                        opinionInfo.mode === 'dual' &&
+                        opinionInfo.comparativeYearOpinion.opinionType !==
+                          'unqualified'
+                      "
+                      label="查核意見理由"
+                      name="comparativeYearOpinion.reason"
+                      required
+                    >
+                      <UTextarea
+                        v-model="opinionInfo.comparativeYearOpinion.reason"
+                        placeholder="請輸入比較期查核意見理由"
+                        class="w-full"
+                        :rows="4"
+                      />
+                    </UFormField>
+                  </div>
+
+                  <!-- Summary of Selected Opinions -->
+                  <div
+                    v-if="
+                      opinionInfo.mode === 'dual' &&
+                      opinionInfo.currentYearOpinion.opinionType &&
+                      opinionInfo.comparativeYearOpinion.opinionType
+                    "
+                    class="border rounded-lg p-4 bg-primary-50 space-y-2"
+                  >
+                    <div class="font-semibold text-sm text-gray-700">
+                      已選擇的查核意見：
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span class="text-gray-600">當期年度：</span>
+                        <span class="font-medium">{{
+                          getOpinionTypeLabel(
+                            opinionInfo.currentYearOpinion.opinionType
+                          )
+                        }}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-600">比較期年度：</span>
+                        <span class="font-medium">{{
+                          getOpinionTypeLabel(
+                            opinionInfo.comparativeYearOpinion.opinionType
+                          )
+                        }}</span>
+                      </div>
+                    </div>
+                    <div class="pt-2 border-t">
+                      <span class="text-gray-600 text-sm">報告標題：</span>
+                      <span class="font-semibold text-primary">{{
+                        getDualOpinionTitle()
+                      }}</span>
+                    </div>
+                  </div>
+                </template>
+
                 <UCheckbox
                   v-model="includeOtherMatterSection"
                   label="包含其他事項段"
@@ -290,24 +402,6 @@
                   class="w-full"
                   required
                 />
-
-                <UFormField
-                  v-if="
-                    includeOtherMatterSection &&
-                    opinionInfo.otherMatterOption?.type ===
-                      'previousReportHandledByOtherAuditor'
-                  "
-                  label="前次查核報告日期"
-                  required
-                >
-                  <DatePicker
-                    v-model="
-                      opinionInfo.otherMatterOption.previousAuditReportDate
-                    "
-                    placeholder="請選擇前次查核報告日期"
-                    class="w-full"
-                  />
-                </UFormField>
 
                 <UFormField
                   v-if="
@@ -408,7 +502,16 @@
           </div>
         </template>
 
-        <div v-if="opinionInfo.opinionType" class="space-y-4">
+        <div
+          v-if="
+            (opinionInfo.mode === 'single' &&
+              opinionInfo.opinion.opinionType) ||
+            (opinionInfo.mode === 'dual' &&
+              opinionInfo.currentYearOpinion.opinionType &&
+              opinionInfo.comparativeYearOpinion.opinionType)
+          "
+          class="space-y-4"
+        >
           <div
             class="bg-white border-2 border-gray-200 rounded-lg p-6 min-h-96"
           >
@@ -422,7 +525,13 @@
             name="i-lucide-file-text"
             class="h-12 w-12 mx-auto mb-4 text-gray-300"
           />
-          <p>請選擇查核意見類型以查看預覽</p>
+          <p>
+            {{
+              opinionMode === "dual"
+                ? "請為兩個年度選擇查核意見類型以查看預覽"
+                : "請選擇查核意見類型以查看預覽"
+            }}
+          </p>
         </div>
 
         <template #footer>
@@ -451,6 +560,7 @@
 
 <script setup lang="ts">
 import type { RadioGroupItem, SelectItem } from "@nuxt/ui";
+import type { OpinionType } from "#shared/types/audit-report";
 
 const store = useAuditBuilderStore();
 const {
@@ -463,6 +573,89 @@ const {
 const { generateMockData } = store;
 
 const { sections } = useReportSections();
+
+// Year tab state for dual opinion mode
+const selectedYearTab = ref<'current' | 'comparative'>('current');
+
+// Year tabs configuration
+const yearTabs = computed(() => [
+  {
+    label: `當期年度 (民國${basicInfo.value.currentRocYear || '___'}年)`,
+    value: 'current',
+    icon: 'i-lucide-calendar',
+  },
+  {
+    label: `比較期年度 (民國${basicInfo.value.currentRocYear ? basicInfo.value.currentRocYear - 1 : '___'}年)`,
+    value: 'comparative',
+    icon: 'i-lucide-calendar-clock',
+  },
+]);
+
+// Opinion mode state (synced with store)
+const opinionMode = computed<'single' | 'dual'>({
+  get: () => opinionInfo.value.mode,
+  set: (mode) => {
+    if (mode === 'single') {
+      opinionInfo.value = {
+        mode: 'single',
+        opinion: {
+          year: basicInfo.value.currentRocYear || 0,
+          opinionType: 'unqualified',
+        },
+      };
+    } else {
+      opinionInfo.value = {
+        mode: 'dual',
+        currentYearOpinion: {
+          year: basicInfo.value.currentRocYear || 0,
+          opinionType: 'unqualified',
+        },
+        comparativeYearOpinion: {
+          year: (basicInfo.value.currentRocYear || 1) - 1,
+          opinionType: 'unqualified',
+        },
+      };
+    }
+  },
+});
+
+// Helper to get opinion type label
+const getOpinionTypeLabel = (type: OpinionType | 'qualified'): string => {
+  const labels: Record<OpinionType | 'qualified', string> = {
+    unqualified: '無保留意見',
+    qualified: '保留意見',
+    qualifiedDisclaimer: '保留意見',
+    qualifiedAdverse: '保留意見',
+    adverse: '否定意見',
+    disclaimer: '無法表示意見',
+  };
+  return labels[type];
+};
+
+// Helper to get simplified opinion type
+const getSimplifiedOpinionType = (type: OpinionType): OpinionType | 'qualified' => {
+  if (type === 'qualifiedDisclaimer' || type === 'qualifiedAdverse') {
+    return 'qualified';
+  }
+  return type;
+};
+
+// Helper to get dual opinion title preview
+const getDualOpinionTitle = (): string => {
+  if (opinionInfo.value.mode !== 'dual') return '';
+
+  const current = getSimplifiedOpinionType(opinionInfo.value.currentYearOpinion.opinionType);
+  const comparative = getSimplifiedOpinionType(opinionInfo.value.comparativeYearOpinion.opinionType);
+
+  // If both opinions are the same, return single opinion title
+  if (current === comparative) {
+    return getOpinionTypeLabel(current);
+  }
+
+  // Otherwise, combine both opinion titles
+  const sorted = [current, comparative].sort() as [OpinionType | 'qualified', OpinionType | 'qualified'];
+  return `${getOpinionTypeLabel(sorted[0])}及${getOpinionTypeLabel(sorted[1])}`;
+};
 
 const frameworkItems: SelectItem[] = [
   {

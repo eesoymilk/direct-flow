@@ -10,10 +10,12 @@
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
     "lint:company": "pnpm --filter=@direct-flow/company lint",
+    "lint:audit": "pnpm --filter=@direct-flow/audit lint",
     "lint:base": "pnpm --filter=@direct-flow/base lint",
     "check": "pnpm -r check",
     "check:fix": "pnpm -r check:fix",
     "check:company": "pnpm --filter=@direct-flow/company check",
+    "check:audit": "pnpm --filter=@direct-flow/audit check",
     "check:base": "pnpm --filter=@direct-flow/base check",
     "test": "pnpm -r test:run",
     "test:company": "pnpm --filter=@direct-flow/company test:run",
@@ -40,7 +42,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
   "dependencies": {
     "better-sqlite3": "^11.10.0"
   },

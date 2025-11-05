@@ -1,4 +1,5 @@
 import { generateCompleteData } from "../../utils/services/mockData";
+import type { BasicInfoForm, OpinionInfoForm } from "../../utils/schemas/audit";
 
 export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   // Form state
@@ -8,7 +9,16 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     useEquityMethodInvestment: false,
     auditorNames: [""],
   });
-  const opinionInfo = ref<Partial<OpinionInfoForm>>({});
+
+  // Opinion info using OpinionInfoForm with full validation support
+  const opinionInfo = ref<OpinionInfoForm>({
+    mode: "single",
+    opinion: {
+      year: 0,
+      opinionType: "unqualified",
+    },
+  });
+
   const includeOtherMatterSection = ref(false);
   const includeEmphasisOfMatterSection = ref(false);
 
@@ -37,7 +47,13 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
       useEquityMethodInvestment: false,
       auditorNames: [""],
     };
-    opinionInfo.value = {};
+    opinionInfo.value = {
+      mode: "single",
+      opinion: {
+        year: 0,
+        opinionType: "unqualified",
+      },
+    };
     includeOtherMatterSection.value = false;
     includeEmphasisOfMatterSection.value = false;
   };
@@ -46,8 +62,9 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     basicInfo.value = { ...basicInfo.value, ...updates };
   };
 
-  const updateOpinionInfo = (updates: Partial<OpinionInfoForm>) => {
-    opinionInfo.value = { ...opinionInfo.value, ...updates };
+  const updateOpinionInfo = (updates: OpinionInfoForm) => {
+    // Always expect a full OpinionInfoForm object
+    opinionInfo.value = updates;
   };
 
   // Store-specific actions
@@ -85,23 +102,33 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   // Watchers
   watch(includeOtherMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.otherMatterOption) {
-      opinionInfo.value.otherMatterOption = {
-        type: "missingPreviousAuditReport",
+      // Add otherMatterOption to the opinion configuration
+      opinionInfo.value = {
+        ...opinionInfo.value,
+        otherMatterOption: {
+          type: "missingPreviousAuditReport",
+        },
       };
     } else if (!newVal) {
+      // Remove otherMatterOption from the opinion configuration
       const { otherMatterOption, ...rest } = opinionInfo.value;
-      opinionInfo.value = rest;
+      opinionInfo.value = rest as OpinionInfoForm;
     }
   });
 
   watch(includeEmphasisOfMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.emphasisOfMatterOption) {
-      opinionInfo.value.emphasisOfMatterOption = {
-        description: "",
+      // Add emphasisOfMatterOption to the opinion configuration
+      opinionInfo.value = {
+        ...opinionInfo.value,
+        emphasisOfMatterOption: {
+          description: "",
+        },
       };
     } else if (!newVal) {
+      // Remove emphasisOfMatterOption from the opinion configuration
       const { emphasisOfMatterOption, ...rest } = opinionInfo.value;
-      opinionInfo.value = rest;
+      opinionInfo.value = rest as OpinionInfoForm;
     }
   });
 
@@ -110,11 +137,14 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     () => basicInfo.value.accountingFramework,
     (newFramework, oldFramework) => {
       if (newFramework === "IFRS") {
-        opinionInfo.value.keyAuditMatterOption = {
-          description: "",
-        };
-        opinionInfo.value.emphasisOfMatterOption = {
-          description: "",
+        opinionInfo.value = {
+          ...opinionInfo.value,
+          keyAuditMatterOption: {
+            description: "",
+          },
+          emphasisOfMatterOption: {
+            description: "",
+          },
         };
         // Initialize second auditor slot if not exists
         if (!basicInfo.value.auditorNames) {
@@ -123,8 +153,9 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
           basicInfo.value.auditorNames.push("");
         }
       } else {
-        opinionInfo.value.keyAuditMatterOption = undefined;
-        opinionInfo.value.emphasisOfMatterOption = undefined;
+        const { keyAuditMatterOption, emphasisOfMatterOption, ...rest } =
+          opinionInfo.value;
+        opinionInfo.value = rest as OpinionInfoForm;
         // Trim to single auditor when switching away from IFRS
         if (
           oldFramework === "IFRS" &&
@@ -135,6 +166,35 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
             basicInfo.value.auditorNames[0] || "",
           ];
         }
+      }
+    }
+  );
+
+  // Watcher to auto-switch to single mode when comparative report is disabled
+  watch(
+    () => basicInfo.value.isComparativeReport,
+    (isComparative) => {
+      if (!isComparative && opinionInfo.value.mode === "dual") {
+        opinionInfo.value = {
+          mode: "single",
+          opinion: {
+            year: basicInfo.value.currentRocYear || 0,
+            opinionType: "unqualified",
+          },
+        };
+      }
+    }
+  );
+
+  // Watcher to auto-update years when currentRocYear changes
+  watch(
+    () => basicInfo.value.currentRocYear,
+    (newYear) => {
+      if (opinionInfo.value.mode === "single") {
+        opinionInfo.value.opinion.year = newYear || 0;
+      } else {
+        opinionInfo.value.currentYearOpinion.year = newYear || 0;
+        opinionInfo.value.comparativeYearOpinion.year = (newYear || 1) - 1;
       }
     }
   );

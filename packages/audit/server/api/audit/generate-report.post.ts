@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_event) => {
   try {
     // TODO: Implement document generation
   } catch (error) {

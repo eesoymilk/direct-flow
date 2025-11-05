@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker/locale/zh_TW";
 import { AUDITING_FRAMEWORKS, OPINION_TYPES } from "#shared/utils/constants";
+import type { BasicInfoForm, OpinionInfoForm } from "../schemas/audit";
 
 export const generateBasicInfo = (): Partial<BasicInfoForm> => {
   const currentRocYear = faker.number.int({ min: 110, max: 115 }); // ROC years 110-115 (2021-2026)
@@ -42,16 +43,21 @@ export const generateBasicInfo = (): Partial<BasicInfoForm> => {
   return basicInfo;
 };
 
-export const generateOpinionInfo = (): Partial<OpinionInfoForm> => {
+export const generateOpinionInfo = (
+  currentRocYear?: number
+): OpinionInfoForm => {
   const opinionType = faker.helpers.arrayElement(OPINION_TYPES);
+  const year = currentRocYear || faker.number.int({ min: 110, max: 115 });
 
-  const opinionInfo: Partial<OpinionInfoForm> = {
-    opinionType,
+  const opinionInfo: OpinionInfoForm = {
+    mode: "single",
+    opinion: {
+      year,
+      opinionType,
+      reason:
+        opinionType !== "unqualified" ? faker.lorem.sentence() : undefined,
+    },
   };
-
-  if (opinionType !== "unqualified") {
-    opinionInfo.reason = faker.lorem.sentence();
-  }
 
   // Add other matter option occasionally
   if (faker.datatype.boolean({ probability: 0.5 })) {
@@ -64,10 +70,10 @@ export const generateOpinionInfo = (): Partial<OpinionInfoForm> => {
     if (otherMatterOptionType === "previousReportHandledByOtherAuditor") {
       opinionInfo.otherMatterOption = {
         type: otherMatterOptionType,
-        previousAuditReportDate: faker.date.past(),
         previousOpinionType: faker.helpers.arrayElement([
           "unqualified",
-          "qualified",
+          "qualifiedDisclaimer",
+          "qualifiedAdverse",
           "adverse",
           "disclaimer",
         ]),
@@ -89,10 +95,11 @@ export const generateOpinionInfo = (): Partial<OpinionInfoForm> => {
 
 export const generateCompleteData = (): {
   basicInfo: Partial<BasicInfoForm>;
-  opinionInfo: Partial<OpinionInfoForm>;
+  opinionInfo: OpinionInfoForm;
 } => {
+  const basicInfo = generateBasicInfo();
   return {
-    basicInfo: generateBasicInfo(),
-    opinionInfo: generateOpinionInfo(),
+    basicInfo,
+    opinionInfo: generateOpinionInfo(basicInfo.currentRocYear),
   };
 };

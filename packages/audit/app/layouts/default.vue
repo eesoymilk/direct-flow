@@ -1,9 +1,11 @@
 <template>
-  <AppHeader class="z-10" :navigation-items="items" />
-  <main class="flex-1 pt-20 relative min-h-screen">
-    <slot />
-  </main>
-  <AppFooter class="z-10" />
+  <div>
+    <AppHeader class="z-10" :navigation-items="items" />
+    <main class="flex-1 pt-20 relative min-h-screen">
+      <slot />
+    </main>
+    <AppFooter class="z-10" />
+  </div>
 </template>
 
 <script lang="ts" setup>

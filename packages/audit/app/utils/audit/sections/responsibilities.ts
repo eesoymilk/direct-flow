@@ -3,43 +3,49 @@ import {
   getLawDescription,
   getRocYearText,
 } from "./helpers";
-import type { OpinionParagraphOptions } from "./types";
 
-const getManagementResponsibilityParagraph1Parts = (frameworkText: string) => [
-  {
-    text: "管理階層之責任係依照",
-  },
-  {
-    text: frameworkText,
-    color: "blue",
-  },
-  {
-    text: "製允當表達之財務報表，且維持與財務報表編製有關之必要內部控制，以確保財務報表未存有導因於舞弊或錯誤之重大不實表達。",
-  },
-];
+const getManagementResponsibilityParagraph1Parts = (
+  frameworkText: string,
+  isConsolidated: boolean
+) => {
+  return [
+    {
+      text: "管理階層之責任係依照",
+    },
+    {
+      text: frameworkText,
+      color: "blue",
+    },
+    {
+      text: `編製允當表達之${isConsolidated ? "合併" : ""}財務報表，且維持與${isConsolidated ? "合併" : ""}財務報表編製有關之必要內部控制，以確保${isConsolidated ? "合併" : ""}財務報表未存有導因於舞弊或錯誤之重大不實表達。`,
+    },
+  ];
+};
 
 const getManagementResponsibilityParagraph2Parts = (
   entity: string,
-  rocYearText: string
-) => [
-  {
-    text: "於編製財務報表時，管理階層之責任亦包括評估",
-  },
-  {
-    text: `${entity}${rocYearText}`,
-    color: "blue",
-  },
-  {
-    text: "繼續經營之能力、相關事項之揭露，以及繼續經營會計基礎之採用，除非管理階層意圖清算",
-  },
-  {
-    text: `${entity}${rocYearText}`,
-    color: "blue",
-  },
-  {
-    text: "或停止營業，或除清算或停業外別無實際可行之其他方案。",
-  },
-];
+  isConsolidated: boolean
+) => {
+  return [
+    {
+      text: `於編製${isConsolidated ? "合併" : ""}財務報表時，管理階層之責任亦包括評估`,
+    },
+    {
+      text: entity,
+      color: "blue",
+    },
+    {
+      text: "繼續經營之能力、相關事項之揭露，以及繼續經營會計基礎之採用，除非管理階層意圖清算",
+    },
+    {
+      text: entity,
+      color: "blue",
+    },
+    {
+      text: "或停止營業，或除清算或停業外別無實際可行之其他方案。",
+    },
+  ];
+};
 
 const getManagementResponsibilityParagraph3Parts = (entity: string) => [
   {
@@ -53,25 +59,28 @@ const getManagementResponsibilityParagraph3Parts = (entity: string) => [
 
 const generateManagementResponsibilitySectionParagraphs = ({
   entity,
-  currentRocYear,
+  isConsolidated,
   framework,
   highlightVariable,
-}: Pick<
-  OpinionParagraphOptions,
-  "entity" | "currentRocYear" | "framework" | "highlightVariable"
->): DocumentParagraph[] => {
+}: {
+  entity: string;
+  isConsolidated: boolean;
+  framework: AccountingFramework | undefined;
+  highlightVariable: boolean;
+}): DocumentParagraph[] => {
   const frameworkText = getLawDescription(framework);
-  const rocYearText = getRocYearText(currentRocYear);
+  const isListed = framework === "IFRS"; // 上市櫃公司
 
-  const paragraph1Parts =
-    getManagementResponsibilityParagraph1Parts(frameworkText);
+  const paragraph1Parts = getManagementResponsibilityParagraph1Parts(
+    frameworkText,
+    isConsolidated
+  );
   const paragraph2Parts = getManagementResponsibilityParagraph2Parts(
     entity,
-    rocYearText
+    isConsolidated
   );
-  const paragraph3Parts = getManagementResponsibilityParagraph3Parts(entity);
 
-  return highlightVariable
+  const baseParagraphs: DocumentParagraph[] = highlightVariable
     ? [
         {
           type: "children",
@@ -80,10 +89,6 @@ const generateManagementResponsibilitySectionParagraphs = ({
         {
           type: "children",
           children: paragraph2Parts,
-        },
-        {
-          type: "children",
-          children: paragraph3Parts,
         },
       ]
     : [
@@ -95,40 +100,67 @@ const generateManagementResponsibilitySectionParagraphs = ({
           type: "text",
           text: paragraph2Parts.map((part) => part.text).join(""),
         },
-        {
-          type: "text",
-          text: paragraph3Parts.map((part) => part.text).join(""),
-        },
       ];
+
+  // Only add paragraph 3 for listed companies (IFRS)
+  if (isListed) {
+    const paragraph3Parts = getManagementResponsibilityParagraph3Parts(entity);
+    baseParagraphs.push(
+      highlightVariable
+        ? {
+            type: "children",
+            children: paragraph3Parts,
+          }
+        : {
+            type: "text",
+            text: paragraph3Parts.map((part) => part.text).join(""),
+          }
+    );
+  }
+
+  return baseParagraphs;
 };
 
 export const generateManagementResponsibilitySection = (
   basicInfo: Partial<BasicInfoForm>,
   { highlightVariable = false }: { highlightVariable?: boolean } = {}
-): DocumentSection => ({
-  id: "managementResponsibility",
-  children: [
-    {
-      type: "children",
-      children: [
-        {
-          text: "管理階層對財務報表之責任",
-          bold: true,
-          underline: true,
-        },
-      ],
-    },
-    ...generateManagementResponsibilitySectionParagraphs({
-      entity: getFormattedEntityName(
-        basicInfo.entityName,
-        basicInfo.isConsolidatedReport
-      ),
-      currentRocYear: basicInfo.currentRocYear,
-      framework: basicInfo.accountingFramework,
-      highlightVariable,
-    }),
-  ],
-});
+): DocumentSection => {
+  const isListed = basicInfo.accountingFramework === "IFRS"; // 上市櫃公司
+  const isConsolidated = basicInfo.isConsolidatedReport || false;
+  const reportType = isConsolidated ? "合併財務報表" : "財務報表";
+
+  // 情況一: 上市櫃公司 - "管理階層與治理單位對財務報表之責任"
+  // 情況二: 上市櫃公司 合併 - "管理階層與治理單位對合併財務報表之責任"
+  // 情況三: 非上市櫃公司 - "管理階層對財務報表之責任"
+  const title = isListed
+    ? `管理階層與治理單位對${reportType}之責任`
+    : `管理階層對${reportType}之責任`;
+
+  return {
+    id: "managementResponsibility",
+    children: [
+      {
+        type: "children",
+        children: [
+          {
+            text: title,
+            bold: true,
+            underline: true,
+          },
+        ],
+      },
+      ...generateManagementResponsibilitySectionParagraphs({
+        entity: getFormattedEntityName(
+          basicInfo.entityName,
+          basicInfo.isConsolidatedReport
+        ),
+        isConsolidated,
+        framework: basicInfo.accountingFramework,
+        highlightVariable,
+      }),
+    ],
+  };
+};
 
 export const generateAuditorResponsibilitySection = (
   basicInfo: Partial<BasicInfoForm>,
@@ -165,14 +197,34 @@ export const generateAuditorResponsibilitySection = (
           level: 0,
         },
       },
-      {
-        type: "text",
-        text: "對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對心齊家開發有限公司內部控制之有效性表示意見。",
-        numbering: {
-          reference: "ol",
-          level: 0,
-        },
-      },
+      highlightVariable
+        ? {
+            type: "children" as const,
+            children: [
+              {
+                text: "對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對",
+              },
+              {
+                text: entity,
+                color: "blue",
+              },
+              {
+                text: "內部控制之有效性表示意見。",
+              },
+            ],
+            numbering: {
+              reference: "ol",
+              level: 0,
+            },
+          }
+        : {
+            type: "text" as const,
+            text: `對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對${entity}內部控制之有效性表示意見。`,
+            numbering: {
+              reference: "ol",
+              level: 0,
+            },
+          },
       {
         type: "text",
         text: "評估管理階層所採用會計政策之適當性，及其所作會計估計與相關揭露之合理性。",

@@ -130,6 +130,28 @@
           </p>
         </div>
       </div>
+
+      <!-- Capital Contribution Field (for special persons who are also partners) -->
+      <div
+        v-if="capitalContribution !== undefined && capitalContribution !== null"
+        class="space-y-2"
+      >
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-dollar-sign" class="w-4 h-4 text-gray-400" />
+          <label
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          >
+            出資額
+          </label>
+        </div>
+        <div
+          class="bg-green-50 border border-green-200 rounded-lg p-3 font-semibold"
+        >
+          <p class="text-sm text-gray-800">
+            NT$ {{ capitalContribution.toLocaleString() }}
+          </p>
+        </div>
+      </div>
     </div>
   </UCard>
 </template>
@@ -153,10 +175,12 @@ interface Props {
   icon: string;
   showBadges?: boolean;
   showShares?: boolean;
+  capitalContribution?: number | null;
 }
 
 withDefaults(defineProps<Props>(), {
   showBadges: false,
   showShares: false,
+  capitalContribution: undefined,
 });
 </script>

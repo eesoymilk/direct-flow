@@ -1,7 +1,7 @@
 const organizationTypeLabelMap: Record<OrganizationType, string> = {
   corporation: "股份有限公司", // Updated to match new organization type
   limited_company: "有限公司",
-  sole_proprietorship: "獨資企業",
+  sole_proprietorship: "獨資",
   partnership: "合夥企業",
 };
 

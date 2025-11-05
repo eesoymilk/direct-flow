@@ -40,6 +40,11 @@ interface OpinionNode {
   children?: OpinionNode[];
 }
 
+const props = defineProps<{
+  /** Opinion mode: 'current' for current year in dual mode, 'comparative' for comparative year, undefined for single mode */
+  yearMode?: 'current' | 'comparative';
+}>();
+
 const store = useAuditBuilderStore();
 const { opinionInfo } = storeToRefs(store);
 
@@ -121,7 +126,37 @@ const onUpdateSelectionKeys = (newSelectionKeys: Record<string, boolean>) => {
   if (keys.length === 0) {
     return;
   }
-  opinionInfo.value.opinionType = keys[0] as OpinionType;
+
+  const selectedOpinionType = keys[0] as OpinionType;
+
+  // Update the appropriate opinion based on mode
+  if (opinionInfo.value.mode === 'single') {
+    opinionInfo.value = {
+      ...opinionInfo.value,
+      opinion: {
+        ...opinionInfo.value.opinion,
+        opinionType: selectedOpinionType,
+      },
+    };
+  } else if (opinionInfo.value.mode === 'dual') {
+    if (props.yearMode === 'current') {
+      opinionInfo.value = {
+        ...opinionInfo.value,
+        currentYearOpinion: {
+          ...opinionInfo.value.currentYearOpinion,
+          opinionType: selectedOpinionType,
+        },
+      };
+    } else if (props.yearMode === 'comparative') {
+      opinionInfo.value = {
+        ...opinionInfo.value,
+        comparativeYearOpinion: {
+          ...opinionInfo.value.comparativeYearOpinion,
+          opinionType: selectedOpinionType,
+        },
+      };
+    }
+  }
 };
 
 const getOpinionTypeLabelClass = (opinionType: OpinionType) => {
@@ -140,8 +175,20 @@ const getOpinionTypeLabelClass = (opinionType: OpinionType) => {
   }
 };
 
+// Watch for opinion changes and update selection
 watch(
-  () => opinionInfo.value.opinionType,
+  () => {
+    if (opinionInfo.value.mode === 'single') {
+      return opinionInfo.value.opinion.opinionType;
+    } else if (opinionInfo.value.mode === 'dual') {
+      if (props.yearMode === 'current') {
+        return opinionInfo.value.currentYearOpinion.opinionType;
+      } else if (props.yearMode === 'comparative') {
+        return opinionInfo.value.comparativeYearOpinion.opinionType;
+      }
+    }
+    return undefined;
+  },
   (newType) => {
     if (newType) {
       selectionKeys.value = { [newType]: true };

@@ -6,6 +6,7 @@
       title="負責人"
       subtitle="責任代表人"
       icon="i-lucide-user-check"
+      :capital-contribution="getCapitalContribution('responsiblePerson')"
     />
 
     <!-- Contact Person Information -->
@@ -15,6 +16,7 @@
       title="聯絡人"
       subtitle="主要聯絡窗口"
       icon="i-lucide-phone"
+      :capital-contribution="getCapitalContribution('contactPerson')"
     />
     <UAlert
       v-else
@@ -38,6 +40,7 @@
         title="經理人"
         subtitle="法定代理人經營"
         icon="i-lucide-briefcase"
+        :capital-contribution="getCapitalContribution('managerialOfficer')"
       />
       <UAlert
         v-else
@@ -61,5 +64,15 @@ interface Props {
   };
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+// Helper function to get capital contribution from partners array
+const getCapitalContribution = (
+  referenceType: PersonType
+): number | null | undefined => {
+  const partner = props.formState.partners?.find(
+    (p) => p.referenceType === referenceType
+  );
+  return partner?.capitalContribution;
+};
 </script>

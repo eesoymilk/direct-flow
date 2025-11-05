@@ -105,15 +105,15 @@
       />
     </template>
 
-    <!-- Partnership Configuration -->
-    <template v-if="organizationType === 'partnership'">
+    <!-- Partnership and Sole Proprietorship Configuration -->
+    <template v-if="organizationType === 'partnership' || organizationType === 'sole_proprietorship'">
       <UAlert
         v-if="formState.hasForeignPartner"
         icon="i-lucide-globe"
         color="primary"
         variant="soft"
-        title="有外國合夥人"
-        description="包含外國籍合夥人"
+        title="有僑外投資人"
+        description="包含僑外投資人"
       />
 
       <UAlert
@@ -121,8 +121,8 @@
         icon="i-lucide-flag"
         color="warning"
         variant="soft"
-        title="有大陸地區合夥人"
-        description="包含大陸地區合夥人"
+        title="有大陸投資人"
+        description="包含大陸地區投資人"
       />
     </template>
   </div>
