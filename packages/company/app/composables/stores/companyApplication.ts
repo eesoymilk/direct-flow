@@ -137,6 +137,7 @@ export const useCompanyApplicationStore = defineStore(
 
       // Create readonly partner with reference
       const newPartner: PartnerSchema = {
+        entityType: "person" as const,
         ...sourcePerson,
         address: sourcePerson.address || "",
         dateOfBirth: sourcePerson.dateOfBirth || new Date(),

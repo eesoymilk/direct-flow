@@ -20,9 +20,6 @@ export const people = pgTable("people", {
   cellphone: varchar("cellphone"), // 手機 (optional, can choose phone OR cellphone)
   email: varchar("email"), // 電子郵件 (required for responsible/contact persons)
   dateOfBirth: date("date_of_birth"), // 出生日期 (required for partners only)
-  // Corporate entity fields (法人相關欄位) - required for corporate partner types
-  corporateUnifiedNumber: varchar("corporate_unified_number"), // 統一編號 (8 digits)
-  corporateAddress: varchar("corporate_address"), // 法人所在地
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

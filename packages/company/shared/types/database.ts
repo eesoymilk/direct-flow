@@ -1,9 +1,10 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
-// import type { CalendarDate } from "@internationalized/date";
+// import type { CalendarDate} from "@internationalized/date";
 // import type { ShallowRef } from "vue";
 import type {
   companies,
   people,
+  corporateEntities,
   documents,
   documentTypes,
   companyApplications,
@@ -21,6 +22,7 @@ import type {
 // Database select types (what comes out of queries)
 export type Company = InferSelectModel<typeof companies>;
 export type Person = InferSelectModel<typeof people>;
+export type CorporateEntity = InferSelectModel<typeof corporateEntities>;
 export type Document = InferSelectModel<typeof documents>;
 export type DocumentType = InferSelectModel<typeof documentTypes>;
 export type CompanyApplication = InferSelectModel<typeof companyApplications>;
@@ -37,6 +39,7 @@ export type PersonDocument = InferSelectModel<typeof personDocuments>;
 // Database insert types (what goes into inserts)
 export type CompanyInsert = InferInsertModel<typeof companies>;
 export type PersonInsert = InferInsertModel<typeof people>;
+export type CorporateEntityInsert = InferInsertModel<typeof corporateEntities>;
 export type DocumentInsert = InferInsertModel<typeof documents>;
 export type DocumentTypeInsert = InferInsertModel<typeof documentTypes>;
 export type CompanyApplicationInsert = InferInsertModel<
@@ -60,7 +63,8 @@ export type PersonDocumentInsert = InferInsertModel<typeof personDocuments>;
 
 // Composite types for partners with shares
 export type PartnerWithDetails = Partner & {
-  person: Person;
+  person?: Person;
+  corporateEntity?: CorporateEntity;
   partnerShares: PartnerShare[];
 };
 

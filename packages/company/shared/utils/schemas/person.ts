@@ -7,6 +7,7 @@ import {
 } from "./helpers";
 import { responseBaseSchema } from "./helpers/response";
 import { PARTNER_TYPES } from "../constants";
+import { corporateEntitySchema } from "./corporateEntity";
 
 export const personSchema = getBasePersonSchema("人員");
 
@@ -16,92 +17,67 @@ export const contactPersonSchema = getBasePersonSchema("聯絡人");
 
 export const managerialOfficerSchema = getBasePersonSchema("經理人");
 
-export const partnerSchema = z
-  .object(
-    {
-      name: z.string().min(1, { message: "股東姓名不能為空" }),
-      idNumber: idNumberSchema,
-      partnerType: z.enum(PARTNER_TYPES).optional(),
-      address: z
-        .string()
-        .min(1, { message: "股東戶籍地址不能為空" })
-        .max(255, { message: "股東戶籍地址最多255個字" }),
-      cellphone: z
-        .string()
-        .min(1, { message: "股東手機號碼不能為空" })
-        .regex(/^09\d{8}$/, {
-          message: "請輸入有效的手機號碼格式 (09XXXXXXXX)",
-        }),
-      email: z.email({ message: "請輸入有效的電子郵件" }).optional(),
-      // TODO: Add dateOfBirth validation
-      dateOfBirth: z.date(),
-      capitalContribution: z
-        .number()
-        .min(0, { message: "出資額不能為負數" })
-        .nullish(),
-      isReadonly: z.boolean().optional(),
-      referenceType: z.enum(PERSON_TYPES).optional(),
-      // While shares are optional, they are required to be present to make the form validation simpler
-      shares: z.object({
-        ordinary: getShareSchema("普通股"),
-        preferred: getShareSchema("特別股"),
-        preferred_a: getShareSchema("甲種特別股"),
-        preferred_b: getShareSchema("乙種特別股"),
-        preferred_c: getShareSchema("丙種特別股"),
-        preferred_d: getShareSchema("丁種特別股"),
-        preferred_e: getShareSchema("戊種特別股"),
-      }),
-      // Corporate partner fields (法人股東相關欄位)
-      corporateUnifiedNumber: z.string().optional(),
-      corporateAddress: z.string().optional(),
-    },
-    {
-      message: "股東資料不能為空",
-    }
-  )
-  .refine(
-    (data) => {
-      // For corporate partner types, unified number is required
-      const isCorporatePartner =
-        data.partnerType === "corporateShareholder" ||
-        data.partnerType === "corporateDirectorRepresentative" ||
-        data.partnerType === "corporateRepresentativeDirector";
+// Base partner data (common to both person and corporate partners)
+const basePartnerSchema = z.object({
+  partnerType: z.enum(PARTNER_TYPES).optional(),
+  capitalContribution: z
+    .number()
+    .min(0, { message: "出資額不能為負數" })
+    .nullish(),
+  isReadonly: z.boolean().optional(),
+  referenceType: z.enum(PERSON_TYPES).optional(),
+  // While shares are optional, they are required to be present to make the form validation simpler
+  shares: z.object({
+    ordinary: getShareSchema("普通股"),
+    preferred: getShareSchema("特別股"),
+    preferred_a: getShareSchema("甲種特別股"),
+    preferred_b: getShareSchema("乙種特別股"),
+    preferred_c: getShareSchema("丙種特別股"),
+    preferred_d: getShareSchema("丁種特別股"),
+    preferred_e: getShareSchema("戊種特別股"),
+  }),
+});
 
-      if (isCorporatePartner && !data.corporateUnifiedNumber) {
-        return false;
-      }
+// Person partner schema
+const personPartnerDataSchema = z.object({
+  entityType: z.literal("person"),
+  name: z.string().min(1, { message: "姓名不能為空" }),
+  idNumber: idNumberSchema,
+  address: z
+    .string()
+    .min(1, { message: "戶籍地址不能為空" })
+    .max(255, { message: "戶籍地址最多255個字" }),
+  cellphone: z
+    .string()
+    .min(1, { message: "手機號碼不能為空" })
+    .regex(/^09\d{8}$/, {
+      message: "請輸入有效的手機號碼格式 (09XXXXXXXX)",
+    }),
+  email: z.email({ message: "請輸入有效的電子郵件" }).optional(),
+  dateOfBirth: z.date({ message: "出生日期為必填" }),
+});
 
-      // Validate format if provided
-      if (data.corporateUnifiedNumber) {
-        return /^[0-9]{8}$/.test(data.corporateUnifiedNumber);
-      }
+// Corporate partner schema
+const corporatePartnerDataSchema = z.object({
+  entityType: z.literal("corporate"),
+  corporateEntity: corporateEntitySchema,
+  // Representative person info (for contact purposes)
+  cellphone: z
+    .string()
+    .min(1, { message: "聯絡手機號碼不能為空" })
+    .regex(/^09\d{8}$/, {
+      message: "請輸入有效的手機號碼格式 (09XXXXXXXX)",
+    }),
+});
 
-      return true;
-    },
-    {
-      message: "法人統一編號為必填（須為8位數字）",
-      path: ["corporateUnifiedNumber"],
-    }
-  )
-  .refine(
-    (data) => {
-      // For corporate partner types, corporate address is required
-      const isCorporatePartner =
-        data.partnerType === "corporateShareholder" ||
-        data.partnerType === "corporateDirectorRepresentative" ||
-        data.partnerType === "corporateRepresentativeDirector";
-
-      if (isCorporatePartner && !data.corporateAddress) {
-        return false;
-      }
-
-      return true;
-    },
-    {
-      message: "法人所在地為必填",
-      path: ["corporateAddress"],
-    }
-  );
+// Discriminated union for partner schema
+export const partnerSchema = z.intersection(
+  basePartnerSchema,
+  z.discriminatedUnion("entityType", [
+    personPartnerDataSchema,
+    corporatePartnerDataSchema,
+  ])
+);
 
 export const partnerArraySchema = z
   .array(partnerSchema)
@@ -109,12 +85,14 @@ export const partnerArraySchema = z
     (partners) => {
       if (partners.length <= 1) return true;
 
-      const idNumbers = partners
-        .map((s) => s.idNumber)
+      // Only check person partners for duplicate ID numbers
+      const personIdNumbers = partners
+        .filter((p) => p.entityType === "person")
+        .map((p) => (p.entityType === "person" ? p.idNumber : ""))
         .filter((id) => id && id.trim() !== "");
 
-      const uniqueIdNumbers = new Set(idNumbers);
-      return uniqueIdNumbers.size === idNumbers.length;
+      const uniqueIdNumbers = new Set(personIdNumbers);
+      return uniqueIdNumbers.size === personIdNumbers.length;
     },
     {
       message: "人員身分證字號不能重複",
@@ -125,28 +103,39 @@ export const partnerArraySchema = z
       if (partners.length <= 1) return true;
 
       const names = partners
-        .map((s) => s.name?.trim().toLowerCase())
+        .map((p) => {
+          if (p.entityType === "person") {
+            return p.name?.trim().toLowerCase();
+          } else {
+            return p.corporateEntity.name?.trim().toLowerCase();
+          }
+        })
         .filter((name) => name && name !== "");
 
       const uniqueNames = new Set(names);
       return uniqueNames.size === names.length;
     },
     {
-      message: "人員姓名不能重複",
+      message: "名稱不能重複",
     }
   )
   .refine(
     (partners) => {
-      // Validation: If there are corporateRepresentativeDirector partners,
+      // Validation: If there are representativeDirector type corporate shareholders,
       // supervisors are not allowed UNLESS there is only one corporateShareholder
       const hasCorporateRepDirector = partners.some(
-        (p) => p.partnerType === "corporateRepresentativeDirector"
+        (p) =>
+          p.entityType === "corporate" &&
+          p.partnerType === "corporateShareholder" &&
+          p.corporateEntity.representativeType === "representativeDirector"
       );
       const hasSupervisor = partners.some(
         (p) => p.partnerType === "supervisor"
       );
       const corporateShareholderCount = partners.filter(
-        (p) => p.partnerType === "corporateShareholder"
+        (p) =>
+          p.entityType === "corporate" &&
+          p.partnerType === "corporateShareholder"
       ).length;
 
       // If there are corporate representative directors and supervisors
@@ -158,7 +147,42 @@ export const partnerArraySchema = z
       return true;
     },
     {
-      message: "法人代表人董事不可與監察人同時存在，除非只有一位法人股東",
+      message: "法人代表人董事不可與監察人同時存在（除非只有一位法人股東）",
+    }
+  )
+  .refine(
+    (partners) => {
+      // Check that all representative director indices are valid
+      for (const partner of partners) {
+        if (
+          partner.entityType === "corporate" &&
+          partner.corporateEntity.representativeType ===
+            "representativeDirector"
+        ) {
+          const indices =
+            partner.corporateEntity.representativeDirectorIndices || [];
+          if (indices.length === 0) {
+            return false; // Must select at least one representative director
+          }
+          // Check all indices are valid
+          for (const idx of indices) {
+            if (idx < 0 || idx >= partners.length) {
+              return false;
+            }
+            const selectedPartner = partners[idx];
+            if (
+              !selectedPartner ||
+              selectedPartner.entityType === "corporate"
+            ) {
+              return false; // Can't select corporate entities as representatives
+            }
+          }
+        }
+      }
+      return true;
+    },
+    {
+      message: "法人代表人董事必須選擇至少一位代表人",
     }
   );
 

@@ -40,18 +40,39 @@ export const createEmptyShares = (
   );
 };
 
-export const createEmptyPartner = (): PartnerSchema => ({
+export const createEmptyPersonPartner = (): PartnerSchema => ({
+  entityType: "person" as const,
   name: "",
   idNumber: "",
   address: "",
   cellphone: "",
   dateOfBirth: createDefaultAdultBirthDate(),
+  email: undefined,
   capitalContribution: undefined,
   isReadonly: false,
   shares: createEmptyShares(0), // Always 0 for pricePerShare; user enters totalPrice manually for par value free shares
-  corporateUnifiedNumber: undefined,
-  corporateAddress: undefined,
 });
+
+export const createEmptyCorporatePartner = (): PartnerSchema => ({
+  entityType: "corporate" as const,
+  corporateEntity: {
+    name: "",
+    unifiedNumber: "",
+    address: "",
+    establishmentDate: createDefaultAdultBirthDate(), // Use reasonable default date
+    representativeType: "directorRepresentative" as const,
+    representativeDirectorIndices: [],
+    contactPhone: undefined,
+    email: undefined,
+  },
+  cellphone: "",
+  capitalContribution: undefined,
+  isReadonly: false,
+  shares: createEmptyShares(0),
+});
+
+// Keep backwards compatibility
+export const createEmptyPartner = createEmptyPersonPartner;
 
 export const createInitialForm = () => ({
   candidateNames: [],
@@ -92,7 +113,7 @@ export const createInitialForm = () => ({
   responsiblePerson: createEmptyPerson(),
   contactPerson: createEmptyPerson(),
   managerialOfficer: createEmptyPerson(),
-  partners: [createEmptyPartner()],
+  partners: [] as PartnerSchema[], // Initialize as empty array - partners are added based on organization type
   // TODO: Add documents when file storage is ready
   // documents: createInitialDocuments(),
 });

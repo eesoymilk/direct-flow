@@ -64,7 +64,7 @@
               isCorporation ? "以及持股" : ""
             }}）
           </div>
-          <div class="space-y-4 grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div v-if="partner.entityType === 'person'" class="space-y-4 grid grid-cols-1 md:grid-cols-6 gap-4">
             <UFormField label="姓名" name="name" class="col-span-2">
               <UInput
                 v-model="partner.name"

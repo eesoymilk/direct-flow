@@ -6,24 +6,32 @@ import {
   decimal,
   timestamp,
   pgEnum,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { PARTNER_TYPES, SHARE_TYPES } from "#shared/utils/constants";
 import { people } from "../person/schema";
 import { companies } from "../company/schema";
+import { corporateEntities } from "../corporateEntity/schema";
 
 export const partnerTypeEnum = pgEnum("partner_type", PARTNER_TYPES);
 export const shareTypeEnum = pgEnum("share_type", SHARE_TYPES);
 
-// Partners junction table
+// Entity types for polymorphic association
+export const PARTNER_ENTITY_TYPES = ["person", "corporate"] as const;
+export const partnerEntityTypeEnum = pgEnum("partner_entity_type", PARTNER_ENTITY_TYPES);
+export type PartnerEntityType = (typeof PARTNER_ENTITY_TYPES)[number];
+
+// Partners junction table with polymorphic association
 export const partners = pgTable("partners", {
   id: serial("id").primaryKey(),
   companyId: uuid("company_id")
     .notNull()
     .references(() => companies.id, { onDelete: "cascade" }),
-  personId: uuid("person_id")
-    .notNull()
-    .references(() => people.id, { onDelete: "cascade" }),
+  // Polymorphic association fields
+  entityType: partnerEntityTypeEnum("entity_type").notNull(), // 'person' or 'corporate'
+  personId: uuid("person_id").references(() => people.id, { onDelete: "cascade" }),
+  corporateEntityId: uuid("corporate_entity_id").references(() => corporateEntities.id, { onDelete: "cascade" }),
   partnerType: partnerTypeEnum("partner_type").notNull(),
   capitalContribution: decimal("capital_contribution", {
     precision: 12,
@@ -57,6 +65,10 @@ export const partnersRelations = relations(partners, ({ one, many }) => ({
   person: one(people, {
     fields: [partners.personId],
     references: [people.id],
+  }),
+  corporateEntity: one(corporateEntities, {
+    fields: [partners.corporateEntityId],
+    references: [corporateEntities.id],
   }),
   partnerShares: many(partnerShares),
 }));

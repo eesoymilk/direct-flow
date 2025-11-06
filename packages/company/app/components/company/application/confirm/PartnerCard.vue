@@ -11,14 +11,10 @@
           />
           <div>
             <h4 class="text-lg font-semibold text-gray-900">
-              {{ partner.name }}
+              {{ displayName }}
             </h4>
             <p class="text-sm text-gray-500">
-              {{
-                partner.referenceType
-                  ? getPersonLabel(partner.referenceType)
-                  : partnerLabel
-              }}
+              {{ displayType }}
               <span v-if="partner.isReadonly" class="text-primary ml-2">
                 （{{ hasShares ? "僅可編輯持股及出資額" : "僅可編輯出資額" }}）
               </span>
@@ -26,7 +22,13 @@
           </div>
         </div>
         <UBadge
-          v-if="partner.referenceType"
+          v-if="partner.entityType === 'corporate'"
+          label="法人"
+          color="info"
+          variant="soft"
+        />
+        <UBadge
+          v-else-if="partner.referenceType"
           :label="getPersonLabel(partner.referenceType)"
           color="primary"
           variant="soft"
@@ -42,7 +44,8 @@
       />
 
       <!-- Basic Information -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Person Partner Info -->
+      <div v-if="partner.entityType === 'person'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InfoDisplay
           label="身分證字號"
           icon="i-lucide-id-card"
@@ -67,22 +70,52 @@
               : '未填寫'
           "
         />
+      </div>
 
-        <!-- Corporate partner fields -->
-        <template v-if="isCorporatePartner">
-          <InfoDisplay
-            label="統一編號"
-            icon="i-lucide-building"
-            :value="partner.corporateUnifiedNumber || '未填寫'"
-            class="col-span-full border border-blue-200 bg-blue-50"
-          />
-          <InfoDisplay
-            label="法人所在地"
-            icon="i-lucide-map-pin"
-            :value="partner.corporateAddress || '未填寫'"
-            class="col-span-full border border-blue-200 bg-blue-50"
-          />
-        </template>
+          <!-- Corporate Partner Info -->
+          <div v-if="partner.entityType === 'corporate'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoDisplay
+              label="統一編號"
+              icon="i-lucide-building"
+              :value="partner.corporateEntity.unifiedNumber || '未填寫'"
+              class="col-span-full border border-blue-200 bg-blue-50"
+            />
+            <InfoDisplay
+              label="法人所在地"
+              icon="i-lucide-map-pin"
+              :value="partner.corporateEntity.address || '未填寫'"
+            />
+            <InfoDisplay
+              label="設立日期"
+              icon="i-lucide-calendar"
+              :value="
+                partner.corporateEntity.establishmentDate
+                  ? format(partner.corporateEntity.establishmentDate, 'yyyy/MM/dd')
+                  : '未填寫'
+              "
+            />
+            <InfoDisplay
+              label="法人代表類型"
+              icon="i-lucide-briefcase"
+              :value="getCorporateRepresentativeTypeLabel(partner.corporateEntity.representativeType)"
+              class="col-span-full border border-blue-200 bg-blue-50"
+            />
+            <InfoDisplay
+              v-if="partner.corporateEntity.representativeType === 'representativeDirector' && representativeDirectors.length > 0"
+              label="代表人董事"
+              icon="i-lucide-users"
+              :value="representativeDirectors.join('、')"
+              class="col-span-full border border-purple-200 bg-purple-50"
+            />
+            <InfoDisplay
+              label="聯絡人手機"
+              icon="i-lucide-phone"
+              :value="partner.cellphone"
+            />
+          </div>
+
+      <!-- Common Info -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         <InfoDisplay
           :label="capitalLabel"
@@ -114,12 +147,31 @@ interface Props {
   partner: PartnerSchema;
   index: number;
   organizationType: OrganizationType;
+  allPartners?: PartnerSchema[];
 }
 
 const props = defineProps<Props>();
 
-// Organization-aware labels
-const partnerLabel = computed(() => {
+// Display name based on entity type
+const displayName = computed(() => {
+  if (props.partner.entityType === "person") {
+    return props.partner.name;
+  } else {
+    return props.partner.corporateEntity.name;
+  }
+});
+
+// Display type based on entity and partner type
+const displayType = computed(() => {
+  if (props.partner.entityType === "corporate") {
+    return "法人股東";
+  }
+  
+  if (props.partner.referenceType) {
+    return getPersonLabel(props.partner.referenceType);
+  }
+
+  // Fallback to organization-aware label
   switch (props.organizationType) {
     case "corporation":
     case "limited_company":
@@ -155,12 +207,24 @@ const hasShares = computed(() => {
   );
 });
 
-// Check if this is a corporate partner
-const isCorporatePartner = computed(() => {
-  return (
-    props.partner.partnerType === "corporateShareholder" ||
-    props.partner.partnerType === "corporateDirectorRepresentative" ||
-    props.partner.partnerType === "corporateRepresentativeDirector"
-  );
+// Representative directors names (for corporate partners with representativeDirector type)
+const representativeDirectors = computed(() => {
+  if (
+    props.partner.entityType === 'corporate' &&
+    props.partner.corporateEntity.representativeType === 'representativeDirector' &&
+    props.allPartners
+  ) {
+    const indices = props.partner.corporateEntity.representativeDirectorIndices || [];
+    return indices
+      .map(idx => {
+        const p = props.allPartners?.[idx];
+        if (p && p.entityType === 'person') {
+          return p.name;
+        }
+        return null;
+      })
+      .filter((name): name is string => name !== null);
+  }
+  return [];
 });
 </script>

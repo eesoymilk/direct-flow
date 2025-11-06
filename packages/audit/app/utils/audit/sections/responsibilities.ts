@@ -57,6 +57,54 @@ const getManagementResponsibilityParagraph3Parts = (entity: string) => [
   },
 ];
 
+const getAuditorResponsibilityParagraph2Parts = (entity: string) => [
+  {
+    text: "對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對",
+  },
+  {
+    text: entity,
+    color: "blue",
+  },
+  {
+    text: "內部控制之有效性表示意見。",
+  },
+];
+
+const getAuditorResponsibilityParagraph4Parts = (entity: string) => [
+  {
+    text: "依據所取得之查核證據，對管理階層採用繼續經營會計基礎之適當性，以及使",
+  },
+  {
+    text: entity,
+    color: "blue",
+  },
+  {
+    text: "繼續經營之能力可能產生重大疑慮之事件或情況是否存在重大不確定性，作出結論。本會計師若認為該等事件或情況存在重大不確定性，則須於查核報告中提醒財務報表使用者注意財務報表之相關揭露，或於該等揭露係屬不適當時修正查核意見。本會計師之結論係以截至查核報告日所取得之查核證據為基礎。惟未來事件或情況可能導致",
+  },
+  {
+    text: entity,
+    color: "blue",
+  },
+  {
+    text: "不再具有繼續經營之能力。",
+  },
+];
+
+const getAuditorResponsibilityParagraph6Parts = (entity: string) => [
+  {
+    text: "對於採用權益法之被投資公司之財務資訊取得足夠及適切之查核證據，以對財務報表表示意見。本會計師負責查核案件之指導、監督及執行，並負責形成",
+    color: "blue",
+  },
+  {
+    text: entity,
+    color: "dark-blue",
+  },
+  {
+    text: "之查核意見。",
+    color: "blue",
+  },
+];
+
 const generateManagementResponsibilitySectionParagraphs = ({
   entity,
   isConsolidated,
@@ -200,18 +248,7 @@ export const generateAuditorResponsibilitySection = (
       highlightVariable
         ? {
             type: "children" as const,
-            children: [
-              {
-                text: "對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對",
-              },
-              {
-                text: entity,
-                color: "blue",
-              },
-              {
-                text: "內部控制之有效性表示意見。",
-              },
-            ],
+            children: getAuditorResponsibilityParagraph2Parts(entity),
             numbering: {
               reference: "ol",
               level: 0,
@@ -219,7 +256,9 @@ export const generateAuditorResponsibilitySection = (
           }
         : {
             type: "text" as const,
-            text: `對與查核攸關之內部控制取得必要之瞭解，以設計當時情況下適當之查核程序，惟其目的非對${entity}內部控制之有效性表示意見。`,
+            text: getAuditorResponsibilityParagraph2Parts(entity)
+              .map((part) => part.text)
+              .join(""),
             numbering: {
               reference: "ol",
               level: 0,
@@ -233,14 +272,25 @@ export const generateAuditorResponsibilitySection = (
           level: 0,
         },
       },
-      {
-        type: "text",
-        text: "依據所取得之查核證據，對管理階層採用繼續經營會計基礎之適當性，以及使心齊家開發有限公司繼續經營之能力可能產生重大疑慮之事件或情況是否存在重大不確定性，作出結論。本會計師若認為該等事件或情況存在重大不確定性，則須於查核報告中提醒財務報表使用者注意財務報表之相關揭露，或於該等揭露係屬不適當時修正查核意見。本會計師之結論係以截至查核報告日所取得之查核證據為基礎。惟未來事件或情況可能導致心齊家開發有限公司不再具有繼續經營之能力。",
-        numbering: {
-          reference: "ol",
-          level: 0,
-        },
-      },
+      highlightVariable
+        ? {
+            type: "children" as const,
+            children: getAuditorResponsibilityParagraph4Parts(entity),
+            numbering: {
+              reference: "ol",
+              level: 0,
+            },
+          }
+        : {
+            type: "text" as const,
+            text: getAuditorResponsibilityParagraph4Parts(entity)
+              .map((part) => part.text)
+              .join(""),
+            numbering: {
+              reference: "ol",
+              level: 0,
+            },
+          },
       {
         type: "text",
         text: "評估財務報表（包括相關附註）之整體表達、結構及內容，以及財務報表是否允當表達相關交易及事件。",
@@ -254,20 +304,7 @@ export const generateAuditorResponsibilitySection = (
             highlightVariable
               ? {
                   type: "children" as const,
-                  children: [
-                    {
-                      text: `對於採用權益法之被投資公司之財務資訊取得足夠及適切之查核證據，以對財務報表表示意見。本會計師負責查核案件之指導、監督及執行，並負責形成`,
-                      color: "blue",
-                    },
-                    {
-                      text: entity,
-                      color: "dark-blue",
-                    },
-                    {
-                      text: `之查核意見。`,
-                      color: "blue",
-                    },
-                  ],
+                  children: getAuditorResponsibilityParagraph6Parts(entity),
                   numbering: {
                     reference: "ol",
                     level: 0,
@@ -275,7 +312,9 @@ export const generateAuditorResponsibilitySection = (
                 }
               : {
                   type: "text" as const,
-                  text: `對於採用權益法之被投資公司之財務資訊取得足夠及適切之查核證據，以對財務報表表示意見。本會計師負責查核案件之指導、監督及執行，並負責形成${entity}之查核意見。`,
+                  text: getAuditorResponsibilityParagraph6Parts(entity)
+                    .map((part) => part.text)
+                    .join(""),
                   numbering: {
                     reference: "ol",
                     level: 0,

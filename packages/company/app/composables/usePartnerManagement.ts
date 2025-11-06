@@ -38,8 +38,6 @@ export const usePartnerManagement = () => {
             "shareholder",
             "manager",
             "corporateShareholder",
-            "corporateDirectorRepresentative",
-            "corporateRepresentativeDirector",
           ];
           break;
         case "corporation":
@@ -49,9 +47,8 @@ export const usePartnerManagement = () => {
             "executiveDirector",
             "director",
             "supervisor",
+            "shareholder",
             "corporateShareholder",
-            "corporateDirectorRepresentative",
-            "corporateRepresentativeDirector",
           ];
           break;
         case "partnership":
@@ -71,7 +68,7 @@ export const usePartnerManagement = () => {
       case "limited_company":
         return "shareholder";
       case "corporation":
-        return "chairman";
+        return "shareholder";
       case "partnership":
         return "partner";
       default:

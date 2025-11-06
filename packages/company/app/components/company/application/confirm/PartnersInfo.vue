@@ -25,6 +25,7 @@
         :partner="partner"
         :index="index"
         :organization-type="organizationType"
+        :all-partners="partners"
       />
     </div>
   </UCard>

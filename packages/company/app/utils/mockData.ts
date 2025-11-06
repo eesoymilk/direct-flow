@@ -59,8 +59,6 @@ const getValidPartnerTypes = (
         "shareholder",
         "manager",
         "corporateShareholder",
-        "corporateDirectorRepresentative",
-        "corporateRepresentativeDirector",
       ];
     case "corporation":
       return [
@@ -69,9 +67,8 @@ const getValidPartnerTypes = (
         "executiveDirector",
         "director",
         "supervisor",
+        "shareholder",
         "corporateShareholder",
-        "corporateDirectorRepresentative",
-        "corporateRepresentativeDirector",
       ];
     case "partnership":
       return ["partner", "manager", "legalRepresentative"];
@@ -84,37 +81,55 @@ const getValidPartnerTypes = (
 export const generateMockPartner = (
   organizationType?: OrganizationType
 ): PartnerSchema => {
-  const birthDate = faker.date.birthdate({ min: 18, max: 80, mode: "age" });
   const validPartnerTypes = getValidPartnerTypes(organizationType);
   const partnerType = faker.helpers.arrayElement(validPartnerTypes);
 
-  const isCorporatePartner =
-    partnerType === "corporateShareholder" ||
-    partnerType === "corporateDirectorRepresentative" ||
-    partnerType === "corporateRepresentativeDirector";
+  const isCorporatePartner = partnerType === "corporateShareholder";
 
-  return {
-    name: faker.person.fullName(),
-    idNumber: generateTaiwaneseIdNumber(),
-    address: faker.location.streetAddress(true),
-    cellphone: `09${faker.string.numeric(8)}`, // Generate Taiwan mobile format 09XXXXXXXX
-    dateOfBirth: birthDate,
-    capitalContribution: faker.number.float({
-      min: 10000,
-      max: 1000000,
-      fractionDigits: 2,
-    }),
-    isReadonly: false,
-    partnerType,
-    shares: generateMockShares(),
-    // Corporate partner fields
-    corporateUnifiedNumber: isCorporatePartner
-      ? faker.string.numeric(8)
-      : undefined,
-    corporateAddress: isCorporatePartner
-      ? faker.location.streetAddress(true)
-      : undefined,
-  };
+  if (isCorporatePartner) {
+    // Generate corporate partner
+    return {
+      entityType: "corporate" as const,
+      corporateEntity: {
+        name: faker.company.name() + "股份有限公司",
+        unifiedNumber: faker.string.numeric(8),
+        address: faker.location.streetAddress(true),
+        establishmentDate: faker.date.past({ years: 20 }),
+        representativeType: faker.helpers.arrayElement(CORPORATE_REPRESENTATIVE_TYPES),
+        representativeDirectorIndices: [], // Will be populated by user
+        contactPhone: `09${faker.string.numeric(8)}`,
+        email: faker.internet.email(),
+      },
+      cellphone: `09${faker.string.numeric(8)}`, // Contact person phone
+      capitalContribution: faker.number.float({
+        min: 10000,
+        max: 1000000,
+        fractionDigits: 2,
+      }),
+      isReadonly: false,
+      partnerType,
+      shares: generateMockShares(),
+    };
+  } else {
+    // Generate person partner
+    return {
+      entityType: "person" as const,
+      name: faker.person.fullName(),
+      idNumber: generateTaiwaneseIdNumber(),
+      address: faker.location.streetAddress(true),
+      cellphone: `09${faker.string.numeric(8)}`,
+      dateOfBirth: faker.date.birthdate({ min: 18, max: 80, mode: "age" }),
+      email: faker.internet.email(),
+      capitalContribution: faker.number.float({
+        min: 10000,
+        max: 1000000,
+        fractionDigits: 2,
+      }),
+      isReadonly: false,
+      partnerType,
+      shares: generateMockShares(),
+    };
+  }
 };
 
 // Generate mock company names using Taiwanese locale
@@ -315,7 +330,7 @@ export const generateMockFormData = ({
 
   form.partners = Array.from({ length: partnerCount }, (_, index) =>
     generateMockPartner(organizationType)
-  );
+  ) as PartnerSchema[];
 
   return {
     ...mockFormData,

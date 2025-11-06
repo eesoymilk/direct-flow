@@ -16,7 +16,7 @@
       }}）
     </div>
 
-    <CompanyApplicationFormPartnerForm :partner="partner" />
+    <CompanyApplicationFormPartnerForm :partner="partner" :partner-index="index" />
 
     <CompanyApplicationFormSharesSection
       :partner="partner"

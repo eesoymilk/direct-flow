@@ -103,8 +103,6 @@ export const REVIEW_ISSUE_SEVERITY = [
  * - Manager (經理人)
  * - Legal Representative (法定代理人)
  * - Corporate Shareholder (法人股東)
- * - Corporate Director Representative (法人董事代表人)
- * - Corporate Representative Director (法人代表人董事)
  */
 export const PARTNER_TYPES = [
   "chairman", // 董事長
@@ -117,8 +115,6 @@ export const PARTNER_TYPES = [
   "manager", // 經理人
   "legalRepresentative", // 法定代理人
   "corporateShareholder", // 法人股東
-  "corporateDirectorRepresentative", // 法人董事代表人
-  "corporateRepresentativeDirector", // 法人代表人董事
 ] as const;
 
 /**
@@ -174,10 +170,21 @@ export type PersonType = (typeof PERSON_TYPES)[number];
  * - Manager (經理人)
  * - Legal Representative (法定代理人)
  * - Corporate Shareholder (法人股東)
- * - Corporate Director Representative (法人董事代表人)
- * - Corporate Representative Director (法人代表人董事)
  */
 export type PartnerType = (typeof PARTNER_TYPES)[number];
+
+/**
+ * Types of corporate representative roles
+ * @description Specifies how a corporate shareholder is represented
+ * - Director Representative (法人董事代表人)
+ * - Representative Director (法人代表人董事)
+ */
+export const CORPORATE_REPRESENTATIVE_TYPES = [
+  "directorRepresentative", // 法人董事代表人
+  "representativeDirector", // 法人代表人董事
+] as const;
+
+export type CorporateRepresentativeType = (typeof CORPORATE_REPRESENTATIVE_TYPES)[number];
 
 /**
  * Type representing valid company application status values

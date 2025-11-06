@@ -22,8 +22,11 @@ const partnerTypeLabelMap: Record<PartnerType, string> = {
   manager: "經理人",
   legalRepresentative: "法定代理人",
   corporateShareholder: "法人股東",
-  corporateDirectorRepresentative: "法人董事代表人",
-  corporateRepresentativeDirector: "法人代表人董事",
+};
+
+const corporateRepresentativeTypeLabelMap: Record<CorporateRepresentativeType, string> = {
+  directorRepresentative: "法人董事代表人",
+  representativeDirector: "法人代表人董事",
 };
 
 const shareTypeLabelMap: Record<ShareType, string> = {
@@ -56,3 +59,10 @@ export const getShareTypeLabel = (
   }
   return shareType ? shareTypeLabelMap[shareType] : "未選擇";
 };
+
+export const getCorporateRepresentativeTypeLabel = (
+  corporateRepresentativeType?: CorporateRepresentativeType
+) =>
+  corporateRepresentativeType
+    ? corporateRepresentativeTypeLabelMap[corporateRepresentativeType]
+    : "未選擇";

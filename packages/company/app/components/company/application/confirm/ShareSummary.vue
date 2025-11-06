@@ -134,7 +134,9 @@
             class="border rounded-lg p-4 bg-gray-50"
           >
             <div class="flex items-center justify-between mb-3">
-              <h5 class="font-medium text-gray-800">{{ partner.name }}</h5>
+              <h5 class="font-medium text-gray-800">
+                {{ partner.entityType === 'person' ? partner.name : partner.corporateEntity.name }}
+              </h5>
               <UBadge
                 v-if="partner.partnerType"
                 :label="getPartnerTypeLabel(partner.partnerType)"
