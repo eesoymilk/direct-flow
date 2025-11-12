@@ -1,8 +1,40 @@
 import { generateCompleteData } from "../../utils/services/mockData";
 import type { BasicInfoForm, OpinionInfoForm } from "../../utils/schemas/audit";
 
-export const useAuditBuilderStore = defineStore("auditBuilder", () => {
-  // Form state
+/**
+ * Opinion Builder Store
+ *
+ * Handles audit opinion form state and actions.
+ * Manages basic info, opinion configuration, and related form settings.
+ */
+
+// Financial table types (for manual table editing, not statement generation)
+export interface FinancialTableCell {
+  value: string | number | null;
+  type: "string" | "number" | "formula";
+}
+
+export interface FinancialTable {
+  id: string;
+  name: string;
+  title: string;
+  sheetName: string;
+  data: FinancialTableCell[][];
+  headers: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  config: {
+    showBorders: boolean;
+    headerAlignment: "left" | "center" | "right";
+    numberFormat?: string;
+  };
+}
+
+export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
+  // ============================================================
+  // Opinion Form State
+  // ============================================================
+
   const basicInfo = ref<Partial<BasicInfoForm>>({
     isComparativeReport: false,
     isConsolidatedReport: false,
@@ -10,7 +42,6 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     auditorNames: [""],
   });
 
-  // Opinion info using OpinionInfoForm with full validation support
   const opinionInfo = ref<OpinionInfoForm>({
     mode: "single",
     opinion: {
@@ -21,18 +52,29 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
 
   const includeOtherMatterSection = ref(false);
   const includeEmphasisOfMatterSection = ref(false);
-
   const highlightVariable = ref(false);
 
-  // Store-specific state
+  // ============================================================
+  // Financial Tables State (manual editing, not generation)
+  // ============================================================
+
+  const financialTables = ref<FinancialTable[]>([]);
+
+  // ============================================================
+  // Store-specific State
+  // ============================================================
+
   const isSaving = ref(false);
   const lastSaved = ref<Date | null>(null);
+
+  // ============================================================
+  // Actions
+  // ============================================================
 
   const toggleHighlightVariable = () => {
     highlightVariable.value = !highlightVariable.value;
   };
 
-  // Form actions
   const generateMockData = () => {
     const mockData = generateCompleteData();
     basicInfo.value = mockData.basicInfo;
@@ -63,8 +105,41 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
   };
 
   const updateOpinionInfo = (updates: OpinionInfoForm) => {
-    // Always expect a full OpinionInfoForm object
     opinionInfo.value = updates;
+  };
+
+  // Financial table actions
+  const addFinancialTable = (table: FinancialTable) => {
+    financialTables.value.push(table);
+  };
+
+  const updateFinancialTable = (
+    id: string,
+    updates: Partial<FinancialTable> | FinancialTable
+  ) => {
+    const index = financialTables.value.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      const existingTable = financialTables.value[index];
+      if (existingTable) {
+        financialTables.value[index] = {
+          ...existingTable,
+          ...updates,
+          id: existingTable.id,
+          updatedAt: new Date(),
+        };
+      }
+    }
+  };
+
+  const removeFinancialTable = (id: string) => {
+    const index = financialTables.value.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      financialTables.value.splice(index, 1);
+    }
+  };
+
+  const clearAllFinancialTables = () => {
+    financialTables.value = [];
   };
 
   // Store-specific actions
@@ -81,9 +156,7 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
 
   const exportReport = async () => {
     try {
-      // TODO:Validate form before export
-
-      // Send to server for document generation
+      // TODO: Validate form before export
       const response = await $fetch("/api/audit/generate-report", {
         method: "POST",
         body: {
@@ -91,7 +164,6 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
         },
         responseType: "blob",
       });
-
       return response;
     } catch (error) {
       console.error("Export failed:", error);
@@ -99,10 +171,12 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     }
   };
 
+  // ============================================================
   // Watchers
+  // ============================================================
+
   watch(includeOtherMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.otherMatterOption) {
-      // Add otherMatterOption to the opinion configuration
       opinionInfo.value = {
         ...opinionInfo.value,
         otherMatterOption: {
@@ -110,7 +184,6 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
         },
       };
     } else if (!newVal) {
-      // Remove otherMatterOption from the opinion configuration
       const { otherMatterOption, ...rest } = opinionInfo.value;
       opinionInfo.value = rest as OpinionInfoForm;
     }
@@ -118,7 +191,6 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
 
   watch(includeEmphasisOfMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.emphasisOfMatterOption) {
-      // Add emphasisOfMatterOption to the opinion configuration
       opinionInfo.value = {
         ...opinionInfo.value,
         emphasisOfMatterOption: {
@@ -126,7 +198,6 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
         },
       };
     } else if (!newVal) {
-      // Remove emphasisOfMatterOption from the opinion configuration
       const { emphasisOfMatterOption, ...rest } = opinionInfo.value;
       opinionInfo.value = rest as OpinionInfoForm;
     }
@@ -199,24 +270,37 @@ export const useAuditBuilderStore = defineStore("auditBuilder", () => {
     }
   );
 
+  // ============================================================
+  // Return Store API
+  // ============================================================
+
   return {
-    // Form state
+    // Opinion form state
     basicInfo,
     opinionInfo,
     includeOtherMatterSection,
     includeEmphasisOfMatterSection,
     highlightVariable,
 
+    // Financial tables state
+    financialTables,
+
     // Store-specific state
     isSaving: readonly(isSaving),
     lastSaved: readonly(lastSaved),
 
-    // Form actions
+    // Opinion form actions
     generateMockData,
     resetForm,
     updateBasicInfo,
     updateOpinionInfo,
     toggleHighlightVariable,
+
+    // Financial table actions
+    addFinancialTable,
+    updateFinancialTable,
+    removeFinancialTable,
+    clearAllFinancialTables,
 
     // Store-specific actions
     saveTemplate,

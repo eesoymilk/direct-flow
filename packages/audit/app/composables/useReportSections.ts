@@ -11,11 +11,12 @@ import {
   generateManagementResponsibilitySection,
 } from "@/utils/audit/sections/responsibilities";
 import { generateFooterSection } from "@/utils/audit/sections/footer";
+import { generateFinancialTablesSection } from "@/utils/audit/sections/financialTables";
 
 export const useReportSections = () => {
-  const store = useAuditBuilderStore();
+  const store = useOpinionBuilderStore();
 
-  const { basicInfo, opinionInfo, highlightVariable } = storeToRefs(store);
+  const { basicInfo, opinionInfo, highlightVariable, financialTables } = storeToRefs(store);
 
   const headerSection = computed(() => generateHeaderSection(basicInfo.value));
 
@@ -63,6 +64,12 @@ export const useReportSections = () => {
 
   const footerSection = computed(() => generateFooterSection(basicInfo.value));
 
+  const financialTablesSection = computed(() =>
+    generateFinancialTablesSection(financialTables.value, {
+      highlightVariable: highlightVariable.value,
+    })
+  );
+
   const sections = computed(() => {
     const baseSections = [
       headerSection.value,
@@ -84,6 +91,12 @@ export const useReportSections = () => {
       opinionInfo.value.emphasisOfMatterOption
     ) {
       baseSections.push(emphasisOfMatterSection.value);
+    }
+
+    // Add financial tables section if tables exist
+    const financialSection = financialTablesSection.value;
+    if (financialSection) {
+      baseSections.push(financialSection);
     }
 
     // Add footer section

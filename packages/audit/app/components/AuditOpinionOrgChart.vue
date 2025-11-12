@@ -45,7 +45,7 @@ const props = defineProps<{
   yearMode?: 'current' | 'comparative';
 }>();
 
-const store = useAuditBuilderStore();
+const store = useOpinionBuilderStore();
 const { opinionInfo } = storeToRefs(store);
 
 const selectionKeys = ref<Record<string, boolean>>({});
