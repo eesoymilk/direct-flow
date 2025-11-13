@@ -180,4 +180,5 @@ export const auditReportDataSchema = z
 
 export type BasicInfoForm = z.infer<typeof basicInfoSchema>;
 export type OpinionInfoForm = z.infer<typeof opinionInfoSchema>;
+export type OtherMatterOptionForm = z.infer<typeof otherMatterOptionSchema>;
 export type AuditReportDataForm = z.infer<typeof auditReportDataSchema>;

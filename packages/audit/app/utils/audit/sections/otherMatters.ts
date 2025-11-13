@@ -4,33 +4,28 @@ import type { OpinionParagraphOptions } from "./types";
 
 const generateOtherMattersSectionParts = ({
   entity,
-  matterType,
-  previousOpinionType,
   previousAuditReportYear,
-  previousAuditReportDate,
-  customDescription,
-}: Pick<OpinionParagraphOptions, "entity"> & {
-  matterType?: OtherMatterType;
-  previousOpinionType?: "qualified" | "unqualified" | "adverse" | "disclaimer";
-  previousAuditReportYear?: number;
-  previousAuditReportDate?: Date;
-  customDescription?: string;
-}) => {
-  if (!matterType) {
+  otherMatterOption,
+}: Pick<OpinionParagraphOptions, "entity"> & {previousAuditReportYear?: number, otherMatterOption?: OtherMatterOptionForm}) => {
+  if (!otherMatterOption) {
     return [{ text: "[[空白的其他事項段]]" }];
   }
 
-  if (matterType === "previousReportHandledByOtherAuditor") {
-    const reportDateText = previousAuditReportDate
-      ? formatRocDate(previousAuditReportDate)
+  if (otherMatterOption.type === "previousReportHandledByOtherAuditor") {
+    const reportDateText = otherMatterOption.previousAuditReportDate
+      ? formatRocDate(otherMatterOption.previousAuditReportDate)
       : "[[空白日期]]";
+    const reportYearText = otherMatterOption.previousAuditReportDate
+      ? getRocYearText(otherMatterOption.previousAuditReportDate.getFullYear())
+      : "[[空白年份]]";
+
     return [
       {
         text: entity,
         color: "blue",
       },
       {
-        text: getRocYearText(previousAuditReportYear),
+        text: reportYearText,
         color: "blue",
       },
       {
@@ -44,7 +39,7 @@ const generateOtherMattersSectionParts = ({
         text: "出具",
       },
       {
-        text: getOpinionSectionTitle(previousOpinionType),
+        text: getOpinionSectionTitle(otherMatterOption.previousOpinionType),
         color: "blue",
       },
       {
@@ -53,16 +48,16 @@ const generateOtherMattersSectionParts = ({
     ];
   }
 
-  if (matterType === "custom") {
+  if (otherMatterOption.type === "custom") {
     return [
       {
-        text: customDescription || "[[空白的其他事項段]]",
+        text: otherMatterOption.customDescription || "[[空白的其他事項段]]",
         color: "blue",
       },
     ];
   }
 
-  if (matterType === "missingPreviousAuditReport") {
+  if (otherMatterOption.type === "missingPreviousAuditReport") {
     return [
       {
         text: entity,
@@ -96,16 +91,7 @@ export const generateOtherMattersSection = (
     previousAuditReportYear: basicInfo.currentRocYear
       ? basicInfo.currentRocYear - 1
       : undefined,
-    matterType: opinionInfo.otherMatterOption?.type,
-    previousAuditReportDate:
-      opinionInfo.otherMatterOption?.type ===
-      "previousReportHandledByOtherAuditor"
-        ? opinionInfo.otherMatterOption.previousAuditReportDate
-        : undefined,
-    customDescription:
-      opinionInfo.otherMatterOption?.type === "custom"
-        ? opinionInfo.otherMatterOption.customDescription
-        : undefined,
+    otherMatterOption: opinionInfo.otherMatterOption,
   });
 
   return {
@@ -123,13 +109,13 @@ export const generateOtherMattersSection = (
       },
       highlightVariable
         ? {
-            type: "children",
-            children: parts,
-          }
+          type: "children",
+          children: parts,
+        }
         : {
-            type: "text",
-            text: parts.map((part) => part.text).join(""),
-          },
+          type: "text",
+          text: parts.map((part) => part.text).join(""),
+        },
     ],
   };
 };

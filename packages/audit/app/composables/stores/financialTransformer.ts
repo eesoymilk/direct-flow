@@ -2,7 +2,7 @@ import type {
   TrialBalanceEntry,
   GeneratedBalanceSheet,
 } from "../../types/financial";
-import { parseTrialBalanceSheet } from "../../utils/excel/tb-parser";
+import { parseTrialBalanceSheet } from "../../utils/excel/tbParser";
 import { generateBalanceSheet } from "../../utils/financial/balanceSheetGenerator";
 import { balanceSheetConfig } from "../../config/balanceSheetConfig";
 

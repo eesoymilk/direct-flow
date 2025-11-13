@@ -42,7 +42,6 @@ import type { TabsItem } from "@nuxt/ui";
 
 const store = useOpinionBuilderStore();
 
-// Main tabs configuration
 const mainTabs: TabsItem[] = [
   {
     label: "意見段",

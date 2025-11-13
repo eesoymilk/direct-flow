@@ -21,7 +21,7 @@
           <div class="flex justify-between text-sm">
             <span class="text-gray-600">股數:</span>
             <span class="font-medium">
-              {{ share.quantity?.toLocaleString() }} 股
+              {{ formatInteger(share.quantity ?? 0) }} 股
             </span>
           </div>
           <div class="flex justify-between text-sm">

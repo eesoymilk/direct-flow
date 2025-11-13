@@ -1,4 +1,4 @@
-import type { OpinionRenderContext, RenderOptions } from "./opinion-context";
+import type { OpinionRenderContext, RenderOptions } from "../context";
 import {
   buildIntroductionParagraph,
   buildYearOpinionSubheading,
@@ -7,15 +7,15 @@ import {
   buildYearOpinionBasisSubheading,
   buildReasonParagraph,
   buildSectionTitle,
-} from "./opinion-paragraph-builders";
-import { getAccountingStandardText } from "./opinion-constants";
+} from "../builders/paragraphs";
+import { getAccountingStandardText } from "../constants";
 
 /**
  * Generates the opinion section for dual opinion mode
  */
 export const generateDualOpinionSection = (
   context: OpinionRenderContext,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentSection => {
   if (!context.dualOpinions) {
     throw new Error("Dual opinion context required for dual mode");
@@ -32,7 +32,7 @@ export const generateDualOpinionSection = (
     buildYearOpinionSubheading(
       dualOpinions.current.year,
       dualOpinions.current.simplifiedType,
-      options
+      renderOptions
     ),
     buildIntroductionParagraph(
       context.formattedEntityName,
@@ -40,7 +40,7 @@ export const generateDualOpinionSection = (
       undefined, // Single year, no comparative
       false,
       context.isConsolidatedReport,
-      options
+      renderOptions
     ),
     buildSingleYearOpinionParagraph(
       context.formattedEntityName,
@@ -49,7 +49,7 @@ export const generateDualOpinionSection = (
       dualOpinions.current.type,
       dualOpinions.current.simplifiedType,
       context.isConsolidatedReport,
-      options
+        renderOptions
     )
   );
 
@@ -58,7 +58,7 @@ export const generateDualOpinionSection = (
     buildYearOpinionSubheading(
       dualOpinions.comparative.year,
       dualOpinions.comparative.simplifiedType,
-      options
+      renderOptions
     ),
     buildIntroductionParagraph(
       context.formattedEntityName,
@@ -66,7 +66,7 @@ export const generateDualOpinionSection = (
       undefined, // Single year, no comparative
       false,
       context.isConsolidatedReport,
-      options
+      renderOptions
     ),
     buildSingleYearOpinionParagraph(
       context.formattedEntityName,
@@ -75,7 +75,7 @@ export const generateDualOpinionSection = (
       dualOpinions.comparative.type,
       dualOpinions.comparative.simplifiedType,
       context.isConsolidatedReport,
-      options
+      renderOptions
     )
   );
 
@@ -91,7 +91,7 @@ export const generateDualOpinionSection = (
  */
 export const generateDualOpinionBasisSection = (
   context: OpinionRenderContext,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentSection => {
   if (!context.dualOpinions) {
     throw new Error("Dual opinion context required for dual mode");
@@ -114,12 +114,12 @@ export const generateDualOpinionBasisSection = (
       buildYearOpinionBasisSubheading(
         dualOpinions.current.year,
         dualOpinions.current.simplifiedType,
-        options
+        renderOptions
       )
     );
 
     if (dualOpinions.current.type !== "unqualified") {
-      children.push(buildReasonParagraph(dualOpinions.current.reason, options));
+      children.push(buildReasonParagraph(dualOpinions.current.reason, renderOptions));
     }
 
     if (dualOpinions.current.type !== "disclaimer") {
@@ -129,7 +129,7 @@ export const generateDualOpinionBasisSection = (
           dualOpinions.combinedTitle,
           accountingStandard,
           context.isConsolidatedReport,
-          options
+          renderOptions
         )
       );
     }
@@ -139,13 +139,13 @@ export const generateDualOpinionBasisSection = (
       buildYearOpinionBasisSubheading(
         dualOpinions.comparative.year,
         dualOpinions.comparative.simplifiedType,
-        options
+        renderOptions
       )
     );
 
     if (dualOpinions.comparative.type !== "unqualified") {
       children.push(
-        buildReasonParagraph(dualOpinions.comparative.reason, options)
+          buildReasonParagraph(dualOpinions.comparative.reason, renderOptions)
       );
     }
 
@@ -156,7 +156,7 @@ export const generateDualOpinionBasisSection = (
           dualOpinions.combinedTitle,
           accountingStandard,
           context.isConsolidatedReport,
-          options
+          renderOptions
         )
       );
     }
@@ -165,7 +165,7 @@ export const generateDualOpinionBasisSection = (
 
     // Current year reason
     if (dualOpinions.current.type !== "unqualified") {
-      children.push(buildReasonParagraph(dualOpinions.current.reason, options));
+      children.push(buildReasonParagraph(dualOpinions.current.reason, renderOptions));
     }
 
     // Comparative year reason (with spacing if both have reasons)
@@ -174,7 +174,7 @@ export const generateDualOpinionBasisSection = (
         children.push({ type: "text", text: "" }); // Empty line between reasons
       }
       children.push(
-        buildReasonParagraph(dualOpinions.comparative.reason, options)
+        buildReasonParagraph(dualOpinions.comparative.reason, renderOptions)
       );
     }
 
@@ -185,7 +185,7 @@ export const generateDualOpinionBasisSection = (
         dualOpinions.combinedTitle,
         accountingStandard,
         context.isConsolidatedReport,
-        options
+        renderOptions
       )
     );
   }

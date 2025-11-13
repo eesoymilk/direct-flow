@@ -1,14 +1,13 @@
 import type {
   OpinionType,
   AccountingFramework,
-  OpinionInfoForm,
 } from "#shared/types/audit-report";
-import type { BasicInfoForm } from "../../schemas/audit";
+import type { BasicInfoForm, OpinionInfoForm } from "../../../schemas/audit";
 import {
   getOpinionSectionTitle,
   getSimplifiedOpinionType,
-} from "./opinion-titles";
-import { getLawDescription, getFormattedEntityName } from "./helpers";
+} from "./titles";
+import { getLawDescription, getFormattedEntityName } from "../helpers";
 
 /**
  * Pre-computed context for rendering a single opinion

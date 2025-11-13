@@ -1,3 +1,5 @@
+import type { AccountingFramework } from "#shared/types/audit-report";
+
 export const getRocYearText = (rocYear?: number): string => {
   const numberFormatter = new Intl.NumberFormat("zh-Hans-CN-u-nu-hanidec");
   const rocYearsText = rocYear

@@ -13,7 +13,7 @@
           </div>
         </div>
         <UBadge
-          :label="`${totalShares.quantity.toLocaleString()} 股`"
+          :label="`${formatInteger(totalShares.quantity)} 股`"
           variant="subtle"
           size="lg"
           color="info"
@@ -37,7 +37,7 @@
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">總股數：</span>
               <span class="font-medium"
-                >{{ formatNumber(ordinarySharesTotal.quantity) }} 股</span
+                >{{ formatInteger(ordinarySharesTotal.quantity) }} 股</span
               >
             </div>
             <div class="flex justify-between items-center">
@@ -69,7 +69,7 @@
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-600">總股數：</span>
               <span class="font-medium"
-                >{{ formatNumber(preferredSharesTotal.quantity) }} 股</span
+                >{{ formatInteger(preferredSharesTotal.quantity) }} 股</span
               >
             </div>
             <div class="flex justify-between items-center">
@@ -104,7 +104,7 @@
           <div class="text-center">
             <div class="text-sm text-gray-600 mb-1">總股數</div>
             <div class="text-xl font-bold text-gray-800">
-              {{ formatNumber(totalShares.quantity) }} 股
+              {{ formatInteger(totalShares.quantity) }} 股
             </div>
           </div>
           <div class="text-center">
@@ -149,7 +149,7 @@
               <div class="flex justify-between text-sm">
                 <span class="text-gray-600">普通股：</span>
                 <span class="font-medium">
-                  {{ formatNumber(getPartnerOrdinaryShares(partner).quantity) }}
+                  {{ formatInteger(getPartnerOrdinaryShares(partner).quantity) }}
                   股
                 </span>
               </div>
@@ -157,7 +157,7 @@
                 <span class="text-gray-600">特別股：</span>
                 <span class="font-medium">
                   {{
-                    formatNumber(getPartnerPreferredShares(partner).quantity)
+                    formatInteger(getPartnerPreferredShares(partner).quantity)
                   }}
                   股
                 </span>

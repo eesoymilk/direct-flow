@@ -34,9 +34,9 @@
       </UFormField>
 
       <UFormField label="出生日期" name="dateOfBirth" required>
-        <DatePicker
+        <RocDatePicker
           v-model="formState.responsiblePerson.dateOfBirth"
-          date-format="yy/mm/dd"
+          :placeholder="'民國年/月/日 (例: 79/07/15)'"
           class="w-full h-8"
         />
       </UFormField>

@@ -1,17 +1,17 @@
 import type { OpinionType } from "#shared/types/audit-report";
-import type { RenderOptions } from "./opinion-context";
-import { getRocYearText } from "./helpers";
-import { DISCLAIMER_OPINION_TEXT } from "./opinion-constants";
-import { opinionSectionTitleMap } from "./opinion-titles";
+import type { RenderOptions } from "../context";
+import { getRocYearText } from "../../helpers";
+import { DISCLAIMER_OPINION_TEXT } from "../constants";
+import { opinionSectionTitleMap } from "../titles";
 
 /**
  * Helper to convert text parts to DocumentParagraph
  */
 const partsToDocument = (
   parts: Array<{ text: string; color?: string; bold?: boolean }>,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
-  return options.highlightVariable
+  return renderOptions.highlightVariable
     ? { type: "children", children: parts }
     : { type: "text", text: parts.map((p) => p.text).join("") };
 };
@@ -25,7 +25,7 @@ export const buildIntroductionParagraph = (
   comparativeYear: number | undefined,
   isComparativeReport: boolean,
   isConsolidatedReport: boolean,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   const parts = [
     { text: entityName, color: "blue" },
@@ -57,7 +57,7 @@ export const buildIntroductionParagraph = (
     { text: "財務報表附註（包括重大會計政策彙總），業經本會計師查核竣事。" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -66,7 +66,7 @@ export const buildIntroductionParagraph = (
 export const buildYearOpinionSubheading = (
   year: number,
   opinionType: OpinionType | "qualified",
-  options: RenderOptions
+    renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   const opinionText = opinionSectionTitleMap[opinionType];
 
@@ -77,7 +77,7 @@ export const buildYearOpinionSubheading = (
     { text: opinionText, color: "blue" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -90,7 +90,7 @@ export const buildSingleYearOpinionParagraph = (
   opinionType: OpinionType,
   simplifiedType: OpinionType | "qualified",
   isConsolidatedReport: boolean,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   // Special handling for disclaimer opinions
   if (opinionType === "disclaimer") {
@@ -131,7 +131,7 @@ export const buildSingleYearOpinionParagraph = (
     { text: "現金流量。" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -146,10 +146,10 @@ export const buildOpinionStatementParagraph = (
   lawDescription: string,
   opinionType: OpinionType,
   simplifiedType: OpinionType | "qualified",
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   if (opinionType === "disclaimer") {
-    return options.highlightVariable
+    return renderOptions.highlightVariable
       ? {
           type: "children",
           children: [{ text: DISCLAIMER_OPINION_TEXT, color: "blue" }],
@@ -159,13 +159,13 @@ export const buildOpinionStatementParagraph = (
 
   const parts = [
     { text: "依本會計師之意見，" },
-    ...(simplifiedType !== "unqualified"
+    ...(opinionType !== "unqualified"
       ? [
           {
             text:
-              simplifiedType === "adverse"
+              opinionType === "adverse"
                 ? "由於否定意見之基礎段所述事項之影響重大，"
-                : simplifiedType === "qualifiedDisclaimer"
+                : opinionType === "qualifiedDisclaimer"
                   ? "保留意見之基礎段所述事項之影響外，"
                   : "保留意見之基礎段所述事項之可能影響外，",
             color: "blue",
@@ -217,7 +217,7 @@ export const buildOpinionStatementParagraph = (
     { text: "現金流量。" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -228,7 +228,7 @@ export const buildOpinionBasisParagraph = (
   opinionTitle: string,
   accountingStandard: string,
   isConsolidatedReport: boolean,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   const parts = [
     { text: "本會計師係依照" },
@@ -244,7 +244,7 @@ export const buildOpinionBasisParagraph = (
     { text: "之基礎。" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -253,7 +253,7 @@ export const buildOpinionBasisParagraph = (
 export const buildYearOpinionBasisSubheading = (
   year: number,
   opinionType: OpinionType | "qualified",
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   const opinionText = opinionSectionTitleMap[opinionType];
 
@@ -263,7 +263,7 @@ export const buildYearOpinionBasisSubheading = (
     { text: `年度財務報表表示${opinionText}之基礎`, color: "blue" },
   ];
 
-  return partsToDocument(parts, options);
+  return partsToDocument(parts, renderOptions);
 };
 
 /**
@@ -271,11 +271,11 @@ export const buildYearOpinionBasisSubheading = (
  */
 export const buildReasonParagraph = (
   reason: string | undefined,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentParagraph => {
   const text = reason || "[[空白的理由]]";
 
-  return options.highlightVariable
+  return renderOptions.highlightVariable
     ? { type: "children", children: [{ text, color: "blue" }] }
     : { type: "text", text };
 };

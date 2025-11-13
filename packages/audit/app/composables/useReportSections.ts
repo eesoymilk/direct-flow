@@ -11,64 +11,42 @@ import {
   generateManagementResponsibilitySection,
 } from "@/utils/audit/sections/responsibilities";
 import { generateFooterSection } from "@/utils/audit/sections/footer";
-import { generateFinancialTablesSection } from "@/utils/audit/sections/financialTables";
 
 export const useReportSections = () => {
   const store = useOpinionBuilderStore();
-
-  const { basicInfo, opinionInfo, highlightVariable, financialTables } = storeToRefs(store);
+  const { basicInfo, opinionInfo, highlightVariable } = storeToRefs(store);
 
   const headerSection = computed(() => generateHeaderSection(basicInfo.value));
 
   const opinionSection = computed(() =>
-    generateOpinionSection(basicInfo.value, opinionInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateOpinionSection(basicInfo.value, opinionInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const opinionBasisSection = computed(() =>
-    generateOpinionBasisSection(basicInfo.value, opinionInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateOpinionBasisSection(basicInfo.value, opinionInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const otherMatterSection = computed(() =>
-    generateOtherMattersSection(basicInfo.value, opinionInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateOtherMattersSection(basicInfo.value, opinionInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const managementResponsibilitySection = computed(() =>
-    generateManagementResponsibilitySection(basicInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateManagementResponsibilitySection(basicInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const auditorResponsibilitySection = computed(() =>
-    generateAuditorResponsibilitySection(basicInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateAuditorResponsibilitySection(basicInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const keyAuditMattersSection = computed(() =>
-    generateKeyAuditMattersSection(opinionInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateKeyAuditMattersSection(opinionInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const emphasisOfMatterSection = computed(() =>
-    generateEmphasisOfMatterSection(opinionInfo.value, {
-      highlightVariable: highlightVariable.value,
-    })
+    generateEmphasisOfMatterSection(opinionInfo.value, { highlightVariable: highlightVariable.value })
   );
 
   const footerSection = computed(() => generateFooterSection(basicInfo.value));
-
-  const financialTablesSection = computed(() =>
-    generateFinancialTablesSection(financialTables.value, {
-      highlightVariable: highlightVariable.value,
-    })
-  );
 
   const sections = computed(() => {
     const baseSections = [
@@ -91,12 +69,6 @@ export const useReportSections = () => {
       opinionInfo.value.emphasisOfMatterOption
     ) {
       baseSections.push(emphasisOfMatterSection.value);
-    }
-
-    // Add financial tables section if tables exist
-    const financialSection = financialTablesSection.value;
-    if (financialSection) {
-      baseSections.push(financialSection);
     }
 
     // Add footer section

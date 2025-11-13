@@ -1,8 +1,8 @@
 import type {
   OpinionType,
-  OpinionInfoForm,
   DualOpinionTitleType,
 } from "#shared/types/audit-report";
+import type { OpinionInfoForm } from "../../../schemas/audit";
 
 /**
  * Maps opinion types to Chinese title text
@@ -11,7 +11,7 @@ export const opinionSectionTitleMap: Record<
   OpinionType | "qualified",
   string
 > = {
-  unqualified: "無保留意見",
+  unqualified: "查核意見",
   qualified: "保留意見",
   qualifiedDisclaimer: "保留意見",
   qualifiedAdverse: "保留意見",
@@ -25,11 +25,11 @@ export const opinionSectionTitleMap: Record<
  */
 export const dualOpinionTitleMap: Record<DualOpinionTitleType, string> = {
   "adverse-disclaimer": "否定意見及無法表示意見",
-  "adverse-qualified": "保留意見及否定意見",
-  "adverse-unqualified": "無保留意見及否定意見",
-  "disclaimer-qualified": "保留意見及無法表示意見",
-  "disclaimer-unqualified": "無保留意見及無法表示意見",
-  "qualified-unqualified": "無保留意見及保留意見",
+  "adverse-qualified": "否定意見及保留意見",
+  "adverse-unqualified": "否定意見及查核意見",
+  "disclaimer-qualified": "無法表示意見及保留意見",
+  "disclaimer-unqualified": "無法表示意見及查核意見",
+  "qualified-unqualified": "保留意見及查核意見",
 };
 
 /**

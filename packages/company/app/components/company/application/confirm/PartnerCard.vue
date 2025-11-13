@@ -66,7 +66,7 @@
           icon="i-lucide-calendar"
           :value="
             partner.dateOfBirth
-              ? format(partner.dateOfBirth, 'yyyy/MM/dd')
+              ? formatRocDate(partner.dateOfBirth)
               : '未填寫'
           "
         />

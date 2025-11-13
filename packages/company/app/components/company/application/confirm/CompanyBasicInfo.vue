@@ -108,7 +108,7 @@
           icon="i-lucide-hash"
           variant="highlighted"
           :value="formState.totalShares"
-          :formatter="(val) => `${val?.toLocaleString()} 股`"
+          :formatter="(val) => `${formatInteger(val ?? 0)} 股`"
         />
 
         <!-- Par Value (for stock companies) -->

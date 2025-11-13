@@ -152,18 +152,18 @@
         required
         class="col-span-3"
       >
-        <DatePicker
+        <RocDatePicker
           v-if="!isCorporateShareholder && partner.entityType === 'person'"
           v-model="partner.dateOfBirth"
-          date-format="yy/mm/dd"
+          :placeholder="'民國年/月/日 (例: 79/07/15)'"
           class="w-full h-8"
         />
-        <DatePicker
+        <RocDatePicker
           v-else-if="
             isCorporateShareholder && partner.entityType === 'corporate'
           "
           v-model="partner.corporateEntity.establishmentDate"
-          date-format="yy/mm/dd"
+          :placeholder="'民國年/月/日 (例: 79/07/15)'"
           class="w-full h-8"
         />
       </UFormField>

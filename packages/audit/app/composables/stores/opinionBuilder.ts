@@ -1,40 +1,7 @@
 import { generateCompleteData } from "../../utils/services/mockData";
 import type { BasicInfoForm, OpinionInfoForm } from "../../utils/schemas/audit";
 
-/**
- * Opinion Builder Store
- *
- * Handles audit opinion form state and actions.
- * Manages basic info, opinion configuration, and related form settings.
- */
-
-// Financial table types (for manual table editing, not statement generation)
-export interface FinancialTableCell {
-  value: string | number | null;
-  type: "string" | "number" | "formula";
-}
-
-export interface FinancialTable {
-  id: string;
-  name: string;
-  title: string;
-  sheetName: string;
-  data: FinancialTableCell[][];
-  headers: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  config: {
-    showBorders: boolean;
-    headerAlignment: "left" | "center" | "right";
-    numberFormat?: string;
-  };
-}
-
 export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
-  // ============================================================
-  // Opinion Form State
-  // ============================================================
-
   const basicInfo = ref<Partial<BasicInfoForm>>({
     isComparativeReport: false,
     isConsolidatedReport: false,
@@ -53,23 +20,8 @@ export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
   const includeOtherMatterSection = ref(false);
   const includeEmphasisOfMatterSection = ref(false);
   const highlightVariable = ref(false);
-
-  // ============================================================
-  // Financial Tables State (manual editing, not generation)
-  // ============================================================
-
-  const financialTables = ref<FinancialTable[]>([]);
-
-  // ============================================================
-  // Store-specific State
-  // ============================================================
-
   const isSaving = ref(false);
   const lastSaved = ref<Date | null>(null);
-
-  // ============================================================
-  // Actions
-  // ============================================================
 
   const toggleHighlightVariable = () => {
     highlightVariable.value = !highlightVariable.value;
@@ -108,40 +60,6 @@ export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
     opinionInfo.value = updates;
   };
 
-  // Financial table actions
-  const addFinancialTable = (table: FinancialTable) => {
-    financialTables.value.push(table);
-  };
-
-  const updateFinancialTable = (
-    id: string,
-    updates: Partial<FinancialTable> | FinancialTable
-  ) => {
-    const index = financialTables.value.findIndex((t) => t.id === id);
-    if (index !== -1) {
-      const existingTable = financialTables.value[index];
-      if (existingTable) {
-        financialTables.value[index] = {
-          ...existingTable,
-          ...updates,
-          id: existingTable.id,
-          updatedAt: new Date(),
-        };
-      }
-    }
-  };
-
-  const removeFinancialTable = (id: string) => {
-    const index = financialTables.value.findIndex((t) => t.id === id);
-    if (index !== -1) {
-      financialTables.value.splice(index, 1);
-    }
-  };
-
-  const clearAllFinancialTables = () => {
-    financialTables.value = [];
-  };
-
   // Store-specific actions
   const saveTemplate = async () => {
     try {
@@ -170,10 +88,6 @@ export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
       throw error;
     }
   };
-
-  // ============================================================
-  // Watchers
-  // ============================================================
 
   watch(includeOtherMatterSection, (newVal) => {
     if (newVal && !opinionInfo.value.otherMatterOption) {
@@ -270,39 +184,20 @@ export const useOpinionBuilderStore = defineStore("opinionBuilder", () => {
     }
   );
 
-  // ============================================================
-  // Return Store API
-  // ============================================================
-
   return {
-    // Opinion form state
     basicInfo,
     opinionInfo,
     includeOtherMatterSection,
     includeEmphasisOfMatterSection,
     highlightVariable,
-
-    // Financial tables state
-    financialTables,
-
-    // Store-specific state
     isSaving: readonly(isSaving),
     lastSaved: readonly(lastSaved),
 
-    // Opinion form actions
     generateMockData,
     resetForm,
     updateBasicInfo,
     updateOpinionInfo,
     toggleHighlightVariable,
-
-    // Financial table actions
-    addFinancialTable,
-    updateFinancialTable,
-    removeFinancialTable,
-    clearAllFinancialTables,
-
-    // Store-specific actions
     saveTemplate,
     exportReport,
   };

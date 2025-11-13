@@ -24,7 +24,7 @@
           />
           <UBadge
             v-if="showShares && person.shares"
-            :label="`${person.shares.toLocaleString()} 股`"
+            :label="`${formatInteger(person.shares)} 股`"
             color="success"
             variant="soft"
             size="lg"
@@ -124,7 +124,7 @@
           <p class="text-sm text-gray-700 font-medium">
             {{
               person.dateOfBirth
-                ? `${person.dateOfBirth.getFullYear()}/${person.dateOfBirth.getMonth() + 1}/${person.dateOfBirth.getDate()}`
+                ? formatRocDate(person.dateOfBirth)
                 : "未提供"
             }}
           </p>

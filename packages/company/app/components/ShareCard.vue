@@ -30,6 +30,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const displayValue = computed(() => {
   const shares = props.shares || 0;
-  return `${shares.toLocaleString()} ${props.suffix}`;
+  return `${formatInteger(shares)} ${props.suffix}`;
 });
 </script>

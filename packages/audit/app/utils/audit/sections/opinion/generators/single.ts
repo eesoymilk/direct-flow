@@ -1,19 +1,19 @@
-import type { OpinionRenderContext, RenderOptions } from "./opinion-context";
+import type { OpinionRenderContext, RenderOptions } from "../context";
 import {
   buildIntroductionParagraph,
   buildOpinionStatementParagraph,
   buildOpinionBasisParagraph,
   buildReasonParagraph,
   buildSectionTitle,
-} from "./opinion-paragraph-builders";
-import { getAccountingStandardText } from "./opinion-constants";
+} from "../builders/paragraphs";
+import { getAccountingStandardText } from "../constants";
 
 /**
  * Generates the opinion section for single opinion mode
  */
 export const generateSingleOpinionSection = (
   context: OpinionRenderContext,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentSection => {
   if (!context.singleOpinion) {
     throw new Error("Single opinion context required for single mode");
@@ -29,7 +29,7 @@ export const generateSingleOpinionSection = (
       context.comparativeYear,
       context.isComparativeReport,
       context.isConsolidatedReport,
-      options
+      renderOptions
     ),
     buildOpinionStatementParagraph(
       context.formattedEntityName,
@@ -40,7 +40,7 @@ export const generateSingleOpinionSection = (
       context.lawDescription,
       singleOpinion.type,
       singleOpinion.simplifiedType,
-      options
+      renderOptions
     ),
   ];
 
@@ -55,7 +55,7 @@ export const generateSingleOpinionSection = (
  */
 export const generateSingleOpinionBasisSection = (
   context: OpinionRenderContext,
-  options: RenderOptions
+  renderOptions: Partial<RenderOptions> = {}
 ): DocumentSection => {
   if (!context.singleOpinion) {
     throw new Error("Single opinion context required for single mode");
@@ -69,7 +69,7 @@ export const generateSingleOpinionBasisSection = (
 
   // Add reason paragraph if non-unqualified
   if (singleOpinion.requiresBasisReason) {
-    children.push(buildReasonParagraph(singleOpinion.reason, options));
+    children.push(buildReasonParagraph(singleOpinion.reason, renderOptions));
   }
 
   // Add basis paragraph if not disclaimer
@@ -84,7 +84,7 @@ export const generateSingleOpinionBasisSection = (
         singleOpinion.title,
         accountingStandard,
         context.isConsolidatedReport,
-        options
+        renderOptions
       )
     );
   }
